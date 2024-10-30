@@ -9,19 +9,21 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody _rigid;
     private GameObject _camera;
 
-    public float moveForce;
-    public float maxSpeed;
-    public float jumpForce;
-    public float groundDrag;
-    public float airMultiplier;
+    [SerializeField] private float _moveForce; // force moving player
+    [SerializeField] private float _maxSpeed; // limit max speed of player
+    [SerializeField] private float _jumpForce; // force jumping
+    [SerializeField] private float _groundDrag; // prevent slippery
+    [SerializeField] private float _airMultiplier; // lower force when player is not grounded
 
     private float _horizontalInput;
     private float _verticalInput;
     private float _mouseInputX;
     private float _mouseInputY;
 
+    // mouse sensetivity
     public float sensetivityX;
     public float sensetivityY;
+    // determine camera rotation
     private float _accumRotationX = 0;
     private float _accumRotationY = 0;
     private float _rotationLimitY = 80;
@@ -48,7 +50,7 @@ public class PlayerMovement : MonoBehaviour
 
         // handle drag
         if(_isGrounded) {
-            _rigid.drag = groundDrag;
+            _rigid.drag = _groundDrag;
         } else {
             _rigid.drag = 0;
         }
@@ -85,9 +87,9 @@ public class PlayerMovement : MonoBehaviour
         Vector3 flatVel = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
 
         // limit velocity if needed
-        if(flatVel.magnitude > maxSpeed)
+        if(flatVel.magnitude > _maxSpeed)
         {
-            Vector3 limitedVel = flatVel.normalized * maxSpeed;
+            Vector3 limitedVel = flatVel.normalized * _maxSpeed;
             _rigid.velocity = new Vector3(limitedVel.x, _rigid.velocity.y, limitedVel.z);
         }
     }
@@ -99,17 +101,17 @@ public class PlayerMovement : MonoBehaviour
 
         // on ground
         if(_isGrounded)
-            _rigid.AddForce(moveDirection.normalized * moveForce, ForceMode.Force);
+            _rigid.AddForce(moveDirection.normalized * _moveForce, ForceMode.Force);
 
         // in air
         else if(!_isGrounded)
-            _rigid.AddForce(moveDirection.normalized * moveForce * airMultiplier, ForceMode.Force);
+            _rigid.AddForce(moveDirection.normalized * _moveForce * _airMultiplier, ForceMode.Force);
     }
 
     private void Jump() {
         // reset y velocity
         _rigid.velocity = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
-        _rigid.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        _rigid.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
         _isGrounded = false;
     }
 }
