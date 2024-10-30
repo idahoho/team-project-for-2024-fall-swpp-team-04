@@ -5,63 +5,112 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public int hp;
-    private bool _isAlive = true;
+    private bool _isAlive;
 
     private Transform _camera;
+
+    // fire gun(left click)
+    private bool _isShootable;
+    private bool _isReloading;
     [SerializeField] private KeyCode _reloadKey;
     [SerializeField] private int _bulletLeft;
     [SerializeField] private int _maxBullet;
-    [SerializeField] private bool _shootable;
     [SerializeField] private float _shootCooldown;
     [SerializeField] private float _reloadCooldown;
 
-    [SerializeField] AudioSource _audio;
+    // local gravity control(right click)
+    private bool _isTargetable;
+    [SerializeField] private float _targetGravityCooldown;
+    [SerializeField] private float _gravityForce;
 
     void Start()
     {
         _camera = GameObject.Find("PlayerCamera").transform;
+        _isAlive = true;
         _bulletLeft = _maxBullet;
-        _shootable = true;
+        _isShootable = true;
+        _isReloading = false;
+        _isTargetable = true;
     }
 
     void Update()
     {
-        if(Input.GetButtonDown("Fire1") && _shootable && _bulletLeft > 0) {
-            _bulletLeft--;
+        // left click event
+        if(Input.GetButtonDown("Fire1")) {
             Fire();
         }
+        // right click event
+        if(Input.GetButtonDown("Fire2")) {
+            TargetGravity();
+        }
+        // reload key event
         if(Input.GetKeyDown(_reloadKey)) {
+            Reload();
+        }
+
+        
+    }
+
+    private void Fire() {
+        if(!_isShootable) {
+            return;
+        }
+        if(_bulletLeft > 0) {
+            _isShootable = false;
+            Debug.Log("fire");
+            RaycastHit hit;
+            if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
+                if(hit.collider.gameObject.CompareTag("Enemy")) {
+                    Debug.Log("Fire: enemy detected");
+                    // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+                }
+            }
+            StartCoroutine(ReShootable());
+        } else {
             Reload();
         }
     }
 
-    private void Fire() {
-        _audio.Play();
-        _shootable = false;
-        Debug.Log("fire");
+    private void Reload() {
+        // Debug.Log("reloading...");
+        _isReloading = true;
+        _isShootable = false;
+        StartCoroutine(ReShootable());
+    }
+
+    IEnumerator ReShootable() {
+        if(_isReloading) {
+            yield return new WaitForSeconds(_reloadCooldown);
+            _isReloading = false;
+            _bulletLeft = _maxBullet;
+        } else {
+            yield return new WaitForSeconds(_shootCooldown);
+        }
+        if(!_isReloading)
+            _isShootable = true;
+    }
+
+    private void TargetGravity() {
+        if(!_isTargetable) {
+            return;
+        }
+        _isTargetable = false;
         RaycastHit hit;
+        Rigidbody rigid;
         if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-            if(hit.collider.gameObject.CompareTag("Enemy")) {
-                Debug.Log("enemy detected");
+            if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
+                Debug.Log("TargetGravity: target detected");
+                rigid.AddForce(Vector3.down * rigid.mass * _gravityForce, ForceMode.Impulse);
                 // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
             }
         }
-        Invoke("Reshootable_reload", _shootCooldown);
+        StartCoroutine(ReTargetable());
     }
 
-    private void Reload() {
-        Debug.Log("reloading...");
-        _shootable = false;
-        Invoke("Reshootable_reload", _reloadCooldown);
-    }
-
-    private void ReShootable_shoot() {
-        _shootable = true;
-    }
-
-    private void ReShootable_reload() {
-        _bulletLeft = _maxBullet;
-        _shootable = true;
+    IEnumerator ReTargetable() {
+        yield return new WaitForSeconds(_targetGravityCooldown);
+        if(!_isTargetable)
+            _isTargetable = true;
     }
 
     public void OnHit() {

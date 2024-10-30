@@ -30,6 +30,7 @@ public class PlayerMovement : MonoBehaviour
 
     public TextMeshProUGUI text;
 
+
     void Start()
     {
         _rigid = GetComponent<Rigidbody>();
