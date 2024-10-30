@@ -10,7 +10,7 @@ public class PlayerController : MonoBehaviour
 {
     //
     private Rigidbody _rigidbody;
-
+    // for testing
     [SerializeField] Image _energyBar;
 
     // player status
@@ -33,8 +33,9 @@ public class PlayerController : MonoBehaviour
 
     // local gravity control(right click)
     private bool _isTargetable;
-    [SerializeField] private float _targetGravityCooldown;
-    [SerializeField] private float _gravityForceTarget;
+    [SerializeField] private float _gravityCooldownLocal;
+    [SerializeField] private float _gravityForceLocal;
+    [SerializeField] private float _energyCostLocal;
 
     // global gravity control(mouse wheel)
     [SerializeField] private float _mouseInputWheel;
@@ -42,7 +43,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _gravityForceHigh;
     [SerializeField] private float _gravityForceLow;
     private bool _isGravityLow;
-    [SerializeField] private float _energyLow;
+    [SerializeField] private float _energyCostLow;
     
 
     void Start()
@@ -123,6 +124,8 @@ public class PlayerController : MonoBehaviour
     private void TargetGravity() {
         if(!_isTargetable) {
             return;
+        } else if(_energy < _energyCostLocal) {
+            return;
         }
         _isTargetable = false;
         RaycastHit hit;
@@ -130,7 +133,8 @@ public class PlayerController : MonoBehaviour
         if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
             if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
                 Debug.Log("TargetGravity: target detected");
-                rigid.AddForce(Vector3.down * rigid.mass * _gravityForceTarget, ForceMode.Impulse);
+                rigid.AddForce(Vector3.down * rigid.mass * _gravityForceLocal, ForceMode.Impulse);
+                _energy -= _energyCostLocal;
                 // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
             }
         }
@@ -138,7 +142,7 @@ public class PlayerController : MonoBehaviour
     }
 
     IEnumerator ReTargetable() {
-        yield return new WaitForSeconds(_targetGravityCooldown);
+        yield return new WaitForSeconds(_gravityCooldownLocal);
         if(!_isTargetable)
             _isTargetable = true;
     }
@@ -150,14 +154,15 @@ public class PlayerController : MonoBehaviour
         } else if(_mouseInputWheel < -_wheelInputThreshold) {
             if(_isGravityLow) {
                 _isGravityLow = false;
+            } else {
+                // TODO: gravity high mechanism
             }
-            // TODO: gravity high mechanism
         }
     }
 
     private void UpdateEnergy() {
         if(_isGravityLow) {
-            _energy -= _energyLow * Time.deltaTime;
+            _energy -= _energyCostLow * Time.deltaTime;
             if(_energy < 0) {
                 _energy = 0;
                 _isGravityLow = false;
