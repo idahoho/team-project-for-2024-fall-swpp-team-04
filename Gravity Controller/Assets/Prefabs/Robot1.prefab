@@ -866,11 +866,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _speed: 100
-  _attackRange: 0
-  _followingRange: 3000
-  _wanderRange: 100
-  _wanderTime: 5
+  _speed: 200
+  _attackRange: 300
+  _followingRange: 500
+  _wanderRange: 500
+  _changeDirectionInterval: 5
+  _obstacleDetectionRange: 200
 --- !u!1 &5203180805832912429
 GameObject:
   m_ObjectHideFlags: 0

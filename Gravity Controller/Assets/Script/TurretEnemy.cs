@@ -14,6 +14,7 @@ public class TurretEnemy : MonoBehaviour
 
 	[SerializeField] private float _rotationDirection = 1f;
 	[SerializeField] private float _rotationLimit = 100f;
+	[SerializeField] private float _projectileSpeed = 500f;
 	[SerializeField] private GameObject _projectile;
 
 	private void Start()
@@ -95,7 +96,7 @@ public class TurretEnemy : MonoBehaviour
 		{
 			rb = _proj.AddComponent<Rigidbody>();
 		}
-		rb.velocity = direction.normalized * 500f;
+		rb.velocity = direction.normalized * _projectileSpeed;
 
 		Destroy(_proj, 5f);
 	}

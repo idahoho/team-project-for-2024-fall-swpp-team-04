@@ -10,7 +10,7 @@ public class WalkingEnemy : MonoBehaviour
 	[SerializeField] private float _followingRange;
 	[SerializeField] private float _wanderRange;
 	[SerializeField] private float _changeDirectionInterval;
-	[SerializeField] private float _obstacleDetectionRange = 1f;
+	[SerializeField] private float _obstacleDetectionRange = 200f;
 
 	private Animator _animator;
 	private Vector3 _spawnPoint;
@@ -77,12 +77,10 @@ public class WalkingEnemy : MonoBehaviour
 		_animator.SetBool("AttackPlayer", false);
 	}
 
-	// Attack hit detection method for animation event
 	public void AttackHitCheck()
 	{
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
-		// Check if the player is within attack range
 		if (distanceToPlayer <= _attackRange)
 		{
 			Debug.Log("Attack Successful");
@@ -95,7 +93,7 @@ public class WalkingEnemy : MonoBehaviour
 		}
 		else
 		{
-			Debug.Log("Attack Fail Motherfucker");
+			Debug.Log("Attack Fail");
 		}
 	}
 

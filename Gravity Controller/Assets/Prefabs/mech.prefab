@@ -1043,7 +1043,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _detectionRange: 10
+  _detectionRange: 1500
   _viewAngle: 50
   _chargeTime: 3
   _rotationSpeed: 30

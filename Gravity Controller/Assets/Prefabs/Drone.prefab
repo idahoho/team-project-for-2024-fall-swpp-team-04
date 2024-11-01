@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8519485906816548088}
   - component: {fileID: 8519485906815450680}
   - component: {fileID: 7107437211644554641}
+  - component: {fileID: -456645056242790928}
   m_Layer: 0
   m_Name: Drone
   m_TagString: Untagged
@@ -97,8 +98,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _speed: 0
-  _attackRange: 0
-  _followingRange: 0
-  _wanderRange: 0
-  _wanderTime: 0
+  _speed: 200
+  _attackRange: 1500
+  _wanderRange: 1000
+  _changeDirectionInterval: 5
+  _projectile: {fileID: 122154, guid: 3517d6179b17d7d41b2ab3881cb2cd67, type: 3}
+  _chargeTime: 2
+  _obstacleDetectionRange: 200
+  _projectileSpeed: 1000
+--- !u!65 &-456645056242790928
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8519485906813247736}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 3.5754952, y: 3.3034472, z: 3.9624016}
+  m_Center: {x: -0.000000059604645, y: 0.1767767, z: 0.00000011920929}
