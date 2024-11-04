@@ -13,37 +13,41 @@ public class PlayerController : MonoBehaviour
     // for testing
     [SerializeField] Image _energyBar;
 
-    // player status
+    [Header("Player Status")]
     public int hp;
     [SerializeField] private float _energy;
     [SerializeField] private float _maxEnergy;
     [SerializeField] private float _energyRecover;
     private bool _isAlive;
 
-    // to set direction of raycast
-    private Transform _camera;
-    // fire gun(left click)
-    private bool _isShootable;
-    private bool _isReloading;
+    [Header("Attack")]
     [SerializeField] private KeyCode _reloadKey;
     [SerializeField] private int _bulletLeft;
     [SerializeField] private int _maxBullet;
     [SerializeField] private float _shootCooldown;
     [SerializeField] private float _reloadCooldown;
+    // to set direction of raycast
+    private Transform _camera;
+    // fire gun(left click)
+    private bool _isShootable;
+    private bool _isReloading;
 
+    [Header("Local Gravity Ability")]
     // local gravity control(right click)
-    private bool _isTargetable;
     [SerializeField] private float _gravityCooldownLocal;
     [SerializeField] private float _gravityForceLocal;
     [SerializeField] private float _energyCostLocal;
+    private bool _isTargetable;
 
+    [Header("Global Gravity Ability")]
     // global gravity control(mouse wheel)
     [SerializeField] private float _mouseInputWheel;
     [SerializeField] private float _wheelInputThreshold;
     [SerializeField] private float _gravityForceHigh;
     [SerializeField] private float _gravityForceLow;
-    private bool _isGravityLow;
     [SerializeField] private float _energyCostLow;
+    [SerializeField] private float _energyCostHigh;
+    private bool _isGravityLow;
     
 
     void Start()
@@ -59,13 +63,25 @@ public class PlayerController : MonoBehaviour
         _isGravityLow = false;
     }
     private void FixedUpdate() {
+        // 낮아진 전체 중력에 대한 처리
+        // 플레이어에게만 영향을 주도록 할 경우 이걸로 사용
+        // 전체적으로 영향을 주도록 하려면 Physics.gravity 자체를 바꿔줘야 함
         if(_isGravityLow) {
-            _rigidbody.AddForce(Vector3.down * _gravityForceLow, ForceMode.Impulse);
+            _rigidbody.AddForce(Physics.gravity * (_gravityForceLow - 1f), ForceMode.Impulse);
         }
     }
     void Update()
     {
-        _energyBar.fillAmount = _energy/_maxEnergy;
+        if(_isAlive) {
+            _energyBar.fillAmount = _energy/_maxEnergy;
+            HandleButtonInput();
+            HandleWheelInput();
+            UpdateEnergy();
+        }
+    }
+
+    // 마우스 좌클릭, 우클릭, 재장전 입력 처리
+    private void HandleButtonInput() {
         // left click event
         if(Input.GetButtonDown("Fire1")) {
             Fire();
@@ -78,75 +94,9 @@ public class PlayerController : MonoBehaviour
         if(Input.GetKeyDown(_reloadKey)) {
             Reload();
         }
-        HandleWheelInput();
-        UpdateEnergy();
     }
-
-    private void Fire() {
-        if(!_isShootable) {
-            return;
-        }
-        if(_bulletLeft > 0) {
-            _isShootable = false;
-            Debug.Log("fire");
-            RaycastHit hit;
-            if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-                if(hit.collider.gameObject.CompareTag("Enemy")) {
-                    Debug.Log("Fire: enemy detected");
-                    // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
-                }
-            }
-            StartCoroutine(ReShootable());
-        } else {
-            Reload();
-        }
-    }
-
-    private void Reload() {
-        // Debug.Log("reloading...");
-        _isReloading = true;
-        _isShootable = false;
-        StartCoroutine(ReShootable());
-    }
-
-    IEnumerator ReShootable() {
-        if(_isReloading) {
-            yield return new WaitForSeconds(_reloadCooldown);
-            _isReloading = false;
-            _bulletLeft = _maxBullet;
-        } else {
-            yield return new WaitForSeconds(_shootCooldown);
-        }
-        if(!_isReloading)
-            _isShootable = true;
-    }
-
-    private void TargetGravity() {
-        if(!_isTargetable) {
-            return;
-        } else if(_energy < _energyCostLocal) {
-            return;
-        }
-        _isTargetable = false;
-        RaycastHit hit;
-        Rigidbody rigid;
-        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-            if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
-                Debug.Log("TargetGravity: target detected");
-                rigid.AddForce(Vector3.down * rigid.mass * _gravityForceLocal, ForceMode.Impulse);
-                _energy -= _energyCostLocal;
-                // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
-            }
-        }
-        StartCoroutine(ReTargetable());
-    }
-
-    IEnumerator ReTargetable() {
-        yield return new WaitForSeconds(_gravityCooldownLocal);
-        if(!_isTargetable)
-            _isTargetable = true;
-    }
-
+    // 마우스 휠 입력 처리
+    // _wheelInputThreshold 값을 기준으로 입력 판정 여부 판단
     private void HandleWheelInput() {
         _mouseInputWheel = Input.GetAxis("Mouse ScrollWheel");
         if(_mouseInputWheel > _wheelInputThreshold) {
@@ -160,6 +110,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    // 중력 능력을 사용 중이지 않을 때, 매 초마다 _energyRecover만큼 에너지를 회복한다.
     private void UpdateEnergy() {
         if(_isGravityLow) {
             _energy -= _energyCostLow * Time.deltaTime;
@@ -173,6 +125,92 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    // 좌클릭 입력 처리(총)
+    private void Fire() {
+        if(!_isShootable) {
+            return;
+        }
+        if(_bulletLeft > 0) {
+            _isShootable = false;
+            Debug.Log("fire");
+            RaycastHit hit;
+            if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
+                if(hit.collider.gameObject.CompareTag("Enemy")) {
+                    Debug.Log("Fire: enemy detected");
+                    // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
+                    // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+                }
+            }
+            StartCoroutine(ReShootable());
+        } else {
+            Reload();
+        }
+    }
+
+    // 재장전
+    private void Reload() {
+        // Debug.Log("reloading...");
+        _isReloading = true;
+        _isShootable = false;
+        StartCoroutine(ReShootable());
+    }
+
+    // 발포 딜레이, 재장전 딜레이 처리
+    IEnumerator ReShootable() {
+        if(_isReloading) {
+            yield return new WaitForSeconds(_reloadCooldown);
+            _isReloading = false;
+            _bulletLeft = _maxBullet;
+        } else {
+            yield return new WaitForSeconds(_shootCooldown);
+        }
+        if(!_isReloading)
+            _isShootable = true;
+    }
+
+    // 우클릭 입력 처리(대상 지정 중력 강화)
+    private void TargetGravity() {
+        if(!_isTargetable) {
+            return;
+        } else if(_energy < _energyCostLocal) {
+            return;
+        }
+        RaycastHit hit;
+        Rigidbody rigid;
+        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
+            if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
+                Debug.Log("TargetGravity: target detected");
+                _isTargetable = false;
+                StartCoroutine(ReTargetable());
+                _energy -= _energyCostLocal;
+
+                // 여기서 피격된 대상의 오브젝트를 불러올 수 있음
+                rigid.AddForce(Physics.gravity * rigid.mass * (_gravityForceLocal - 1f), ForceMode.Impulse);
+                // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+            }
+        }
+    }
+
+    // 대상 지정 중력 강화 딜레이
+    IEnumerator ReTargetable() {
+        yield return new WaitForSeconds(_gravityCooldownLocal);
+        if(!_isTargetable) {
+            Debug.Log("targetable");
+            _isTargetable = true;
+        }
+    }
+    // 
+    private void GlobalGravity(List<GameObject> gameObjects) {
+        if(_energy < _energyCostHigh) {
+            return;
+        }
+        _energy -= _energyCostHigh;
+        foreach(var gameObject in gameObjects) {
+            // 여기서 오브젝트 내 스크립트에 있는 함수를 호출해야 함
+        }
+    }
+
+    // 피격 시 호출(외부에서)
     public void OnHit() {
         if(--hp <= 0) _isAlive = false;
     }

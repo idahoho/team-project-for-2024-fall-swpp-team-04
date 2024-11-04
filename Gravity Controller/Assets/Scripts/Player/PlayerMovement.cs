@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody _rigid;
     private GameObject _camera;
 
+    [Header("Movement")]
     [SerializeField] private float _moveForce; // force moving player
     [SerializeField] private float _maxSpeed; // limit max speed of player
     [SerializeField] private float _jumpForce; // force jumping
@@ -20,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
     private float _mouseInputX;
     private float _mouseInputY;
 
+    [Header("Control")]
     // mouse sensetivity
     public float sensetivityX;
     public float sensetivityY;
