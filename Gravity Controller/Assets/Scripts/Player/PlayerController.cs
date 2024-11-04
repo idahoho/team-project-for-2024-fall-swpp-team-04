@@ -106,7 +106,7 @@ public class PlayerController : MonoBehaviour
             if(_isGravityLow) {
                 _isGravityLow = false;
             } else {
-                GlobalGravity(_gameManager.GetActiveEnemies());
+                StartCoroutine(GlobalGravity(_gameManager.GetActiveEnemies()));
             }
         }
     }
@@ -201,11 +201,11 @@ public class PlayerController : MonoBehaviour
         }
     }
     // 전체 중력 강화
-    // 여러 오브젝트에 대해 루프를 돌며 작업을 수행해야 하므로 프레임 드랍을 막기 위해 코루틴으로 실행 고려
-    public void GlobalGravity(List<GameObject> gameObjects) {
+    // 여러 오브젝트에 대해 루프를 돌며 작업을 수행해야 하므로 프레임 드랍을 막기 위해 코루틴으로 실행
+    IEnumerator GlobalGravity(List<GameObject> gameObjects) {
         Debug.Log("enter");
         if(_energy < _energyCostHigh) {
-            return;
+            yield return null;
         }
         _energy -= _energyCostHigh;
         foreach(var obj in gameObjects) {

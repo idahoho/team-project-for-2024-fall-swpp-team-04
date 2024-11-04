@@ -242,8 +242,9 @@ MonoBehaviour:
   _jumpForce: 1200
   _groundDrag: 7
   _airMultiplier: 0.3
-  sensetivityX: 1000
-  sensetivityY: 1000
+  sensetivityX: 10
+  sensetivityY: 10
+  _isGrounded: 1
 --- !u!114 &3940993412661136711
 MonoBehaviour:
   m_ObjectHideFlags: 0

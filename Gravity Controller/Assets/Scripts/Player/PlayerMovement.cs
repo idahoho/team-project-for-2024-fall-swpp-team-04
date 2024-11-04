@@ -64,9 +64,9 @@ public class PlayerMovement : MonoBehaviour
     
         // player rotation
         transform.eulerAngles = new Vector3(0, _accumRotationX, 0);
-        _accumRotationX += Time.deltaTime * _mouseInputX * sensetivityX;
+        _accumRotationX += _mouseInputX * sensetivityX;
         // camera rotation
-        _accumRotationY += Time.deltaTime * _mouseInputY * sensetivityY;
+        _accumRotationY += _mouseInputY * sensetivityY;
         _accumRotationY = Math.Clamp(_accumRotationY, -_rotationLimitY, _rotationLimitY);
 
         _camera.transform.eulerAngles = new Vector3(-_accumRotationY, _accumRotationX, 0);
