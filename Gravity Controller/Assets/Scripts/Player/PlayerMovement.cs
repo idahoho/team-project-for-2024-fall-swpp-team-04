@@ -30,9 +30,7 @@ public class PlayerMovement : MonoBehaviour
     private float _accumRotationY = 0;
     private float _rotationLimitY = 80;
 
-    public bool _isGrounded = true;
-
-    public TextMeshProUGUI text;
+    private bool _isGrounded = true;
 
 
     void Start()
@@ -120,7 +118,6 @@ public class PlayerMovement : MonoBehaviour
         } else {
             _rigid.drag = 0;
         }
-        text.text = ""+_rigid.velocity.magnitude;
     }
 
     // private void OnCollisionEnter(Collision other) {

@@ -11,7 +11,8 @@ public class PlayerController : MonoBehaviour
     //
     private Rigidbody _rigidbody;
     // for testing
-    [SerializeField] Image _energyBar;
+    [SerializeField] private Image _energyBar;
+    [SerializeField] private GameManager _gameManager;
 
     [Header("Player Status")]
     public int hp;
@@ -105,7 +106,7 @@ public class PlayerController : MonoBehaviour
             if(_isGravityLow) {
                 _isGravityLow = false;
             } else {
-                // TODO: gravity high mechanism
+                StartCoroutine(GlobalGravity(_gameManager.GetActiveEnemies()));
             }
         }
     }
@@ -176,8 +177,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
         RaycastHit hit;
-        Rigidbody rigid;
         if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
+            Rigidbody rigid;
             if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
                 Debug.Log("TargetGravity: target detected");
                 _isTargetable = false;
@@ -199,14 +200,21 @@ public class PlayerController : MonoBehaviour
             _isTargetable = true;
         }
     }
-    // 
-    private void GlobalGravity(List<GameObject> gameObjects) {
+    // 전체 중력 강화
+    // 여러 오브젝트에 대해 루프를 돌며 작업을 수행해야 하므로 프레임 드랍을 막기 위해 코루틴으로 실행
+    IEnumerator GlobalGravity(List<GameObject> gameObjects) {
+        Debug.Log("enter");
         if(_energy < _energyCostHigh) {
-            return;
+            yield return null;
         }
         _energy -= _energyCostHigh;
-        foreach(var gameObject in gameObjects) {
+        foreach(var obj in gameObjects) {
+            Rigidbody rigid;
             // 여기서 오브젝트 내 스크립트에 있는 함수를 호출해야 함
+            if(rigid = obj.GetComponent<Rigidbody>()) {
+                rigid.AddForce(Physics.gravity * rigid.mass * (_gravityForceHigh - 1f), ForceMode.Impulse);
+                //
+            }
         }
     }
 
