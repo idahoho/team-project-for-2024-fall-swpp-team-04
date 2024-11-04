@@ -22,6 +22,7 @@ public class EnemyController : MonoBehaviour
 		_hp--;
 		if (_hp <= 0)
 		{
+			GameManager.Instance.UnregisterEnemy(gameObject);
 			Destroy(gameObject);
 		}
 	}

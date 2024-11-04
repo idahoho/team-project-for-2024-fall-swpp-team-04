@@ -93,44 +93,35 @@ public class FlyingEnemy : MonoBehaviour
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _speed);
 
-		yield return new WaitForSeconds(_chargeTime); // You can keep the charge time if needed		
+		yield return new WaitForSeconds(_chargeTime);	
 
 		FireProjectile(directionToPlayer);
+		
+		_chargeCooldown = 2f;	
 
-		// Set cooldown duration after firing
-		_chargeCooldown = 2f; // Cooldown for 2 seconds			
-
-		_isCharging = false; // Allow charging again after cooldown
+		_isCharging = false;
 	}
 
 	private void FireProjectile(Vector3 directionToPlayer)
 	{
-		// Instantiate the projectile at the enemy's position
 		GameObject _proj = Instantiate(_projectile, transform.position, Quaternion.identity);
 
-		// Calculate direction to player
-		
-
-		// Set the projectile's rotation to face the player
 		_proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 
-		// Get or add Rigidbody component
 		Rigidbody rb = _proj.GetComponent<Rigidbody>();
 		if (rb == null)
 		{
 			rb = _proj.AddComponent<Rigidbody>();
 		}
 
-		// Apply velocity in the direction of the player
-		rb.velocity = directionToPlayer * _projectileSpeed; // Adjust speed as needed
+		rb.velocity = directionToPlayer * _projectileSpeed; 
 
-		Destroy(_proj, 5f); // Destroy the projectile after 5 seconds
+		Destroy(_proj, 5f); 
 	}
 
 
 	private void SetRandomDirection()
 	{
-		// Set a random direction for wandering in 3D space
 		float angle = Random.Range(0, 360);
 		_currentDirection = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Random.Range(-1f, 1f), Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
 	}

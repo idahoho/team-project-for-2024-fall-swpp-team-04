@@ -6,14 +6,14 @@ public class Projectile : MonoBehaviour
 {
 	private void OnCollisionEnter(Collision collision)
 	{
-		if (collision.gameObject.CompareTag("Player")) // 태그로 비교
+		if (collision.gameObject.CompareTag("Player"))
 		{
 			PlayerMovement playerController = collision.collider.GetComponent<PlayerMovement>();
 			if (playerController != null)
 			{
-				// playerController.OnHit(); // 주석 해제하여 공격 시 호출
+				playerController.OnHit(); 
 				Debug.Log("HitPlayer");
-				Destroy(gameObject); // 프로젝타일 삭제
+				Destroy(gameObject);
 			}
 		}
 	}

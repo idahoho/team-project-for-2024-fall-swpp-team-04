@@ -30,13 +30,16 @@ public class PlayerMovement : MonoBehaviour
 
 	public TextMeshProUGUI text;
 
+	public PlayerHpUI playerHpUI;
+
 	void Start()
 	{
 		_rigid = GetComponent<Rigidbody>();
 		_camera = GameObject.Find("PlayerCamera");
+		playerHpUI = FindObjectOfType<PlayerHpUI>();
 	}
 
-	private void FixedUpdate()
+		private void FixedUpdate()
 	{
 		MovePlayer();
 	}
@@ -56,6 +59,15 @@ public class PlayerMovement : MonoBehaviour
 			_rigid.drag = 0;
 		}
 		text.text = "" + _rigid.velocity.magnitude;
+	}
+
+	public void OnHit()
+	{
+		playerHpUI.UpdateHP(playerHpUI.currentHp - 5);
+		if (playerHpUI.currentHp <= 0)
+		{
+			Destroy(gameObject);
+		}
 	}
 
 	private void OnCollisionEnter(Collision other)

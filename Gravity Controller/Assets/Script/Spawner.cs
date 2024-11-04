@@ -15,17 +15,28 @@ public class Spawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(_count<1 && _player.transform.position.x < 2500)
+        if(_count == 0 && _player.transform.position.x < 2500)
 		{
-			_enemies[_count].SetActive(true);
+			ActivateEnemiesInTrigger(_enemies[_count]);
 			_count++;
 		}
-		if (_count<2 && _player.transform.position.x < 0)
+		if (_count == 1 && _player.transform.position.x < 0)
 		{
-			_enemies[_count].SetActive(true);
+			ActivateEnemiesInTrigger(_enemies[_count]);
 			_count++;
 		}
 		
 
+	}
+
+	private void ActivateEnemiesInTrigger(GameObject trigger)
+	{
+		trigger.SetActive(true);
+
+		foreach (Transform enemyTransform in trigger.transform)
+		{
+			GameObject enemy = enemyTransform.gameObject;
+			GameManager.Instance.RegisterEnemy(enemy);
+		}
 	}
 }
