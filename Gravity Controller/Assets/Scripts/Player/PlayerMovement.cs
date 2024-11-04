@@ -30,7 +30,7 @@ public class PlayerMovement : MonoBehaviour
     private float _accumRotationY = 0;
     private float _rotationLimitY = 80;
 
-    private bool _isGrounded = true;
+    public bool _isGrounded = true;
 
     public TextMeshProUGUI text;
 
@@ -48,22 +48,11 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         HandleInput();
-        SpeedControl();
+        ControlSpeed();
+        GroundCheck();
+        HandleDrag();
+    }
 
-        // handle drag
-        if(_isGrounded) {
-            _rigid.drag = _groundDrag;
-        } else {
-            _rigid.drag = 0;
-        }
-        text.text = ""+_rigid.velocity.magnitude;
-    }
-    
-    private void OnCollisionEnter(Collision other) {
-        if(other.contacts[0].normal.y > 0.7f) {
-            _isGrounded = true;
-        }
-    }
     private void HandleInput() {
         _horizontalInput = Input.GetAxisRaw("Horizontal");
         _verticalInput = Input.GetAxisRaw("Vertical");
@@ -84,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
         _camera.transform.eulerAngles = new Vector3(-_accumRotationY, _accumRotationX, 0);
     }
-    private void SpeedControl()
+    private void ControlSpeed()
     {
         Vector3 flatVel = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
 
@@ -116,4 +105,27 @@ public class PlayerMovement : MonoBehaviour
         _rigid.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
         _isGrounded = false;
     }
+    
+    private void GroundCheck() {
+        if(Physics.Raycast(transform.position + Vector3.up * 0.1f, Vector3.down, 0.3f)) {
+            _isGrounded = true;
+        } else {
+            _isGrounded = false;
+        }
+    }
+    
+    private void HandleDrag() {
+        if(_isGrounded) {
+            _rigid.drag = _groundDrag;
+        } else {
+            _rigid.drag = 0;
+        }
+        text.text = ""+_rigid.velocity.magnitude;
+    }
+
+    // private void OnCollisionEnter(Collision other) {
+    //     if(other.contacts[0].normal.y > 0.7f) {
+    //         _isGrounded = true;
+    //     }
+    // }
 }
