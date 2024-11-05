@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _energy;
     [SerializeField] private float _maxEnergy;
     [SerializeField] private float _energyRecover;
-    private bool _isAlive;
+    private bool _isAlive = true;
 
     [Header("Attack")]
     [SerializeField] private KeyCode _reloadKey;
@@ -30,15 +30,15 @@ public class PlayerController : MonoBehaviour
     // to set direction of raycast
     private Transform _camera;
     // fire gun(left click)
-    private bool _isShootable;
-    private bool _isReloading;
+    private bool _isShootable = true;
+    private bool _isReloading = false;
 
     [Header("Local Gravity Ability")]
     // local gravity control(right click)
     [SerializeField] private float _gravityCooldownLocal;
     [SerializeField] private float _gravityForceLocal;
     [SerializeField] private float _energyCostLocal;
-    private bool _isTargetable;
+    private bool _isTargetable = true;
 
     [Header("Global Gravity Ability")]
     // global gravity control(mouse wheel)
@@ -48,20 +48,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _gravityForceLow;
     [SerializeField] private float _energyCostLow;
     [SerializeField] private float _energyCostHigh;
-    private bool _isGravityLow;
+    private bool _isGravityLow = false;
     
 
-    void Start()
-    {
+    void Start() {
         _camera = GameObject.Find("PlayerCamera").transform;
         _rigidbody = GetComponent<Rigidbody>();
-        _isAlive = true;
         _bulletLeft = _maxBullet;
-        _isShootable = true;
-        _isReloading = false;
-        _isTargetable = true;
         _energy = _maxEnergy;
-        _isGravityLow = false;
     }
     private void FixedUpdate() {
         // 낮아진 전체 중력에 대한 처리
@@ -71,8 +65,7 @@ public class PlayerController : MonoBehaviour
             _rigidbody.AddForce(Physics.gravity * (_gravityForceLow - 1f), ForceMode.Impulse);
         }
     }
-    void Update()
-    {
+    void Update() {
         if(_isAlive) {
             _energyBar.fillAmount = _energy/_maxEnergy;
             HandleButtonInput();

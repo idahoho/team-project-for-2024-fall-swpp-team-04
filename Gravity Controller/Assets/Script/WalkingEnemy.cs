@@ -5,6 +5,8 @@ using UnityEngine;
 public class WalkingEnemy : MonoBehaviour
 {
 	private Animator _animator;
+	[Header("Target")]
+	[SerializeField] private PlayerController _player;
 
 	[Header("Wander")]
 	[SerializeField] private float _speedWander;
@@ -13,33 +15,30 @@ public class WalkingEnemy : MonoBehaviour
 	[SerializeField] private float _obstacleDetectionRange;
 
 	[Header("Chase")]
-	[SerializeField] private GameObject _player;
 	[SerializeField] private float _speedChase;
 	[SerializeField] private float _rangeAttack;
 	[SerializeField] private float _rangeChase;
-	private bool _isChase = false;
-	private bool _isAttack = false;
-	
+	private bool _isChasing = false;
+	private bool _isAttacking = false;
 	
 	private Vector3 _spawnPoint;
-	[SerializeField] private Vector3 _currentDirection;
-	private float _timer;
+	private Vector3 _currentDirection;
+	private float _timer = 0f;
 	
 
 	void Start() {
 		_animator = GetComponent<Animator>();
 		_spawnPoint = transform.position;
 		SetRandomDirection();
-		_timer = _changeDirectionInterval;
 	}
 
 	// fix: 구조를 조금 더 깔끔하게 변경
 	void Update() {
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
-		if(!_isChase) {
+		if(!_isChasing) {
 			if(distanceToPlayer < _rangeChase) { // player firstly detected
-				_isChase = true;
+				_isChasing = true;
 				_animator.SetBool("FollowPlayer", true);
 			} else { // player not detected
 				Wander();
@@ -55,15 +54,15 @@ public class WalkingEnemy : MonoBehaviour
 
 	private void Wander() {
 		_timer += Time.deltaTime;
-		if (_timer > _changeDirectionInterval) {
+		if(_timer > _changeDirectionInterval) {
 			// Issue: interval에도 약간의 랜덤성을 주면 좋을 것 같음
 			SetRandomDirection();
 			_timer = 0f;
-		} else if (Vector3.Distance(_spawnPoint, transform.position) > _rangeWander) {
+		} else if(Vector3.Distance(_spawnPoint, transform.position) > _rangeWander) {
 			// 일정 범위를 벗어나지 못하도록
 			_currentDirection = (_spawnPoint - transform.position).normalized;
 			_timer = 0f;
-		} else if (Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
+		} else if(Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
 			// 장애물을 만나면 다른 방향으로
 			SetRandomDirection();
 			_timer = 0f;
@@ -90,11 +89,11 @@ public class WalkingEnemy : MonoBehaviour
 	}
 
 	private void Attack() {
-		if (_isAttack) {
+		if(_isAttacking) {
 			return;
 		}
 
-		_isAttack = true;
+		_isAttacking = true;
 		_animator.SetBool("AttackPlayer", true);
 
 		StartCoroutine(ResetAttack());
@@ -104,7 +103,7 @@ public class WalkingEnemy : MonoBehaviour
 	IEnumerator ResetAttack() {
 		yield return new WaitForSeconds(1f);
 
-		_isAttack = false;
+		_isAttacking = false;
 		_animator.SetBool("AttackPlayer", false);
 	}
 
@@ -112,9 +111,9 @@ public class WalkingEnemy : MonoBehaviour
 	public void AttackHitCheck() {
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
-		if (distanceToPlayer < _rangeAttack) {
+		if(distanceToPlayer < _rangeAttack) {
 			Debug.Log("Attack Successful");
-			_player.GetComponent<PlayerController>().OnHit();
+			_player.OnHit();
 		} else {
 			Debug.Log("Attack Fail");
 		}
