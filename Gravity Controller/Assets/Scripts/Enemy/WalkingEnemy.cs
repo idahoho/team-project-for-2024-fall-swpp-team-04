@@ -9,21 +9,21 @@ public class WalkingEnemy : MonoBehaviour
 	[SerializeField] private PlayerController _player;
 
 	[Header("Wander")]
-	[SerializeField] private float _speedWander;
-	[SerializeField] private float _rangeWander;
+	[SerializeField] private float _wanderSpeed;
+	[SerializeField] private float _wanderRange;
 	[SerializeField] private float _changeDirectionInterval;
 	[SerializeField] private float _obstacleDetectionRange;
-
-	[Header("Chase")]
-	[SerializeField] private float _speedChase;
-	[SerializeField] private float _rangeAttack;
-	[SerializeField] private float _rangeChase;
-	private bool _isChasing = false;
-	private bool _isAttacking = false;
-	
 	private Vector3 _spawnPoint;
 	private Vector3 _currentDirection;
 	private float _timer = 0f;
+
+	[Header("Chase")]
+	[SerializeField] private float _chaseSpeed;
+	[SerializeField] private float _chaseRange;
+	[SerializeField] private float _attackRange;
+	[SerializeField] private float _attackHitRange;
+	private bool _isChasing = false;
+	private bool _isAttacking = false;
 	
 
 	void Start() {
@@ -37,14 +37,14 @@ public class WalkingEnemy : MonoBehaviour
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
 		if(!_isChasing) {
-			if(distanceToPlayer < _rangeChase) { // player firstly detected
+			if(distanceToPlayer < _chaseRange) { // player firstly detected
 				_isChasing = true;
 				_animator.SetBool("FollowPlayer", true);
 			} else { // player not detected
 				Wander();
 			}
 		} else { // player detected
-			if(distanceToPlayer < _rangeAttack) { // if close enough
+			if(distanceToPlayer < _attackRange) { // if close enough
 				Attack();
 			} else {
 				Chase();
@@ -58,7 +58,7 @@ public class WalkingEnemy : MonoBehaviour
 			// Issue: interval에도 약간의 랜덤성을 주면 좋을 것 같음
 			SetRandomDirection();
 			_timer = 0f;
-		} else if(Vector3.Distance(_spawnPoint, transform.position) > _rangeWander) {
+		} else if(Vector3.Distance(_spawnPoint, transform.position) > _wanderRange) {
 			// 일정 범위를 벗어나지 못하도록
 			_currentDirection = (_spawnPoint - transform.position).normalized;
 			_timer = 0f;
@@ -70,9 +70,9 @@ public class WalkingEnemy : MonoBehaviour
 
 		// rotate
 		Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _speedWander);
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _wanderSpeed);
 		// move
-		transform.Translate(Vector3.forward * _speedWander * Time.deltaTime);
+		transform.Translate(Vector3.forward * Time.deltaTime * _wanderSpeed);
 	}
 
 	private void SetRandomDirection() {
@@ -80,11 +80,13 @@ public class WalkingEnemy : MonoBehaviour
 		_currentDirection = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 0, Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
 	}
 
-	// fix: isAttack 확인 필요 없을 것으로 보여 삭제
 	// fix: 플레이어의 높낮이의 변화가 있으면 문제가 생길 것 같아서 수정
 	private void Chase() {
+		if(_isAttacking) {
+			return;
+		}
 		Vector3 direction = Vector3.Scale(_player.transform.position - transform.position, new Vector3(1, 0, 1)).normalized;
-		transform.position += direction * _speedChase * Time.deltaTime;
+		transform.position += direction * _chaseSpeed * Time.deltaTime;
 		transform.LookAt(_player.transform.position);
 	}
 
@@ -111,7 +113,7 @@ public class WalkingEnemy : MonoBehaviour
 	public void AttackHitCheck() {
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
-		if(distanceToPlayer < _rangeAttack) {
+		if(distanceToPlayer < _attackHitRange) {
 			Debug.Log("Attack Successful");
 			_player.OnHit();
 		} else {
@@ -122,9 +124,10 @@ public class WalkingEnemy : MonoBehaviour
 	private void OnDrawGizmosSelected() {
 		Gizmos.color = Color.red;
 		Gizmos.DrawRay(transform.position, _currentDirection * _obstacleDetectionRange);
+		Gizmos.DrawWireSphere(transform.position, _attackRange);
 		Gizmos.color = Color.green;
-		Gizmos.DrawWireSphere(_spawnPoint, _rangeWander);
+		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireSphere(transform.position, _rangeChase);
+		Gizmos.DrawWireSphere(transform.position, _chaseRange);
 	}
 }
