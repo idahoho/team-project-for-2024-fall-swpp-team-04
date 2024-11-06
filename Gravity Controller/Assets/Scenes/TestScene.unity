@@ -4562,7 +4562,7 @@ MonoBehaviour:
   _hpBarDamping: 20
   _energyGauge: {fileID: 1599849868}
   _energyText: {fileID: 237019307}
-  _energyGaugeDamping: 10
+  _energyGaugeDamping: 20
   _bulletText: {fileID: 128950988}
   _crossHair: {fileID: 1562771347}
   _defaultSize: 100
