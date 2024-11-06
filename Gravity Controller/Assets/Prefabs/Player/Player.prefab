@@ -256,23 +256,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 135e4bfde9966481392170ed0315b20f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _energyBar: {fileID: 0}
   _gameManager: {fileID: 0}
-  hp: 5
-  _energy: 0
-  _maxEnergy: 100
-  _energyRecover: 10
+  _maxHP: 5
+  _maxEnergy: 300
+  _energyRecoveryPerSec: 30
+  _uiManager: {fileID: 0}
   _reloadKey: 114
-  _bulletLeft: 0
   _maxBullet: 10
   _shootCooldown: 0.5
-  _reloadCooldown: 2
-  _gravityCooldownLocal: 0.5
-  _gravityForceLocal: 1.5
-  _energyCostLocal: 30
+  _reloadTime: 2
+  _localGravityCooldown: 0.5
+  _localGravityForce: 2
+  _localEnergyCost: 100
   _mouseInputWheel: 0
   _wheelInputThreshold: 0.2
   _gravityForceHigh: 2
   _gravityForceLow: 0.1
-  _energyCostLow: 30
-  _energyCostHigh: 100
+  _globalLowEnergyCost: 60
+  _globalHighEnergyCost: 300

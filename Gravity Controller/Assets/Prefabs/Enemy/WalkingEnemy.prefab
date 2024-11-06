@@ -793,12 +793,11 @@ GameObject:
   m_Component:
   - component: {fileID: 5203180805832749577}
   - component: {fileID: 5203180805825519031}
-  - component: {fileID: 2562041035568823435}
   - component: {fileID: 6675801206128481665}
   - component: {fileID: 3413309557202248658}
   m_Layer: 0
-  m_Name: Robot1
-  m_TagString: Untagged
+  m_Name: WalkingEnemy
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -810,9 +809,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5203180805832912427}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 8348, y: -152.27225, z: -136.24625}
-  m_LocalScale: {x: 200, y: 200, z: 200}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5203180805832749655}
@@ -830,7 +829,7 @@ Animator:
   m_GameObject: {fileID: 5203180805832912427}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 4835a6657e57ded45b7a7fe2c2d62822, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 6a3c707cecab1a349b358e52ef7e30c4, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -841,19 +840,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!65 &2562041035568823435
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5203180805832912427}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6675801206128481665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -867,12 +853,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _speed: 200
-  _attackRange: 300
-  _followingRange: 500
-  _wanderRange: 500
-  _changeDirectionInterval: 5
-  _obstacleDetectionRange: 200
+  _wanderSpeed: 2
+  _wanderRange: 10
+  _changeDirectionInterval: 8
+  _obstacleDetectionRange: 5
+  _chaseSpeed: 4
+  _chaseRange: 20
+  _attackRange: 1.5
+  _attackHitRange: 2
 --- !u!114 &3413309557202248658
 MonoBehaviour:
   m_ObjectHideFlags: 0
