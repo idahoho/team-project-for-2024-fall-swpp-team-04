@@ -66,18 +66,10 @@ public class FlyingEnemy : MonoBehaviour
 		} else if(Vector3.Distance(_spawnPoint, transform.position) > _wanderRange) {
 			_currentDirection = (_spawnPoint - transform.position).normalized;
 			_timer = 0f;
-		}
-		// issue: 이거 왜 검사하는 거지?
-		if(!_isCharging) {
-			if(Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
-				SetRandomDirection();
-			} 
-			// else {
-			// 	if(_currentDirection != Vector3.zero) {
-					
-			// 	}
-			// }
-		}
+		} else if(Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
+			SetRandomDirection();
+		} 
+
 		// rotate
 		Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
