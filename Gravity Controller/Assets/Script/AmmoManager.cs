@@ -5,20 +5,20 @@ using TMPro;
 public class AmmoManager : MonoBehaviour
 {
 	public int maxAmmo = 30;
-	private int currentAmmo;
+	private int _currentAmmo;
 	public TextMeshProUGUI ammoText;
 
-	private bool isReloading = false;
+	private bool _isReloading = false;
 
 	void Start()
 	{
-		currentAmmo = maxAmmo;
+		_currentAmmo = maxAmmo;
 		UpdateAmmoUI();
 	}
 
 	void Update()
 	{
-		if (Input.GetMouseButtonDown(0) && !isReloading)
+		if (Input.GetMouseButtonDown(0) && !_isReloading)
 		{
 			Shoot();
 		}
@@ -26,12 +26,12 @@ public class AmmoManager : MonoBehaviour
 
 	void Shoot()
 	{
-		if (currentAmmo > 0)
+		if (_currentAmmo > 0)
 		{
-			currentAmmo--;
+			_currentAmmo--;
 			UpdateAmmoUI();
 
-			if (currentAmmo == 0)
+			if (_currentAmmo == 0)
 			{
 				StartCoroutine(ReloadAmmo());
 			}
@@ -40,15 +40,15 @@ public class AmmoManager : MonoBehaviour
 
 	IEnumerator ReloadAmmo()
 	{
-		isReloading = true;
+		_isReloading = true;
 		yield return new WaitForSeconds(5);
-		currentAmmo = maxAmmo;
-		isReloading = false;
+		_currentAmmo = maxAmmo;
+		_isReloading = false;
 		UpdateAmmoUI();
 	}
 
 	void UpdateAmmoUI()
 	{
-		ammoText.text = $"{currentAmmo} / {maxAmmo}";
+		ammoText.text = $"{_currentAmmo} / {maxAmmo}";
 	}
 }

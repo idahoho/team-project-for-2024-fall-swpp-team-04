@@ -33,8 +33,7 @@ public class PlayerMovement : MonoBehaviour
     private bool _isGrounded = true;
 
 
-    void Start()
-    {
+    void Start() {
         _rigid = GetComponent<Rigidbody>();
         _camera = GameObject.Find("PlayerCamera");
     }
@@ -43,8 +42,7 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
     }
 
-    void Update()
-    {
+    void Update() {
         HandleInput();
         ControlSpeed();
         GroundCheck();
@@ -118,6 +116,11 @@ public class PlayerMovement : MonoBehaviour
         } else {
             _rigid.drag = 0;
         }
+    }
+
+    private void OnDrawGizmosSelected() {
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, transform.forward * 5f);
     }
 
     // private void OnCollisionEnter(Collision other) {

@@ -987,8 +987,8 @@ GameObject:
   - component: {fileID: 2218467765232230708}
   - component: {fileID: 3098580649396159879}
   m_Layer: 0
-  m_Name: mech
-  m_TagString: Untagged
+  m_Name: TurretEnemy
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1000,9 +1000,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5626173906417835979}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1411, y: -1, z: -364}
-  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5626173906417927083}
@@ -1044,14 +1044,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: {fileID: 0}
-  _detectionRange: 1500
-  _viewAngle: 50
-  _chargeTime: 3
-  _rotationSpeed: 30
-  _rotationDirection: 1
-  _rotationLimit: 100
-  _projectileSpeed: 500
   _projectile: {fileID: 122154, guid: 3517d6179b17d7d41b2ab3881cb2cd67, type: 3}
+  _projectileSpeed: 40
+  _rotationDirection: 1
+  _rotationSpeed: 30
+  _rotationLimit: 100
+  _viewAngle: 50
+  _detectionRange: 1500
+  _chargeTime: 3
 --- !u!114 &3098580649396159879
 MonoBehaviour:
   m_ObjectHideFlags: 0
