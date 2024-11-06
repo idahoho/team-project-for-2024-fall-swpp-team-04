@@ -19,6 +19,8 @@ public class TurretEnemy : MonoBehaviour
 	[SerializeField] private float _viewAngle;
 	[SerializeField] private float _detectionRange;
 	[SerializeField] private float _chargeTime;
+	[SerializeField] private float _chargeCooldown;
+	private bool _isChargable = true;
 
 	private bool _isCharging = false;
 	private bool _headDetached = false;
@@ -33,10 +35,8 @@ public class TurretEnemy : MonoBehaviour
 			return;
 		}
 
-		if(IsPlayerInSight()) {
-			if (!_isCharging) {
-				StartCoroutine(ChargeAndFire());
-			}
+		if(IsPlayerDetected()) {
+			DetectPlayer();
 		} else {
 			RotateTurret();
 		}
@@ -50,11 +50,10 @@ public class TurretEnemy : MonoBehaviour
 		}
 	}
 
-	private bool IsPlayerInSight() {
+	private bool IsPlayerDetected() {
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
 		float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
-		// issue: 이거 제대로 감지가 되나?
-		// 아니면 얘도 그냥 일정 범위 내에 들어오면 조준하는 걸로 하는 것도 괜찮을 듯
+
 		if (angleToPlayer < _viewAngle / 2) {
 			if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, _detectionRange)) {
 				return hit.collider.gameObject == _player;
@@ -63,23 +62,36 @@ public class TurretEnemy : MonoBehaviour
 		return false;
 	}
 
-	
+	private void DetectPlayer() {
+		Vector3 directionToPlayer = Vector3.Scale(_player.transform.position - transform.position, new Vector3(1, 0, 1)).normalized;
+
+		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+
+		if(_isCharging) {
+			return;
+		}
+		if(_isChargable) {
+			_isCharging = true;
+			_isChargable = false;
+			Debug.Log("charge");
+			StartCoroutine(ChargeAndFire());
+		}
+	}
 
 	private IEnumerator ChargeAndFire() {
-		_isCharging = true;
-
-		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
-		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-		float elapsedTime = 0f;
-
-		while(elapsedTime < _chargeTime) {
-			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, elapsedTime / _chargeTime);
-			elapsedTime += Time.deltaTime;
-			yield return null;
-		}
+		yield return new WaitForSeconds(_chargeTime);
 
 		FireProjectile();
+		
 		_isCharging = false;
+		StartCoroutine(ReChargable());
+	}
+
+	private IEnumerator ReChargable() {
+		yield return new WaitForSeconds(_chargeCooldown);
+
+		_isChargable = true;
 	}
 
 	private void FireProjectile() {

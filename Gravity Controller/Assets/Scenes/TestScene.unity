@@ -670,7 +670,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 316119464, guid: e2d2e774deb60394392bcb87a76d97de, type: 3}
       propertyPath: m_IsKinematic
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7107437211644554641, guid: e2d2e774deb60394392bcb87a76d97de, type: 3}
       propertyPath: _player
@@ -4743,6 +4743,18 @@ PrefabInstance:
       propertyPath: _player
       value: 
       objectReference: {fileID: 1105307626}
+    - target: {fileID: 2218467765232230708, guid: 888f6cba8d676ce4e8cb1bb97133b250, type: 3}
+      propertyPath: _chargeTime
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2218467765232230708, guid: 888f6cba8d676ce4e8cb1bb97133b250, type: 3}
+      propertyPath: _chargeCooldown
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2218467765232230708, guid: 888f6cba8d676ce4e8cb1bb97133b250, type: 3}
+      propertyPath: _detectionRange
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 5626173906417835979, guid: 888f6cba8d676ce4e8cb1bb97133b250, type: 3}
       propertyPath: m_Name
       value: TurretEnemy

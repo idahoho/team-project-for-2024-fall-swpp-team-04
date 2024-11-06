@@ -24,7 +24,7 @@ public class FlyingEnemy : MonoBehaviour
 	[Header("Attack")]
 	[SerializeField] private float _rotationSpeed;
 	[SerializeField] private float _attackRange;
-	[SerializeField] private float _chargeTime; // Charging time before firing
+	[SerializeField] private float _chargeTime;
 	[SerializeField] private float _chargeCooldown;
 	private bool _isCharging = false; // Indicates if the enemy is currently charging
 	// issue: 총알 재장전 방식 등과 일관성을 위해 isChargable 같은 거 두고 관리하는 게 어떨까 싶음
