@@ -118,6 +118,11 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmosSelected() {
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, transform.forward * 5f);
+    }
+
     // private void OnCollisionEnter(Collision other) {
     //     if(other.contacts[0].normal.y > 0.7f) {
     //         _isGrounded = true;
