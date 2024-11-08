@@ -22,6 +22,20 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float _defaultSize = 100f;
 	[SerializeField] private float _fireSize = 200f;
 
+	public static UIManager Instance { get; private set; }
+
+	private void Awake()
+	{
+		if (Instance == null)
+		{
+			Instance = this;
+		}
+		else
+		{
+			Destroy(gameObject);
+		}
+	}
+
     private void Start() {
 
     }
