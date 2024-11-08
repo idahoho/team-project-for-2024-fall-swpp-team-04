@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-public class FlyingEnemy : MonoBehaviour
+public class FlyingEnemy : MonoBehaviour, IEnemy
 {
 	[Header("Target")]
 	[SerializeField] private GameObject _player;
