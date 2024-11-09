@@ -4,37 +4,37 @@ using System.Collections;
 
 public class PlayerHpUI : MonoBehaviour
 {
-	[SerializeField] private Slider hpSlider; // HP °ÔÀÌÁö
+	[SerializeField] private Slider _hpSlider; // HP ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public float currentHp;
-	private float targetHp;
-	private float maxHp = 100f;
+	private float _targetHp;
+	private float _maxHp = 100f;
 
 	void Start()
 	{
-		currentHp = maxHp;
-		targetHp = maxHp;
-		hpSlider.maxValue = maxHp;
-		hpSlider.value = currentHp;
+		currentHp = _maxHp;
+		_targetHp = _maxHp;
+		_hpSlider.maxValue = _maxHp;
+		_hpSlider.value = currentHp;
 	}
 
 	public void UpdateHP(float newHp)
 	{
-		targetHp = newHp;
+		_targetHp = newHp;
 		StartCoroutine(HPDecrease());
 	}
 
 	private IEnumerator HPDecrease()
 	{
-		while (currentHp > targetHp)
+		while (currentHp > _targetHp)
 		{
-			currentHp = Mathf.Lerp(currentHp, targetHp, 0.2f);
-			hpSlider.value = currentHp;
+			currentHp = Mathf.Lerp(currentHp, _targetHp, 0.2f);
+			_hpSlider.value = currentHp;
 
-			// ¸ñÇ¥Ä¡¿¡ ÃæºÐÈ÷ °¡±î¿öÁö¸é ·çÇÁ Á¾·á
-			if (Mathf.Abs(currentHp - targetHp) < 0.1f)
+			// ï¿½ï¿½Ç¥Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+			if (Mathf.Abs(currentHp - _targetHp) < 0.1f)
 			{
-				currentHp = targetHp;
-				hpSlider.value = currentHp;
+				currentHp = _targetHp;
+				_hpSlider.value = currentHp;
 				yield break;
 			}
 

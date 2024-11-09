@@ -5,35 +5,35 @@ using UnityEngine.UI;
 
 public class ImgsFillDynamic : MonoBehaviour
 {
-	private float factor = 0F;
-	private bool isFilling = false;
+	private float _factor = 0F;
+	private bool _isFilling = false;
 	public Image ImgFacterTarget;
 	public Text TxtValue;
 	public float MultifyText = 100F;
 	public string TailText = "%";
 
-	public float Factor { get { return this.factor; } }
+	public float Factor { get { return this._factor; } }
 
 	void Start()
 	{
-		factor = 0F;
+		_factor = 0F;
 		StartFilling();
 	}
 
 	void Update()
 	{
-		if (isFilling)
+		if (_isFilling)
 		{
-			factor += Time.deltaTime * 0.1f;
-			if (factor >= 1F)
+			_factor += Time.deltaTime * 0.1f;
+			if (_factor >= 1F)
 			{
-				factor = 1F;
-				isFilling = false;
+				_factor = 1F;
+				_isFilling = false;
 			}
 			UpdateGauge();
 		}
 
-		if (Input.GetKeyDown(KeyCode.R) && factor >= 1F)
+		if (Input.GetKeyDown(KeyCode.R) && _factor >= 1F)
 		{
 			ResetGauge();
 		}
@@ -41,25 +41,25 @@ public class ImgsFillDynamic : MonoBehaviour
 
 	void StartFilling()
 	{
-		isFilling = true;
+		_isFilling = true;
 	}
 
 	void ResetGauge()
 	{
-		factor = 0F;
+		_factor = 0F;
 		StartFilling();
 	}
 
 	void UpdateGauge()
 	{
-		SetImageFillAmount(factor);
+		SetImageFillAmount(_factor);
 		SetTextFactor();
 		SetImageColor();
 	}
 
 	void SetTextFactor()
 	{
-		float textFactor = Mathf.Clamp01(factor) * MultifyText;
+		float textFactor = Mathf.Clamp01(_factor) * MultifyText;
 		if (TxtValue != null)
 			TxtValue.text = string.Format("{0}{1}", textFactor.ToString("0"), TailText);
 	}
@@ -71,12 +71,12 @@ public class ImgsFillDynamic : MonoBehaviour
 
 	void SetImageColor()
 	{
-		Color currentColor = Color.Lerp(Color.cyan, Color.magenta, factor);
+		Color currentColor = Color.Lerp(Color.cyan, Color.magenta, _factor);
 		ImgFacterTarget.color = currentColor;
 	}
 
 	public bool IsFull()
 	{
-		return factor >= 1F;
+		return _factor >= 1F;
 	}
 }
