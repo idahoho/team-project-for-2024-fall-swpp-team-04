@@ -6,7 +6,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 {
 	private Animator _animator;
 	[Header("Target")]
-	[SerializeField] private PlayerController _player;
+	private GameObject _player;
 
 	[Header("Wander")]
 	[SerializeField] private float _wanderSpeed;
@@ -34,6 +34,8 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 	}
 
 	void Start() {
+		_player = GameObject.Find("Player");
+
 		_animator = GetComponent<Animator>();
 		_spawnPoint = transform.position;
 		SetRandomDirection();
@@ -122,7 +124,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 
 		if(distanceToPlayer < _attackHitRange) {
 			Debug.Log("Attack Successful");
-			_player.OnHit();
+			_player.GetComponent<PlayerController>().OnHit();
 		} else {
 			Debug.Log("Attack Fail");
 		}

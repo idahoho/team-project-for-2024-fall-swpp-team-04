@@ -6,7 +6,7 @@ using UnityEngine;
 public class FlyingEnemy : MonoBehaviour, IEnemy
 {
 	[Header("Target")]
-	[SerializeField] private GameObject _player;
+	private GameObject _player;
 
 	[Header("Projectile")]
 	[SerializeField] private GameObject _projectile;
@@ -39,6 +39,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Start() {
+		_player = GameObject.Find("Player");
+
 		_spawnPoint = transform.position;
 		SetRandomDirection();
 		_chargeCooldownTimer = _chargeCooldown;

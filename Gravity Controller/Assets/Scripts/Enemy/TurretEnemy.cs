@@ -5,7 +5,7 @@ using UnityEngine;
 public class TurretEnemy : MonoBehaviour, IEnemy
 {
 	[Header("Target")]
-	[SerializeField] private GameObject _player;
+	private GameObject _player;
 	[Header("Projectile")]
 	[SerializeField] private GameObject _projectile;
 	[SerializeField] private float _projectileSpeed;
@@ -34,7 +34,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Start() {
-
+		_player = GameObject.Find("Player");
 	}
 
 	private void Update() {
