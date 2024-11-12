@@ -25,6 +25,14 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private bool _isCharging = false;
 	private bool _headDetached = false;
 
+	[SerializeField] private int _maxHp;
+	private int _hp;
+
+	void Awake()
+	{
+		_hp = _maxHp;
+	}
+
 	private void Start() {
 
 	}
@@ -109,5 +117,21 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	public void ReceiveSkill() {
 		_headDetached = true;
+	}
+
+	public void OnHit()
+	{
+		if (--_hp <= 0)
+		{
+			OnDeath();
+		}
+		// hit effect goes here: particle, knockback, etc.
+	}
+
+	public void OnDeath()
+	{
+		// death animation goes here; must wait till the animation to be finished before destroying
+		GameManager.Instance.UnregisterEnemy(gameObject);
+		Destroy(gameObject);
 	}
 }

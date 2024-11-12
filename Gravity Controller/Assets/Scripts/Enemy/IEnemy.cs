@@ -4,6 +4,8 @@ using UnityEngine;
 
 public interface IEnemy
 {
+	public void OnHit();
+	public void OnDeath();
 
 }
 

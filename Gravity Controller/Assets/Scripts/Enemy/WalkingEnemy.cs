@@ -24,7 +24,14 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _attackHitRange;
 	private bool _isChasing = false;
 	private bool _isAttacking = false;
-	
+
+	[SerializeField] private int _maxHp;
+	private int _hp;
+
+	void Awake()
+	{
+		_hp = _maxHp;
+	}
 
 	void Start() {
 		_animator = GetComponent<Animator>();
@@ -129,5 +136,21 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere(transform.position, _chaseRange);
+	}
+
+	public void OnHit()
+	{
+		if (--_hp <= 0)
+		{
+			OnDeath();
+		}
+		// hit effect goes here: particle, knockback, etc.
+	}
+
+	public void OnDeath()
+	{
+		// death animation goes here; must wait till the animation to be finished before destroying
+		GameManager.Instance.UnregisterEnemy(gameObject);
+		Destroy(gameObject);
 	}
 }

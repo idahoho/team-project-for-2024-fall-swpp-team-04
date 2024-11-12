@@ -29,7 +29,15 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	private bool _isCharging = false; // Indicates if the enemy is currently charging
 	// issue: 총알 재장전 방식 등과 일관성을 위해 isChargable 같은 거 두고 관리하는 게 어떨까 싶음
 	private float _chargeCooldownTimer; // Timer for charge cooldown
-	
+
+	[SerializeField] private int _maxHp;
+	private int _hp;
+
+	void Awake()
+	{
+		_hp = _maxHp;
+	}
+
 	private void Start() {
 		_spawnPoint = transform.position;
 		SetRandomDirection();
@@ -127,5 +135,21 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere(transform.position, _attackRange);
+	}
+
+	public void OnHit()
+	{
+		if (--_hp <= 0)
+		{
+			OnDeath();
+		}
+		// hit effect goes here: particle, knockback, etc.
+	}
+
+	public void OnDeath()
+	{
+		// death animation goes here; must wait till the animation to be finished before destroying
+		GameManager.Instance.UnregisterEnemy(gameObject);
+		Destroy(gameObject);
 	}
 }

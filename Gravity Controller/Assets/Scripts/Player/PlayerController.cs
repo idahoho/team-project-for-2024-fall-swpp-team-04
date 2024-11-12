@@ -130,7 +130,7 @@ public class PlayerController : MonoBehaviour
                 if(hit.collider.gameObject.CompareTag("Enemy")) {
                     Debug.Log("Fire: enemy detected");
                     // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
-                    hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+                    hit.collider.gameObject.GetComponent<IEnemy>().OnHit();
                 }
             }
             UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
