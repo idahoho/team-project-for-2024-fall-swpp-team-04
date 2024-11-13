@@ -1,10 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using UnityEngine;
 
 public class FlyingEnemy : MonoBehaviour, IEnemy
 {
+	private Transform _body;
+	private Transform _joint;
+	private Transform _wing;
+	private Transform _gun;
+
 	[Header("Target")]
 	private GameObject _player;
 
@@ -15,15 +21,25 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[Header("Wander")]
 	[SerializeField] private float _wanderSpeed;
 	[SerializeField] private float _wanderRange;
-	[SerializeField] private float _changeDirectionInterval;
+	[SerializeField] private float _verticalDirectionRange;
+	[SerializeField] private float _changeDirectionIntervalMin;
+	[SerializeField] private float _changeDirectionIntervalMax;
 	[SerializeField] private float _obstacleDetectionRange;
+	// [SerializeField] private float _hoveringRange;
+	// [SerializeField] private float _hoveringInterval;
 	private Vector3 _spawnPoint;
 	private Vector3 _currentDirection;
 	private float _timer;
+	private float _changeDirectionInterval;
+	private bool _isMoving = false;
+
+	[Header("Chase")]
+	[SerializeField] private float _chaseRange;
 
 	[Header("Attack")]
 	[SerializeField] private float _rotationSpeed;
-	[SerializeField] private float _attackRange;
+	[SerializeField] private float _attackRangeHorizontal;
+	[SerializeField] private float _attackRangeVertical;
 	[SerializeField] private float _chargeTime;
 	[SerializeField] private float _chargeCooldown;
 	private bool _isCharging = false; // Indicates if the enemy is currently charging
@@ -36,23 +52,25 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	void Awake()
 	{
 		_hp = _maxHp;
-	}
-
-	private void Start() {
-		_player = GameObject.Find("Player");
-
 		_spawnPoint = transform.position;
 		SetRandomDirection();
 		_chargeCooldownTimer = _chargeCooldown;
 	}
 
-	private void Update() {
-		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
+	private void Start() {
+		_body = transform.GetChild(0);
+		_joint = _body.GetChild(1);
+		_wing = _body.GetChild(2);
+		_gun = _joint.GetChild(0);
 
-		if(distanceToPlayer < _attackRange) {
-			// issue: 코루틴을 이렇게 선언하면 위험할 것 같음
-			// 코루틴 밖에서 _isCharging을 true로 바꿔줘야 이 함수가 여러 번 실행되는 걸 막을 수 있을 듯
-			// fix: StartAndFire 외부에서 처리하기 위한 함수 한 단계를 추가
+		_player = GameObject.Find("Player");
+	}
+
+	private void Update() {
+		float distanceHorizontal = Vector3.Scale(transform.position - _player.transform.position, new Vector3(1, 0, 1)).magnitude;
+		float distanceVertical = transform.position.y - _player.transform.position.y;
+
+		if(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical) {
 			DetectPlayer();
 		}
 		else {
@@ -72,31 +90,57 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		_timer += Time.deltaTime;
 		if(_timer > _changeDirectionInterval) {
 			SetRandomDirection();
+			SetRandomInterval();
 			_timer = 0f;
 		} else if(Vector3.Distance(_spawnPoint, transform.position) > _wanderRange) {
 			_currentDirection = (_spawnPoint - transform.position).normalized;
+			SetRandomInterval();
 			_timer = 0f;
 		} else if(Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
 			SetRandomDirection();
+			SetRandomInterval();
 		} 
 
-		// rotate
-		Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
-		// move
-		transform.Translate(Vector3.forward * Time.deltaTime * _wanderSpeed);
+		if(_isMoving) {
+			// rotate
+			Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
+			Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(_currentDirection, new Vector3(1, 0, 1)));
+			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+			_body.rotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
+			
+			// move
+			transform.Translate(Vector3.forward * Time.deltaTime * _wanderSpeed);
+		}
+	}
+
+	private void SetRandomInterval() {
+		_changeDirectionInterval = Random.Range(_changeDirectionIntervalMin, _changeDirectionIntervalMax);
 	}
 
 	private void SetRandomDirection() {
-		float angle = Random.Range(0, 360);
-		_currentDirection = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Random.Range(-1f, 1f), Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
+		if(_isMoving) {
+			_currentDirection = Vector3.zero;
+			_isMoving = false;
+		} else {
+			float angle = Random.Range(0, 360);
+			_currentDirection = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 
+													Random.Range(-_verticalDirectionRange, _verticalDirectionRange), 
+													Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
+			_isMoving = true;
+		}
 	}
 
 	private void DetectPlayer() {
+		// rotate
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
+		Vector3 gunDirection = (_player.transform.position - _gun.position).normalized;
 
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+		Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1)));
+		Quaternion targetRotationGun = Quaternion.LookRotation(gunDirection);
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+		_body.rotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
+		_gun.rotation = Quaternion.Slerp(_gun.rotation, targetRotationGun, Time.deltaTime * _rotationSpeed);
 
 		if(_isCharging) {
 			return;
@@ -136,7 +180,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		Gizmos.color = Color.green;
 		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
-		Gizmos.DrawWireSphere(transform.position, _attackRange);
+		Gizmos.DrawWireSphere(transform.position, _attackRangeHorizontal);
 	}
 
 	public void OnHit()
