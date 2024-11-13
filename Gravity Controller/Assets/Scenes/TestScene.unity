@@ -1698,6 +1698,7 @@ MonoBehaviour:
   _chaseRange: 0
   _attackRange: 0
   _attackHitRange: 0
+  _maxHp: 0
 --- !u!65 &647164293
 BoxCollider:
   m_ObjectHideFlags: 0

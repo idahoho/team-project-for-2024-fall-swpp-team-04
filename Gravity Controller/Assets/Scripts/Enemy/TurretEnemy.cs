@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretEnemy : MonoBehaviour
+public class TurretEnemy : MonoBehaviour, IEnemy
 {
 	[Header("Target")]
-	[SerializeField] private GameObject _player;
+	private GameObject _player;
 	[Header("Projectile")]
 	[SerializeField] private GameObject _projectile;
 	[SerializeField] private float _projectileSpeed;
@@ -25,8 +25,16 @@ public class TurretEnemy : MonoBehaviour
 	private bool _isCharging = false;
 	private bool _headDetached = false;
 
-	private void Start() {
+	[SerializeField] private int _maxHp;
+	private int _hp;
 
+	void Awake()
+	{
+		_hp = _maxHp;
+	}
+
+	private void Start() {
+		_player = GameObject.Find("Player");
 	}
 
 	private void Update() {
@@ -109,5 +117,21 @@ public class TurretEnemy : MonoBehaviour
 
 	public void ReceiveSkill() {
 		_headDetached = true;
+	}
+
+	public void OnHit()
+	{
+		if (--_hp <= 0)
+		{
+			OnDeath();
+		}
+		// hit effect goes here: particle, knockback, etc.
+	}
+
+	public void OnDeath()
+	{
+		// death animation goes here; must wait till the animation to be finished before destroying
+		GameManager.Instance.UnregisterEnemy(gameObject);
+		Destroy(gameObject);
 	}
 }

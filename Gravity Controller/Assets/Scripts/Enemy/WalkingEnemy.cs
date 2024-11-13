@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WalkingEnemy : MonoBehaviour
+public class WalkingEnemy : MonoBehaviour, IEnemy
 {
 	private Animator _animator;
 	[Header("Target")]
-	[SerializeField] private PlayerController _player;
+	private GameObject _player;
 
 	[Header("Wander")]
 	[SerializeField] private float _wanderSpeed;
@@ -24,9 +24,18 @@ public class WalkingEnemy : MonoBehaviour
 	[SerializeField] private float _attackHitRange;
 	private bool _isChasing = false;
 	private bool _isAttacking = false;
-	
+
+	[SerializeField] private int _maxHp;
+	private int _hp;
+
+	void Awake()
+	{
+		_hp = _maxHp;
+	}
 
 	void Start() {
+		_player = GameObject.Find("Player");
+
 		_animator = GetComponent<Animator>();
 		_spawnPoint = transform.position;
 		SetRandomDirection();
@@ -115,7 +124,7 @@ public class WalkingEnemy : MonoBehaviour
 
 		if(distanceToPlayer < _attackHitRange) {
 			Debug.Log("Attack Successful");
-			_player.OnHit();
+			_player.GetComponent<PlayerController>().OnHit();
 		} else {
 			Debug.Log("Attack Fail");
 		}
@@ -129,5 +138,21 @@ public class WalkingEnemy : MonoBehaviour
 		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere(transform.position, _chaseRange);
+	}
+
+	public void OnHit()
+	{
+		if (--_hp <= 0)
+		{
+			OnDeath();
+		}
+		// hit effect goes here: particle, knockback, etc.
+	}
+
+	public void OnDeath()
+	{
+		// death animation goes here; must wait till the animation to be finished before destroying
+		GameManager.Instance.UnregisterEnemy(gameObject);
+		Destroy(gameObject);
 	}
 }
