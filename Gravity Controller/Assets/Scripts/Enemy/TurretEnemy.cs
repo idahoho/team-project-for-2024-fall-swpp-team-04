@@ -28,9 +28,13 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private int _maxHp;
 	private int _hp;
 
+	public EnemyState State { get; private set; }
+
 	void Awake()
 	{
 		_hp = _maxHp;
+
+		State = EnemyState.Idle;
 	}
 
 	private void Start() {

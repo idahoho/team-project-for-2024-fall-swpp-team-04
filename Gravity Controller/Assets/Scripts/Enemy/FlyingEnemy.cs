@@ -40,7 +40,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _amplitude;
 
 	[Header("Chase")]
-	[SerializeField] private float _chaseRange;
+	[SerializeField] private float _chaseRangeHorizontal;
+	[SerializeField] private float _chaseRangeVertical;
 
 	[Header("Attack")]
 	[SerializeField] private float _rotationSpeed;
@@ -55,12 +56,16 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private int _maxHp;
 	private int _hp;
 
+	public EnemyState State { get; private set; }
+
 	void Awake()
 	{
 		_hp = _maxHp;
 		_spawnPoint = transform.position;
 		SetRandomDirection();
 		_chargeCooldownTimer = _chargeCooldown;
+
+		State = EnemyState.Idle;
 	}
 
 	private void Start() {
@@ -76,11 +81,54 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		float distanceHorizontal = Vector3.Scale(transform.position - _player.transform.position, new Vector3(1, 0, 1)).magnitude;
 		float distanceVertical = transform.position.y - _player.transform.position.y;
 
-		if(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical) {
-			DetectPlayer();
-		}
-		else {
-			Wander();
+		switch (State){
+			case EnemyState.Idle:
+				if (distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
+				{
+					// Idle -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+				}
+				else
+				{
+					Wander();
+				}
+				break;
+			case EnemyState.Aware:
+				if (!(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical))
+				{
+					// player not in range
+					if (distanceHorizontal < _chaseRangeHorizontal && distanceVertical < _chaseRangeVertical)
+					{
+						// Aware -> Follow
+						State = EnemyState.Follow;
+						ChasePlayer();
+					}
+					else
+					{
+						// Aware -> Idle
+						State=EnemyState.Idle;
+						Wander();
+					}
+				}
+				else DetectPlayer();
+				break;
+			case EnemyState.Follow:
+				if (!(distanceHorizontal < _chaseRangeHorizontal && distanceVertical < _chaseRangeVertical))
+				{
+					// player not in range
+					// Follow -> Idle
+					State = EnemyState.Idle;
+					Wander();
+				}
+				else if(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
+				{
+					// Follow -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+				}
+				else ChasePlayer();
+				break;
 		}
 
 		// Update charge cooldown
@@ -212,6 +260,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 		// issue: 필요할까? Destroy를 많은 곳에서 시도하면 뭔가 문제가 생길 수도 있음
 		// Destroy(proj, 5f); 
+	}
+
+	private void ChasePlayer()
+	{
+		// TODO
 	}
 
 	private void OnDrawGizmosSelected() {
