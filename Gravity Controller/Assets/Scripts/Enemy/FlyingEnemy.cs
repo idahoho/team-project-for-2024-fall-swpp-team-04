@@ -33,6 +33,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	private float _changeDirectionInterval;
 	private bool _isMoving = false;
 
+	[Header("Hover")]
+	[SerializeField] private float _angularSpeed;
+	public float _phase = 0;
+	[SerializeField] private float _amplitude;
+
 	[Header("Chase")]
 	[SerializeField] private float _chaseRange;
 
@@ -81,6 +86,14 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		if(_chargeCooldownTimer < _chargeCooldown) {
 			_chargeCooldownTimer += Time.deltaTime;
 		}
+	}
+
+	private void FixedUpdate()
+	{
+		// delta y = sin(2*pi*w*t), where w=_angularSpeed, w*t=_phase
+		_phase += Time.fixedDeltaTime*_angularSpeed;
+		_phase-=Mathf.Floor(_phase);
+		_body.localPosition = Mathf.Sin(2 * Mathf.PI * _phase) * _amplitude*(Quaternion.Inverse(transform.rotation)*Vector3.up);
 	}
 
 	private void Wander() {
