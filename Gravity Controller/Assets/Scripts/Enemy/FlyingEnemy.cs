@@ -135,12 +135,17 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			_currentDirection = Vector3.zero;
 			_isMoving = false;
 		} else {
-			float angle = Random.Range(0, 360);
-			_currentDirection = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), 
-													Random.Range(-_verticalDirectionRange, _verticalDirectionRange), 
-													Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
 			_isMoving = true;
+			_currentDirection = RandomDirection();
 		}
+	}
+
+	private Vector3 RandomDirection()
+	{
+		float angle = Random.Range(0, 360);
+		return new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad),
+													Random.Range(-_verticalDirectionRange, _verticalDirectionRange),
+													Mathf.Sin(angle * Mathf.Deg2Rad)).normalized;
 	}
 
 	private void DetectPlayer() {
