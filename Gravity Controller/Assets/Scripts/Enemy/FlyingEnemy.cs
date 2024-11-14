@@ -226,9 +226,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 		Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1)));
 		Quaternion targetRotationGun = Quaternion.LookRotation(gunDirection);
+		var tempBodyRotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
+		var tempGunRotation = Quaternion.Slerp(_gun.rotation, targetRotationGun, Time.deltaTime * _rotationSpeed);
 		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
-		_body.rotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
-		_gun.rotation = Quaternion.Slerp(_gun.rotation, targetRotationGun, Time.deltaTime * _rotationSpeed);
+		_body.rotation = tempBodyRotation;
+		_gun.rotation = tempGunRotation;
 
 		if(_isCharging) {
 			return;
