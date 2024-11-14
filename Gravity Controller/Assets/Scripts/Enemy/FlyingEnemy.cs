@@ -27,6 +27,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _obstacleDetectionRange;
 	// [SerializeField] private float _hoveringRange;
 	// [SerializeField] private float _hoveringInterval;
+	[SerializeField] private float _homingInstinct;
 	private Vector3 _spawnPoint;
 	private Vector3 _currentDirection;
 	private float _timer;
@@ -136,7 +137,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			_isMoving = false;
 		} else {
 			_isMoving = true;
-			_currentDirection = RandomDirection();
+			_currentDirection = (RandomDirection()+ _homingInstinct*(_spawnPoint - transform.position)/_wanderRange).normalized;
 		}
 	}
 
