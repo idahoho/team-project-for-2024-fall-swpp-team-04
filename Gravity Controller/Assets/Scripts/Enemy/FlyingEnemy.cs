@@ -101,19 +101,41 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		if(_isCharging) {
 			return;
 		}
+		// two-phase of moving and waiting
 		_timer += Time.deltaTime;
-		if(_timer > _changeDirectionInterval) {
-			SetRandomDirection();
+		RaycastHit hit;
+
+		if (Physics.Raycast(transform.position, _currentDirection, out hit, _obstacleDetectionRange))
+		{
+			// detected an obstacle while moving
+			// phase transition: moving <-> waiting
+			// wait, then move
+			Debug.Log("detected an obstacle:" + hit.collider.name);
+			if (!_isMoving) {
+				if (_timer <= _changeDirectionInterval) return;
+				_currentDirection = -_currentDirection + Mathf.Epsilon * RandomDirection();
+			}
 			SetRandomInterval();
 			_timer = 0f;
-		} else if(Vector3.Distance(_spawnPoint, transform.position) > _wanderRange) {
-			_currentDirection = (_spawnPoint - transform.position).normalized;
+			_isMoving = !_isMoving;
+		}
+		else if (_timer > _changeDirectionInterval)
+		{
+			// phase transition: moving <-> waiting
+			if (Vector3.Distance(_spawnPoint, transform.position) > _wanderRange)
+			{
+				// too far from origin
+				_currentDirection = (_spawnPoint - transform.position).normalized;
+			}
+			else
+			{
+				// okay to go
+				SetRandomDirection();
+			}
 			SetRandomInterval();
 			_timer = 0f;
-		} else if(Physics.Raycast(transform.position, _currentDirection, _obstacleDetectionRange)) {
-			SetRandomDirection();
-			SetRandomInterval();
-		} 
+			_isMoving = !_isMoving;
+		}
 
 		if(_isMoving) {
 			// rotate
@@ -134,9 +156,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	private void SetRandomDirection() {
 		if(_isMoving) {
 			_currentDirection = Vector3.zero;
-			_isMoving = false;
 		} else {
-			_isMoving = true;
 			_currentDirection = (RandomDirection()+ _homingInstinct*(_spawnPoint - transform.position)/_wanderRange).normalized;
 		}
 	}
