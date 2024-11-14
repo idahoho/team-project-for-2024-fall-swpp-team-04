@@ -141,8 +141,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			// rotate
 			Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
 			Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(_currentDirection, new Vector3(1, 0, 1)));
+			var tempRotation=Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
 			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
-			_body.rotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
+			_body.rotation = tempRotation;
 			
 			// move
 			transform.Translate(Vector3.forward * Time.deltaTime * _wanderSpeed);
