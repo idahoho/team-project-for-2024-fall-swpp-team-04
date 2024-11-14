@@ -900,7 +900,7 @@ GameObject:
   m_Component:
   - component: {fileID: 408362}
   m_Layer: 0
-  m_Name: Corridor_L_stage1
+  m_Name: Corridor_L_Stage1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
