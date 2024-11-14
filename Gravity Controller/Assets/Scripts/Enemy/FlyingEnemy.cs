@@ -36,7 +36,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 	[Header("Hover")]
 	[SerializeField] private float _angularSpeed;
-	public float _phase = 0;
+	private float _phase = 0;
 	[SerializeField] private float _amplitude;
 
 	[Header("Chase")]
