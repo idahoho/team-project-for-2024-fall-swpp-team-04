@@ -103,15 +103,15 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 						// Aware -> Follow
 						State = EnemyState.Follow;
 						ChasePlayer();
+						break;
 					}
-					else
-					{
-						// Aware -> Idle
-						State=EnemyState.Idle;
-						Wander();
-					}
+					// Aware -> Idle
+					State = EnemyState.Idle;
+					Wander();
+					break;
 				}
-				else DetectPlayer();
+				
+				DetectPlayer();
 				break;
 			case EnemyState.Follow:
 				if (!(distanceHorizontal < _chaseRangeHorizontal && distanceVertical < _chaseRangeVertical))
@@ -120,16 +120,22 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 					// Follow -> Idle
 					State = EnemyState.Idle;
 					Wander();
+					break;
 				}
-				else if(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
+				if (distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
 				{
+					// gotcha
 					// Follow -> Aware
 					State = EnemyState.Aware;
 					DetectPlayer();
+					break;
 				}
-				else ChasePlayer();
+
+				ChasePlayer();
 				break;
 		}
+
+		Debug.Log(State);
 
 		// Update charge cooldown
 		if(_chargeCooldownTimer < _chargeCooldown) {
