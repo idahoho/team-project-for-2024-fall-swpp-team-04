@@ -42,6 +42,10 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[Header("Chase")]
 	[SerializeField] private float _chaseRangeHorizontal;
 	[SerializeField] private float _chaseRangeVertical;
+	[SerializeField] private float _sightRange;
+	[SerializeField] private float _awarenessCoolDown;
+	private float _awarenessCoolDownTimer;
+	private Vector3 _lastSeenPosition;
 
 	[Header("Attack")]
 	[SerializeField] private float _rotationSpeed;
@@ -79,12 +83,28 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Update() {
-		float distanceHorizontal = Vector3.Scale(transform.position - _player.transform.position, new Vector3(1, 0, 1)).magnitude;
+		var relativePosition = _player.transform.position - transform.position;
+		float distanceHorizontal = Vector3.Scale(relativePosition, new Vector3(1, 0, 1)).magnitude;
 		float distanceVertical = transform.position.y - _player.transform.position.y;
+		RaycastHit hit;
+		bool playerInSight = false;
+
+		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
+
+		if (Physics.Raycast(transform.position, relativePosition, out hit, _sightRange))
+		{
+			playerInSight = hit.collider.gameObject.CompareTag("Player");
+			if (playerInSight)
+			{
+				_awarenessCoolDownTimer = _awarenessCoolDown;
+				_lastSeenPosition = _player.transform.position;
+			}
+			Debug.Log("Hit:" + hit.collider.name);
+		}
 
 		switch (State){
 			case EnemyState.Idle:
-				if (distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
+				if ((distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical) && playerInSight)
 				{
 					// Idle -> Aware
 					State = EnemyState.Aware;
@@ -96,10 +116,10 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 				}
 				break;
 			case EnemyState.Aware:
-				if (!(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical))
+				if (!playerInSight || !(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical))
 				{
-					// player not in range
-					if (distanceHorizontal < _chaseRangeHorizontal && distanceVertical < _chaseRangeVertical)
+					// cannot see the player || player not in range
+					if (_awarenessCoolDownTimer > 0)
 					{
 						// Aware -> Follow
 						State = EnemyState.Follow;
@@ -116,9 +136,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 				DetectPlayer();
 				break;
 			case EnemyState.Follow:
-				if (!(distanceHorizontal < _chaseRangeHorizontal && distanceVertical < _chaseRangeVertical))
+				if (_awarenessCoolDownTimer<=0)
 				{
-					// player not in range
+					// time's up
 					// Follow -> Idle
 					State = EnemyState.Idle;
 					BeforeWander();
@@ -282,7 +302,44 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 	private void ChasePlayer()
 	{
-		// TODO
+		Vector3 directionToPlayer = (_lastSeenPosition - transform.position);
+		Vector3 directionToPlayerHorizontal = Vector3.Scale(directionToPlayer,new Vector3(1,0,1));
+		Vector3 directionToPlayerVertical = directionToPlayer - directionToPlayerHorizontal;
+		// rotate
+		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+		Quaternion targetRotationHorizontal = Quaternion.LookRotation(directionToPlayerHorizontal);
+		var tempRotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.fixedDeltaTime * _rotationSpeed);
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * _rotationSpeed);
+		_body.rotation = tempRotation;
+
+		// move
+		Vector3 dir = Vector3.zero;
+		Vector3 target = Vector3.zero;
+		
+		// calculate target point to reach (relative position)
+		if (directionToPlayerHorizontal.magnitude > _attackRangeHorizontal)
+		{
+			var diff = directionToPlayerHorizontal.magnitude - _attackRangeHorizontal;
+			target += diff * directionToPlayerHorizontal.normalized;
+		}
+		if (directionToPlayerVertical.magnitude > _attackRangeVertical)
+		{
+			var diff = directionToPlayerVertical.magnitude - _attackRangeVertical;
+			target += diff * directionToPlayerVertical.normalized;
+		}
+
+		// calculate the actual translation vector
+		if (target.magnitude < Time.fixedDeltaTime * _wanderSpeed)
+		{
+			dir = target;
+		}
+		else
+		{
+			dir = target.normalized * Time.fixedDeltaTime * _wanderSpeed;
+		}
+
+		transform.Translate(Quaternion.Inverse(transform.rotation) * dir);
+		_spawnPoint += dir;
 	}
 
 	private void OnDrawGizmosSelected() {
