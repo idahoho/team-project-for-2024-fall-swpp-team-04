@@ -83,6 +83,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Update() {
+		
+	}
+
+	private void FixedUpdate()
+	{
 		var relativePosition = _player.transform.position - transform.position;
 		float distanceHorizontal = Vector3.Scale(relativePosition, new Vector3(1, 0, 1)).magnitude;
 		float distanceVertical = transform.position.y - _player.transform.position.y;
@@ -164,10 +169,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		if(_chargeCooldownTimer < _chargeCooldown) {
 			_chargeCooldownTimer += Time.deltaTime;
 		}
-	}
 
-	private void FixedUpdate()
-	{
 		// delta y = sin(2*pi*w*t), where w=_angularSpeed, w*t=_phase
 		_phase += Time.fixedDeltaTime*_angularSpeed;
 		_phase-=Mathf.Floor(_phase);
@@ -186,7 +188,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			return;
 		}
 		// two-phase of moving and waiting
-		_timer += Time.deltaTime;
+		_timer += Time.fixedDeltaTime;
 		RaycastHit hit;
 
 		if (Physics.Raycast(transform.position, _currentDirection, out hit, _obstacleDetectionRange))
@@ -225,12 +227,12 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			// rotate
 			Quaternion targetRotation = Quaternion.LookRotation(_currentDirection);
 			Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(_currentDirection, new Vector3(1, 0, 1)));
-			var tempRotation=Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
-			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+			var tempRotation=Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.fixedDeltaTime * _rotationSpeed);
+			transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * _rotationSpeed);
 			_body.rotation = tempRotation;
 			
 			// move
-			transform.Translate(Vector3.forward * Time.deltaTime * _wanderSpeed);
+			transform.Translate(Vector3.forward * Time.fixedDeltaTime * _wanderSpeed);
 		}
 	}
 
@@ -262,9 +264,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 		Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1)));
 		Quaternion targetRotationGun = Quaternion.LookRotation(gunDirection);
-		var tempBodyRotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.deltaTime * _rotationSpeed);
-		var tempGunRotation = Quaternion.Slerp(_gun.rotation, targetRotationGun, Time.deltaTime * _rotationSpeed);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+		var tempBodyRotation = Quaternion.Slerp(_body.rotation, targetRotationHorizontal, Time.fixedDeltaTime * _rotationSpeed);
+		var tempGunRotation = Quaternion.Slerp(_gun.rotation, targetRotationGun, Time.fixedDeltaTime * _rotationSpeed);
+		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * _rotationSpeed);
 		_body.rotation = tempBodyRotation;
 		_gun.rotation = tempGunRotation;
 
