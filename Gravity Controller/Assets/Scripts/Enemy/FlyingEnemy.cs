@@ -109,7 +109,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 		switch (State){
 			case EnemyState.Idle:
-				if ((distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical) && playerInSight)
+				if ((distanceHorizontal <= _attackRangeHorizontal && 0 <= distanceVertical && distanceVertical <= _attackRangeVertical) && playerInSight)
 				{
 					// Idle -> Aware
 					State = EnemyState.Aware;
@@ -121,7 +121,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 				}
 				break;
 			case EnemyState.Aware:
-				if (!playerInSight || !(distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical))
+				if (!playerInSight || !(distanceHorizontal <= _attackRangeHorizontal && 0 <= distanceVertical && distanceVertical <= _attackRangeVertical))
 				{
 					// cannot see the player || player not in range
 					if (_awarenessCoolDownTimer > 0)
@@ -150,7 +150,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 					Wander();
 					break;
 				}
-				if (distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical)
+				if (distanceHorizontal <= _attackRangeHorizontal && 0 <= distanceVertical && distanceVertical <= _attackRangeVertical)
 				{
 					// gotcha
 					// Follow -> Aware
@@ -304,9 +304,10 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 	private void ChasePlayer()
 	{
-		Vector3 directionToPlayer = (_lastSeenPosition - transform.position);
+		Vector3 directionToPlayer = _lastSeenPosition - transform.position;
 		Vector3 directionToPlayerHorizontal = Vector3.Scale(directionToPlayer,new Vector3(1,0,1));
-		Vector3 directionToPlayerVertical = directionToPlayer - directionToPlayerHorizontal;
+		//Vector3 directionToPlayerVertical = directionToPlayer - directionToPlayerHorizontal;
+		
 		// rotate
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 		Quaternion targetRotationHorizontal = Quaternion.LookRotation(directionToPlayerHorizontal);
@@ -324,10 +325,13 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			var diff = directionToPlayerHorizontal.magnitude - _attackRangeHorizontal;
 			target += diff * directionToPlayerHorizontal.normalized;
 		}
-		if (directionToPlayerVertical.magnitude > _attackRangeVertical)
+		if (- directionToPlayer.y > _attackRangeVertical)
 		{
-			var diff = directionToPlayerVertical.magnitude - _attackRangeVertical;
-			target += diff * directionToPlayerVertical.normalized;
+			var diff = - directionToPlayer.y - _attackRangeVertical;
+			target += diff * new Vector3(0,-1,0);
+		}
+		else if(- directionToPlayer.y < 0f){
+			target += directionToPlayer.y * new Vector3(0, 1, 0);
 		}
 
 		// calculate the actual translation vector
