@@ -109,7 +109,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 		switch (State){
 			case EnemyState.Idle:
-				if ((distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical) && playerInSight)
+				if ((distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical) && playerInSight)
 				{
 					// Idle -> Aware
 					State = EnemyState.Aware;
@@ -121,7 +121,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 				}
 				break;
 			case EnemyState.Aware:
-				if (!playerInSight || !(distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical))
+				if (!playerInSight || !(distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical))
 				{
 					// cannot see the player || player not in range
 					if (_awarenessCoolDownTimer > 0)
@@ -150,7 +150,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 					Wander();
 					break;
 				}
-				if (distanceHorizontal < _attackRangeHorizontal && distanceVertical < _attackRangeVertical)
+				if (distanceHorizontal <= _attackRangeHorizontal && distanceVertical <= _attackRangeVertical)
 				{
 					// gotcha
 					// Follow -> Aware
@@ -331,14 +331,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		}
 
 		// calculate the actual translation vector
-		if (target.magnitude < Time.fixedDeltaTime * _wanderSpeed)
-		{
-			dir = target;
-		}
-		else
-		{
-			dir = target.normalized * Time.fixedDeltaTime * _wanderSpeed;
-		}
+		dir = target.normalized * Time.fixedDeltaTime * _wanderSpeed;
 
 		transform.Translate(Quaternion.Inverse(transform.rotation) * dir);
 		_spawnPoint += dir;
