@@ -56,6 +56,15 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	private bool _isCharging = false; // Indicates if the enemy is currently charging
 	// issue: 총알 재장전 방식 등과 일관성을 위해 isChargable 같은 거 두고 관리하는 게 어떨까 싶음
 	private float _chargeCooldownTimer; // Timer for charge cooldown
+	[SerializeField] private float _minHorizontalDistance;
+	[SerializeField] private float _minVerticalDistance;
+
+	[Header("Aim")]
+	// one must have  _minGunAngleDegree <= 90 <= _maxGunAngleDegree
+	[SerializeField] private float _minGunAngleDegree;
+	[SerializeField] private float _maxGunAngleDegree;
+	private bool _adjustingAimAngle = false;
+	[SerializeField] private float _adjustingAimAngleRatio = 0.7f;
 
 	[SerializeField] private int _maxHp;
 	private int _hp;
@@ -262,6 +271,36 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
 		Vector3 gunDirection = (_player.transform.position - _gun.position).normalized;
 
+		// calculate aim angle
+		float theta = 0;
+		var gunDirectionHorizontal = Vector3.Scale(gunDirection, new Vector3(1, 0, 1)).normalized;
+		var y = gunDirection.y;
+		if (y != 0)
+		{
+			theta = Mathf.Rad2Deg * Mathf.Atan(Mathf.Sqrt(1 - Mathf.Pow(y, 2)) / y);
+			if (theta < 0) theta += 180;
+			// Debug.Log("Aim angle: "+theta);
+			if (theta<_minGunAngleDegree)
+			{
+				gunDirection = Deg2Vec(_minGunAngleDegree,gunDirectionHorizontal);
+				_adjustingAimAngle = true;
+			}
+			else if(theta>_maxGunAngleDegree){
+				gunDirection = Deg2Vec(_maxGunAngleDegree, gunDirectionHorizontal);
+				_adjustingAimAngle = true;
+			}
+			else if (_adjustingAimAngle && ((theta >= _adjustingAimAngleRatio * _minGunAngleDegree) || (theta <= _adjustingAimAngleRatio * _maxGunAngleDegree)))
+			{
+				_adjustingAimAngle=false;
+			}
+		}
+
+		Vector3 Deg2Vec(float theta, Vector3 horizontal)
+		{
+			theta = Mathf.Deg2Rad * theta;
+			return (Mathf.Cos(theta) * new Vector3(0, 1, 0)) + (horizontal * Mathf.Sin(theta));
+		}
+
 		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
 		Quaternion targetRotationHorizontal = Quaternion.LookRotation(Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1)));
 		Quaternion targetRotationGun = Quaternion.LookRotation(gunDirection);
@@ -271,7 +310,21 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		_body.rotation = tempBodyRotation;
 		_gun.rotation = tempGunRotation;
 
-		if(_isCharging) {
+		Vector3 target = Vector3.zero;
+		if (Vector3.Scale(_player.transform.position-transform.position, new Vector3(1, 0, 1)).magnitude < _minHorizontalDistance)
+		{
+			// too close
+			target += tempBodyRotation * Vector3.back;
+		}
+		if (Mathf.Abs((_player.transform.position - transform.position).y) > _minVerticalDistance && _adjustingAimAngle)
+		{
+			target += tempBodyRotation * ((theta > 90 ? 1 : -1) * Vector3.down);
+		}
+		var dir = target.normalized * Time.fixedDeltaTime * _wanderSpeed;
+		transform.Translate(Quaternion.Inverse(transform.rotation) * dir);
+		_spawnPoint += dir;
+
+		if (_isCharging) {
 			return;
 		}
 		if(_chargeCooldownTimer >= _chargeCooldown) {
