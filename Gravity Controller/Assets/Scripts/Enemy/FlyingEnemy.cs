@@ -234,6 +234,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 			// move
 			transform.Translate(Vector3.forward * Time.fixedDeltaTime * _wanderSpeed);
 		}
+		_gun.rotation = Quaternion.Slerp(_gun.rotation, _body.rotation, Time.fixedDeltaTime * _rotationSpeed);
 	}
 
 	private void SetRandomInterval() {
