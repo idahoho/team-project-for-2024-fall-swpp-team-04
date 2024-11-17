@@ -65,6 +65,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		SetRandomDirection();
 		_chargeCooldownTimer = _chargeCooldown;
 
+		BeforeWander();
 		State = EnemyState.Idle;
 	}
 
@@ -107,6 +108,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 					}
 					// Aware -> Idle
 					State = EnemyState.Idle;
+					BeforeWander();
 					Wander();
 					break;
 				}
@@ -119,6 +121,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 					// player not in range
 					// Follow -> Idle
 					State = EnemyState.Idle;
+					BeforeWander();
 					Wander();
 					break;
 				}
@@ -149,6 +152,13 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		_phase += Time.fixedDeltaTime*_angularSpeed;
 		_phase-=Mathf.Floor(_phase);
 		_body.localPosition = Mathf.Sin(2 * Mathf.PI * _phase) * _amplitude*(Quaternion.Inverse(transform.rotation)*Vector3.up);
+	}
+
+	private void BeforeWander()
+	{
+		SetRandomInterval();
+		_isMoving = false;
+		_timer = 0f;
 	}
 
 	private void Wander() {
