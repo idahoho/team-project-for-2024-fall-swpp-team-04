@@ -4,6 +4,35 @@ using UnityEngine;
 
 public class TurretEnemy : MonoBehaviour, IEnemy
 {
+	private Transform _body;
+	private Transform _column;
+	private Transform _joint1;
+	private Transform _joint2;
+	private Transform _head;
+
+	[Header("Geometry")]
+	/* inverse kinematics
+	 *            (_d,h)
+	 *  |        ↗/|
+	 *  |      ↗ / |
+	 *  |  c ↗  /  | h
+	 *  |  ↗   /   | 
+	 *  |↗____/____|
+	 *   ↘   /  _d
+	 *   _a↘/_b
+	 *   
+	 *   theta denotes the angle between _a and the vertical line
+	 */
+	private float _a;
+	private float _b;
+	private float _d;
+	private float _thetaNaught;
+	private float _gammaNaught;
+	private float _hLimit;
+
+	[SerializeField]
+	private float _headVerticalLimitRate;
+
 	[Header("Target")]
 	private GameObject _player;
 	[Header("Projectile")]
@@ -38,10 +67,29 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Start() {
+		_body = transform.GetChild(0);
+		_column = _body.GetChild(0);
+		_joint2 = _column.GetChild(0);
+		_joint1 = _joint2.GetChild(0);
+		_head = _joint1.GetChild(0);
+
+		_a = Vector3.Distance(_joint2.position, _joint1.position);
+		_b = Vector3.Distance(_joint1.position, _head.position);
+		_d = Vector3.Scale(_joint2.position-_head.position,new Vector3(1, 0, 1)).magnitude;
+		//Debug.Log("_a: " +_a + ", _b: " +_b + ", _d:" +_d);
+
+		_thetaNaught = Theta(_head.position.y - _joint2.position.y);
+		_gammaNaught = Theta(_head.position.y - _joint2.position.y);
+
+		if(_headVerticalLimitRate > 1) _headVerticalLimitRate = 1;
+		if(_headVerticalLimitRate < 0) _headVerticalLimitRate = 0;
+		_hLimit = Mathf.Sqrt(Mathf.Pow(_a + _b, 2) - Mathf.Pow(_d, 2)) * _headVerticalLimitRate;
+
 		_player = GameObject.Find("Player");
 	}
 
 	private void Update() {
+		/*
 		if(_headDetached) {
 			transform.rotation = Quaternion.Euler(0, 90, 0);
 			return;
@@ -52,6 +100,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		} else {
 			RotateTurret();
 		}
+		*/
 	}
 
 	private void RotateTurret() {
@@ -119,6 +168,48 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		// Destroy(proj, 5f); 
 	}
 
+	private float Alpha(float h)
+	{
+		// h stands for vertical coordinate
+		float c = new Vector2(_d, h).magnitude;
+		return JCos.Alpha(_a,_b,c);
+	}
+
+	private float Beta(float h)
+	{
+		// h stands for vertical coordinate
+		float c = new Vector2(_d, h).magnitude;
+		return JCos.Beta(_a, _b, c);
+	}
+
+	private float Gamma(float h)
+	{
+		// h stands for vertical coordinate
+		float c = new Vector2(_d, h).magnitude;
+		return JCos.Gamma(_a, _b, c);
+	}
+
+	private float Theta(float h) {
+		return JCos.Acos(h / new Vector2(_d, h).magnitude) + Beta(h);
+	}
+
+	private void Look(Vector3 v)
+	{
+		// cylindrical; y - axis stands for h
+		_column.localRotation = Quaternion.LookRotation(Vector3.Scale(v,new Vector3(1,0,1)));
+		var h = v.y;
+		if (h > _hLimit) h = _hLimit;
+		if (h < - _hLimit) h = - _hLimit;
+		var theta = Theta(h);
+		var dTheta = theta - _thetaNaught;
+		var gamma = Gamma(h);
+		var dGamma = gamma - _gammaNaught;
+		//Debug.Log("dTheta: " + dTheta + ", dGamma: " + dGamma);
+		_joint2.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dTheta, 0, 0);
+		_joint1.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dGamma, 0, 0);
+		_head.localRotation = Quaternion.Euler(- Mathf.Rad2Deg * (dTheta + dGamma), 0, 0);
+	}
+
 	public void ReceiveSkill() {
 		_headDetached = true;
 	}
@@ -137,5 +228,56 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
 		Destroy(gameObject);
+	}
+}
+
+public class JCos
+{
+	public static float Clamp(float x)
+	{
+		if (x > 1) return 1;
+		if(x < -1) return -1;
+		return x;
+	}
+
+	public static float Acos(float x)
+	{
+		return Mathf.Acos(Clamp(x));
+	}
+
+	public static float Alpha(float a, float b, float c)
+	{
+		// law of cosines: a^2 = b^2 + c^2 - 2bc cos(alpha)
+		// a, b, c stands for lengths (of sides)
+		// alpha stands for the angle BAC
+
+		// returns alpha = acos((b^2 + c^2 - a^2) / 2bc) (0 < alpha < pi)
+		return Acos((Mathf.Pow(b, 2) + Mathf.Pow(c, 2) - Mathf.Pow(a, 2)) / (2 * b * c));
+	}
+	public static float Beta(float a, float b, float c)
+	{
+		// returns beta = acos((a^2 + c^2 - b^2) / 2ac) (0 < beta < pi)
+		return Acos((Mathf.Pow(a, 2) + Mathf.Pow(c, 2) - Mathf.Pow(b, 2)) / (2 * a * c));
+	}
+
+	public static float Gamma(float a, float b, float c)
+	{
+		// returns gamma = acos((a^2 + b^2 - c^2) / 2ab) (0 < gamma < pi)
+		return Acos((Mathf.Pow(a, 2) + Mathf.Pow(b, 2) - Mathf.Pow(c, 2)) / (2 * a * b));
+	}
+
+	public static float Alpha(Vector3 v)
+	{
+		return Alpha(v.x,v.y,v.z);
+	}
+
+	public static float Beta(Vector3 v)
+	{
+		return Beta(v.x, v.y, v.z);
+	}
+
+	public static float Gamma(Vector3 v)
+	{
+		return Gamma(v.x, v.y, v.z);
 	}
 }
