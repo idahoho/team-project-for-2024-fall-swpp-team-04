@@ -9,7 +9,6 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody _rigidbody;
-    [SerializeField] private GameManager _gameManager;
 
     [Header("Player Status")]
     [SerializeField] private int _maxHP;
@@ -19,7 +18,6 @@ public class PlayerController : MonoBehaviour
     private float _currentEnergy;
     private bool _isAlive = true;
     [Header("UI")]
-    [SerializeField] private UIManager _uiManager;
 
     [Header("Attack")]
     [SerializeField] private KeyCode _reloadKey;
@@ -55,7 +53,7 @@ public class PlayerController : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _currentHP = _maxHP;
         _currentBullet = _maxBullet;
-        _uiManager.UpdateBullet(_currentBullet, _maxBullet);
+        UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
         _currentEnergy = _maxEnergy;
     }
     private void FixedUpdate() {
@@ -99,7 +97,7 @@ public class PlayerController : MonoBehaviour
             if(_isGravityLow) {
                 _isGravityLow = false;
             } else {
-                GlobalGravity(_gameManager.GetActiveEnemies());
+                GlobalGravity(GameManager.Instance.GetActiveEnemies());
             }
         }
     }
@@ -132,11 +130,11 @@ public class PlayerController : MonoBehaviour
                 if(hit.collider.gameObject.CompareTag("Enemy")) {
                     Debug.Log("Fire: enemy detected");
                     // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
-                    hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+                    hit.collider.gameObject.GetComponent<IEnemy>().OnHit();
                 }
             }
-            _uiManager.UpdateBullet(_currentBullet, _maxBullet);
-            _uiManager.CrossHairFire();
+            UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
+            UIManager.Instance.CrossHairFire();
             StartCoroutine(ReShootable());
         } else {
             Reload();
@@ -157,7 +155,7 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(_reloadTime);
             _isReloading = false;
             _currentBullet = _maxBullet;
-            _uiManager.UpdateBullet(_currentBullet, _maxBullet);
+            UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
         } else {
             yield return new WaitForSeconds(_shootCooldown);
         }
@@ -221,7 +219,7 @@ public class PlayerController : MonoBehaviour
         }
         Debug.Log("hit");
         _currentHP--;
-        _uiManager.UpdateHP(_currentHP, _maxHP);
+        UIManager.Instance.UpdateHP(_currentHP, _maxHP);
         if(_currentHP <= 0) {
             _isAlive = false;
             // 사망 이벤트 여기서 호출
