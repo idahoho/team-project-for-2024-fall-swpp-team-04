@@ -51,8 +51,17 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _chargeCooldown;
 	private bool _isChargable = true;
 
+	[Header("Neutralized")]
+	[SerializeField] private float _neutralizedHeadDegree;
+	[SerializeField] private float _neutralizeCoolDown;
+	[SerializeField] private float _headDropSpeed;
+	[SerializeField] private float _headRestoreSpeed;
+	[SerializeField] private float _quaternionEqualityThreshold;
+	//private float _neutralizeCoolDownTimer = 0;
+
 	private bool _isCharging = false;
 	private bool _headDetached = false;
+	private bool _isRestoring = false;
 
 	[SerializeField] private int _maxHp;
 	private int _hp;
@@ -89,6 +98,11 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void Update() {
+		if (_headDetached && !_isRestoring)
+		{
+			_head.rotation = Quaternion.Slerp(_head.localRotation, Quaternion.Euler(_neutralizedHeadDegree, 0, 0) * _column.rotation, Time.deltaTime * _headDropSpeed);
+		}
+
 		/*
 		if(_headDetached) {
 			transform.rotation = Quaternion.Euler(0, 90, 0);
@@ -156,6 +170,8 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void FireProjectile() {
+		if (_headDetached) return;
+
 		GameObject proj = Instantiate(_projectile, transform.position + transform.forward * 2, Quaternion.identity);
 
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
@@ -196,8 +212,18 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void Look(Vector3 v)
 	{
 		// cylindrical; y - axis stands for h
+	
+		if(_headDetached) return;
+
 		_column.localRotation = Quaternion.LookRotation(Vector3.Scale(v,new Vector3(1,0,1)));
 		var h = v.y;
+		LookVertical(h);
+	}
+
+	private void LookVertical(float h)
+	{
+		if (_headDetached) return;
+
 		if (h > _hLimit) h = _hLimit;
 		if (h < - _hLimit) h = - _hLimit;
 		var theta = Theta(h);
@@ -211,15 +237,38 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	public void ReceiveSkill() {
+		if (_headDetached) return;
 		_headDetached = true;
+		StartCoroutine(Restore());
+		//_head.rotation = Quaternion.Euler(_neutralizedHeadDegree, 0, 0) * _column.rotation;
+	}
+
+	public IEnumerator Restore()
+	{
+		yield return new WaitForSeconds(_neutralizeCoolDown);
+		_isRestoring = true;
+		var relativeAngle = Quaternion.Dot(_head.rotation, _column.rotation);
+		while (relativeAngle < _quaternionEqualityThreshold)
+		{
+			relativeAngle = Quaternion.Dot(_head.rotation, _column.rotation);
+			_head.rotation = Quaternion.Slerp(_head.localRotation, _column.rotation, Time.deltaTime * _headRestoreSpeed);
+			yield return null;
+		}
+		Debug.Log("Restored");
+		_isRestoring = false;
+		_headDetached = false;
+		_head.rotation = _column.rotation;
 	}
 
 	public void OnHit()
 	{
+		// indestructible
+		/*
 		if (--_hp <= 0)
 		{
 			OnDeath();
 		}
+		*/
 		// hit effect goes here: particle, knockback, etc.
 	}
 
