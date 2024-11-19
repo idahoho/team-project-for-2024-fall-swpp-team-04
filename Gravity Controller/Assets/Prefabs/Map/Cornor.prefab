@@ -1206,7 +1206,7 @@ Transform:
   m_GameObject: {fileID: 7023232209232668664}
   m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
   m_LocalPosition: {x: -3.7, y: -0, z: 2.35}
-  m_LocalScale: {x: 0.3, y: 2.5, z: 1.3}
+  m_LocalScale: {x: 0.3, y: 2.5, z: 1.1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5528210126221461920}
@@ -1327,6 +1327,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8606178881165581568}
+  - component: {fileID: 8275842242903267976}
   m_Layer: 0
   m_Name: Cornor
   m_TagString: Untagged
@@ -1350,6 +1351,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8275842242903267976
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7396916067289039744}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 18.942455, y: 17.817951, z: 0.7083559}
+  m_Center: {x: -3.1765804, y: -0.38093567, z: 10.779686}
 --- !u!1 &7567495918260618230
 GameObject:
   m_ObjectHideFlags: 0
