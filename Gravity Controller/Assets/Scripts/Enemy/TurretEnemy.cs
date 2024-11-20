@@ -324,6 +324,15 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	{
 		return;
 	}
+
+	private void OnDrawGizmosSelected()
+	{
+		Gizmos.color = Color.red;
+		Gizmos.DrawRay(_column.position, _detectionRange * (_centralRotation * new Vector3(0, 0, 1)));
+		Gizmos.color = Color.green;
+		Gizmos.DrawRay(_head.position, _detectionRange * (_column.rotation * new Vector3(0, 0, 1)));
+	}
+
 	private float Alpha(float h)
 	{
 		// h stands for vertical coordinate
