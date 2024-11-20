@@ -46,6 +46,12 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _rotationLimit;
 	[SerializeField] private float _surveilPeriod;
 	private float _height;
+	private float _surveilElapsedTime = 0;
+	private ISurveilStrategy _surveilStrategy;
+	// default rotation; regard it as FlyingEnemy._spawnPoint
+	private Quaternion _centralRotation = Quaternion.identity;
+	private bool _isInitiatingSurveil = false;
+	[SerializeField] private float _playerHeightOffset;
 
 	[Header("Attack")]
 	[SerializeField] private float _viewAngle;
@@ -82,6 +88,16 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_hp = _maxHp;
 
 		State = EnemyState.Idle;
+
+		/*
+		/* /
+		_strategy = new LinearSurveil();
+		/* /
+		_strategy = new RectangularSurveil();
+		/*/
+		_surveilStrategy = new CircularSurveil();
+		/**/
+		_surveilStrategy.SetScale(Mathf.Deg2Rad * _viewAngle/2, _detectionHeight/2);
 	}
 
 	private void Start() {
@@ -201,13 +217,48 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	private void BeforeSurveil()
 	{
+		_surveilElapsedTime = 0;
+		_isInitiatingSurveil = true;
 	}
 
 	private void Surveil()
 	{
 		if (_headDetached) return;
 
+		if (_isInitiatingSurveil)
+		{
+			// move to the starting point
+			Vector2 planarTargetRotation = _surveilStrategy.Route(_surveilElapsedTime);
+			Vector2 planarTargetRotationHorizontal = Vector2.Scale(planarTargetRotation, new Vector2(1, 0));
+			Quaternion horizontalRelativeRotation = _column.rotation * Quaternion.Inverse(_centralRotation);
+			Vector2 planarHorizontalRelativeRotation = CylindricalConverter.Cylinder2Plane(horizontalRelativeRotation * new Vector3(0, 0, 1));
+
+			var planarTargetRelativeHorizontal = planarTargetRotationHorizontal - Vector2.Scale(planarHorizontalRelativeRotation, new Vector2(1, 0));
+			var planarTargetRelativeVertical = new Vector2(0, planarTargetRotation.y - _height);
+
+			var cos = Vector3.Dot(CylindricalConverter.Plane2Cylinder(planarTargetRelativeHorizontal + planarTargetRelativeVertical), new Vector3(0, 0, 1));
+			if (cos > _quaternionEqualityThreshold)
+			{
+				_isInitiatingSurveil = false;
+			}
+			else
+			{
+
+				// horizontal
+				var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRelativeHorizontal;
+				LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+
+				// vertical
+				float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+				LookVertical(_height + verticalUnit * planarTargetRelativeVertical.y);
+
+				return;
+			}
 		}
+
+		_surveilElapsedTime += Time.fixedDeltaTime;
+		if (_surveilElapsedTime > _surveilPeriod) _surveilElapsedTime -= _surveilPeriod;
+		Look(_centralRotation * CylindricalConverter.Plane2Cylinder(_surveilStrategy.Route(_surveilElapsedTime / _surveilPeriod)));
 	}
 
 	private bool IsPlayerDetected() {
