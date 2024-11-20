@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class DelayedSpawner : MonoBehaviour
+public class DelayedSpawner : MonoBehaviour, IEnemyFactory
 {
 	public GameObject toSpawn;
 	[SerializeField] float _delay;
