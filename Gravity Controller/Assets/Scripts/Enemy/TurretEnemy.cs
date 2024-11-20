@@ -43,6 +43,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private float _rotationDirection;
 	[SerializeField] private float _rotationSpeed;
 	[SerializeField] private float _rotationLimit;
+	private float _height;
 
 	[Header("Attack")]
 	[SerializeField] private float _viewAngle;
@@ -215,15 +216,19 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	
 		if(_headDetached) return;
 
-		_column.localRotation = Quaternion.LookRotation(Vector3.Scale(v,new Vector3(1,0,1)));
+		LookHorizontal(v);
+
 		var h = v.y;
 		LookVertical(h);
 	}
 
+	private void LookHorizontal(Vector3 v)
+	{
+		_column.rotation = Quaternion.LookRotation(Vector3.Scale(v, new Vector3(1, 0, 1)));
+	}
+
 	private void LookVertical(float h)
 	{
-		if (_headDetached) return;
-
 		if (h > _hLimit) h = _hLimit;
 		if (h < - _hLimit) h = - _hLimit;
 		var theta = Theta(h);
@@ -234,6 +239,8 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_joint2.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dTheta, 0, 0);
 		_joint1.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dGamma, 0, 0);
 		_head.localRotation = Quaternion.Euler(- Mathf.Rad2Deg * (dTheta + dGamma), 0, 0);
+
+		_height = h;
 	}
 
 	public void ReceiveSkill() {
