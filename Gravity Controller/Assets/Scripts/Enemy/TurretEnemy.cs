@@ -9,6 +9,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private Transform _joint1;
 	private Transform _joint2;
 	private Transform _head;
+	private Transform _gunpoint;
 
 	[Header("Geometry")]
 	/* inverse kinematics
@@ -106,6 +107,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_joint2 = _column.GetChild(0);
 		_joint1 = _joint2.GetChild(0);
 		_head = _joint1.GetChild(0);
+		_gunpoint = _head.GetChild(0);
 
 		_a = Vector3.Distance(_joint2.position, _joint1.position);
 		_b = Vector3.Distance(_joint1.position, _head.position);
@@ -262,22 +264,53 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	}
 
 	private bool IsPlayerDetected() {
-		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
-		float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
+		Vector3 directionToPlayerHorizontal = Vector3.Scale(_player.transform.position - _column.position, new Vector3(1, 0, 1));
+		float directionToPlayerVertical = (_player.transform.position - _column.position).y + _playerHeightOffset;
+
+		float angleToPlayer = Vector3.Angle(_centralRotation * transform.forward, directionToPlayerHorizontal.normalized);
+		
+		if (directionToPlayerVertical > _detectionHeight / 2 || directionToPlayerVertical < -_detectionHeight / 2) return false;
+		
+		//if (directionToPlayerVertical > _headVerticalLimitRate * _hLimit) directionToPlayerVertical = _headVerticalLimitRate * _hLimit;
+		//if (directionToPlayerVertical < -_headVerticalLimitRate * _hLimit) directionToPlayerVertical = -_headVerticalLimitRate * _hLimit;
 
 		if (angleToPlayer < _viewAngle / 2) {
-			if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, _detectionRange)) {
-				return hit.collider.gameObject == _player;
+			var startingPoint = _column.position + directionToPlayerVertical * new Vector3(0, 1, 0);
+			if (Physics.Raycast(startingPoint, directionToPlayerHorizontal, out RaycastHit hit, _detectionRange)) {
+				Debug.Log("Hit:" + hit.collider.name);
+				if (hit.collider.gameObject == _player)
+				{
+					_lastSeenPosition = _player.transform.position;
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
 	private void DetectPlayer() {
-		Vector3 directionToPlayer = Vector3.Scale(_player.transform.position - transform.position, new Vector3(1, 0, 1)).normalized;
+		if (_headDetached) return;
 
-		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+		Vector3 directionToPlayer = _player.transform.position - _column.position;
+		if ((_column.rotation * new Vector3(0, 0, 1)) == -directionToPlayer.normalized)
+		{
+			// opposite
+			directionToPlayer += new Vector3(Mathf.Epsilon, 0, Mathf.Epsilon);
+		}
+
+		Vector3 directionToPlayerHorizontal = Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1));
+		float directionToPlayerVertical = directionToPlayer.y + _playerHeightOffset;
+		Quaternion targetRotationHorizontal = Quaternion.LookRotation(directionToPlayerHorizontal) * Quaternion.Inverse(_column.rotation);
+		Vector2 planarTargetRotationHorizontal = CylindricalConverter.Cylinder2Plane(targetRotationHorizontal * new Vector3(0, 0, 1));
+
+		// horizontal
+		var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRotationHorizontal;
+		LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+		_centralRotation = _column.rotation;
+
+		// vertical
+		float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+		LookVertical(_height + verticalUnit * (directionToPlayerVertical - _height));
 
 		if(_isCharging) {
 			return;
@@ -308,9 +341,9 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void FireProjectile() {
 		if (_headDetached) return;
 
-		GameObject proj = Instantiate(_projectile, transform.position + transform.forward * 2, Quaternion.identity);
+		GameObject proj = Instantiate(_projectile, _gunpoint.position, Quaternion.identity);
 
-		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
+		Vector3 directionToPlayer = _column.rotation * new Vector3(0, 0, 1);
 
 		// proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 		Rigidbody rb = proj.GetComponent<Rigidbody>();
