@@ -356,6 +356,27 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void ChasePlayer()
 	{
 		return;
+		/*
+		if (_headDetached) return;
+
+		// move to the starting point
+		var lookRotation = Quaternion.LookRotation(Vector3.Scale(_lastSeenPosition - _column.position, new Vector3(1, 0, 1)));
+		Vector2 planarTargetRotation = CylindricalConverter.Cylinder2Plane(lookRotation * Quaternion.Inverse(_centralRotation) * new Vector3(0,0,1));
+		Vector2 planarTargetRotationHorizontal = Vector2.Scale(planarTargetRotation, new Vector2(1, 0));
+		Quaternion horizontalRelativeRotation = _column.rotation * Quaternion.Inverse(_centralRotation);
+		Vector2 planarHorizontalRelativeRotation = CylindricalConverter.Cylinder2Plane(horizontalRelativeRotation * new Vector3(0, 0, 1));
+
+		var planarTargetRelativeHorizontal = planarTargetRotationHorizontal - Vector2.Scale(planarHorizontalRelativeRotation, new Vector2(1, 0));
+		var planarTargetRelativeVertical = new Vector2(0, planarTargetRotation.y - _height);
+
+		// horizontal
+		var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRelativeHorizontal;
+		LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+
+		// vertical
+		float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+		LookVertical(_height + verticalUnit * planarTargetRelativeVertical.y);
+		*/
 	}
 
 	private void OnDrawGizmosSelected()
