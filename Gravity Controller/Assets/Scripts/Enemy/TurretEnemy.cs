@@ -41,16 +41,24 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	[Header("Looking")]
 	[SerializeField] private float _rotationDirection;
-	[SerializeField] private float _rotationSpeed;
+	[SerializeField] private float _rotationSpeedHorizontal;
+	[SerializeField] private float _rotationSpeedVertical;
 	[SerializeField] private float _rotationLimit;
+	[SerializeField] private float _surveilPeriod;
 	private float _height;
 
 	[Header("Attack")]
 	[SerializeField] private float _viewAngle;
 	[SerializeField] private float _detectionRange;
+	[SerializeField] private float _detectionHeight;
 	[SerializeField] private float _chargeTime;
 	[SerializeField] private float _chargeCooldown;
 	private bool _isChargable = true;
+
+	[Header("Chase")]
+	[SerializeField] private float _awarenessCoolDown;
+	private float _awarenessCoolDownTimer;
+	private Vector3 _lastSeenPosition;
 
 	[Header("Neutralized")]
 	[SerializeField] private float _neutralizedHeadDegree;
@@ -96,6 +104,11 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_hLimit = Mathf.Sqrt(Mathf.Pow(_a + _b, 2) - Mathf.Pow(_d, 2)) * _headVerticalLimitRate;
 
 		_player = GameObject.Find("Player");
+
+		_centralRotation = _column.rotation;
+
+		State = EnemyState.Idle;
+		BeforeSurveil();
 	}
 
 	private void Update() {
@@ -118,11 +131,82 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		*/
 	}
 
-	private void RotateTurret() {
-		transform.Rotate(0, _rotationDirection * _rotationSpeed * Time.deltaTime, 0);
+	private void FixedUpdate()
+	{
+		if (_headDetached) return;
 
-		if (Mathf.Abs(transform.localEulerAngles.y) >= _rotationLimit) {
-			_rotationDirection *= -1;
+		bool isPlayerDetected = IsPlayerDetected();
+		Debug.Log("isPlayerDetected: " + isPlayerDetected);
+
+		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
+		if (isPlayerDetected) { 
+			_awarenessCoolDownTimer = _awarenessCoolDown; 
+		}
+
+		switch (State)
+		{
+			case EnemyState.Idle:
+				if (isPlayerDetected)
+				{
+					// Idle -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+					break;
+				}
+				Surveil();
+				break;
+			case EnemyState.Aware:
+				if (!isPlayerDetected)
+				{
+					// cannot see the player
+					if(_awarenessCoolDownTimer > 0)
+					{
+						// Aware -> Follow
+						State = EnemyState.Follow;
+						ChasePlayer();
+						break;
+					}
+					// Aware -> Idle
+					State = EnemyState.Idle;
+					BeforeSurveil();
+					Surveil();
+					break;
+				}
+				DetectPlayer();
+				break;
+			case EnemyState.Follow:
+				if (_awarenessCoolDownTimer <= 0)
+				{
+					// time's up
+					// Follow -> Idle
+					State = EnemyState.Idle;
+					BeforeSurveil();
+					Surveil();
+					break;
+				}
+				if (isPlayerDetected)
+				{
+					// gotcha
+					// Follow -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+					break;
+				}
+				ChasePlayer();
+				break;
+		}
+
+		Debug.Log(State);
+	}
+
+	private void BeforeSurveil()
+	{
+	}
+
+	private void Surveil()
+	{
+		if (_headDetached) return;
+
 		}
 	}
 
@@ -185,6 +269,10 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		// Destroy(proj, 5f); 
 	}
 
+	private void ChasePlayer()
+	{
+		return;
+	}
 	private float Alpha(float h)
 	{
 		// h stands for vertical coordinate
