@@ -9,6 +9,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private Transform _joint1;
 	private Transform _joint2;
 	private Transform _head;
+	private Transform _gunpoint;
 
 	[Header("Geometry")]
 	/* inverse kinematics
@@ -41,15 +42,30 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	[Header("Looking")]
 	[SerializeField] private float _rotationDirection;
-	[SerializeField] private float _rotationSpeed;
+	[SerializeField] private float _rotationSpeedHorizontal;
+	[SerializeField] private float _rotationSpeedVertical;
 	[SerializeField] private float _rotationLimit;
+	[SerializeField] private float _surveilPeriod;
+	private float _height;
+	private float _surveilElapsedTime = 0;
+	private ISurveilStrategy _surveilStrategy;
+	// default rotation; regard it as FlyingEnemy._spawnPoint
+	private Quaternion _centralRotation = Quaternion.identity;
+	private bool _isInitiatingSurveil = false;
+	[SerializeField] private float _playerHeightOffset;
 
 	[Header("Attack")]
 	[SerializeField] private float _viewAngle;
 	[SerializeField] private float _detectionRange;
+	[SerializeField] private float _detectionHeight;
 	[SerializeField] private float _chargeTime;
 	[SerializeField] private float _chargeCooldown;
 	private bool _isChargable = true;
+
+	[Header("Chase")]
+	[SerializeField] private float _awarenessCoolDown;
+	private float _awarenessCoolDownTimer;
+	private Vector3 _lastSeenPosition;
 
 	[Header("Neutralized")]
 	[SerializeField] private float _neutralizedHeadDegree;
@@ -73,6 +89,16 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_hp = _maxHp;
 
 		State = EnemyState.Idle;
+
+		/*
+		/* /
+		_strategy = new LinearSurveil();
+		/* /
+		_strategy = new RectangularSurveil();
+		/*/
+		_surveilStrategy = new CircularSurveil();
+		/**/
+		_surveilStrategy.SetScale(Mathf.Deg2Rad * _viewAngle/2, _detectionHeight/2);
 	}
 
 	private void Start() {
@@ -81,6 +107,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_joint2 = _column.GetChild(0);
 		_joint1 = _joint2.GetChild(0);
 		_head = _joint1.GetChild(0);
+		_gunpoint = _head.GetChild(0);
 
 		_a = Vector3.Distance(_joint2.position, _joint1.position);
 		_b = Vector3.Distance(_joint1.position, _head.position);
@@ -95,6 +122,11 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_hLimit = Mathf.Sqrt(Mathf.Pow(_a + _b, 2) - Mathf.Pow(_d, 2)) * _headVerticalLimitRate;
 
 		_player = GameObject.Find("Player");
+
+		_centralRotation = _column.rotation;
+
+		State = EnemyState.Idle;
+		BeforeSurveil();
 	}
 
 	private void Update() {
@@ -117,31 +149,168 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		*/
 	}
 
-	private void RotateTurret() {
-		transform.Rotate(0, _rotationDirection * _rotationSpeed * Time.deltaTime, 0);
+	private void FixedUpdate()
+	{
+		if (_headDetached) return;
 
-		if (Mathf.Abs(transform.localEulerAngles.y) >= _rotationLimit) {
-			_rotationDirection *= -1;
+		bool isPlayerDetected = IsPlayerDetected();
+		Debug.Log("isPlayerDetected: " + isPlayerDetected);
+
+		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
+		if (isPlayerDetected) { 
+			_awarenessCoolDownTimer = _awarenessCoolDown; 
 		}
+
+		switch (State)
+		{
+			case EnemyState.Idle:
+				if (isPlayerDetected)
+				{
+					// Idle -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+					break;
+				}
+				Surveil();
+				break;
+			case EnemyState.Aware:
+				if (!isPlayerDetected)
+				{
+					// cannot see the player
+					if(_awarenessCoolDownTimer > 0)
+					{
+						// Aware -> Follow
+						State = EnemyState.Follow;
+						ChasePlayer();
+						break;
+					}
+					// Aware -> Idle
+					State = EnemyState.Idle;
+					BeforeSurveil();
+					Surveil();
+					break;
+				}
+				DetectPlayer();
+				break;
+			case EnemyState.Follow:
+				if (_awarenessCoolDownTimer <= 0)
+				{
+					// time's up
+					// Follow -> Idle
+					State = EnemyState.Idle;
+					BeforeSurveil();
+					Surveil();
+					break;
+				}
+				if (isPlayerDetected)
+				{
+					// gotcha
+					// Follow -> Aware
+					State = EnemyState.Aware;
+					DetectPlayer();
+					break;
+				}
+				ChasePlayer();
+				break;
+		}
+
+		Debug.Log(State);
+	}
+
+	private void BeforeSurveil()
+	{
+		_surveilElapsedTime = 0;
+		_isInitiatingSurveil = true;
+	}
+
+	private void Surveil()
+	{
+		if (_headDetached) return;
+
+		if (_isInitiatingSurveil)
+		{
+			// move to the starting point
+			Vector2 planarTargetRotation = _surveilStrategy.Route(_surveilElapsedTime);
+			Vector2 planarTargetRotationHorizontal = Vector2.Scale(planarTargetRotation, new Vector2(1, 0));
+			Quaternion horizontalRelativeRotation = _column.rotation * Quaternion.Inverse(_centralRotation);
+			Vector2 planarHorizontalRelativeRotation = CylindricalConverter.Cylinder2Plane(horizontalRelativeRotation * new Vector3(0, 0, 1));
+
+			var planarTargetRelativeHorizontal = planarTargetRotationHorizontal - Vector2.Scale(planarHorizontalRelativeRotation, new Vector2(1, 0));
+			var planarTargetRelativeVertical = new Vector2(0, planarTargetRotation.y - _height);
+
+			var cos = Vector3.Dot(CylindricalConverter.Plane2Cylinder(planarTargetRelativeHorizontal + planarTargetRelativeVertical), new Vector3(0, 0, 1));
+			if (cos > _quaternionEqualityThreshold)
+			{
+				_isInitiatingSurveil = false;
+			}
+			else
+			{
+
+				// horizontal
+				var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRelativeHorizontal;
+				LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+
+				// vertical
+				float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+				LookVertical(_height + verticalUnit * planarTargetRelativeVertical.y);
+
+				return;
+			}
+		}
+
+		_surveilElapsedTime += Time.fixedDeltaTime;
+		if (_surveilElapsedTime > _surveilPeriod) _surveilElapsedTime -= _surveilPeriod;
+		Look(_centralRotation * CylindricalConverter.Plane2Cylinder(_surveilStrategy.Route(_surveilElapsedTime / _surveilPeriod)));
 	}
 
 	private bool IsPlayerDetected() {
-		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
-		float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
+		Vector3 directionToPlayerHorizontal = Vector3.Scale(_player.transform.position - _column.position, new Vector3(1, 0, 1));
+		float directionToPlayerVertical = (_player.transform.position - _column.position).y + _playerHeightOffset;
+
+		float angleToPlayer = Vector3.Angle(_centralRotation * transform.forward, directionToPlayerHorizontal.normalized);
+		
+		if (directionToPlayerVertical > _detectionHeight / 2 || directionToPlayerVertical < -_detectionHeight / 2) return false;
+		
+		//if (directionToPlayerVertical > _headVerticalLimitRate * _hLimit) directionToPlayerVertical = _headVerticalLimitRate * _hLimit;
+		//if (directionToPlayerVertical < -_headVerticalLimitRate * _hLimit) directionToPlayerVertical = -_headVerticalLimitRate * _hLimit;
 
 		if (angleToPlayer < _viewAngle / 2) {
-			if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, _detectionRange)) {
-				return hit.collider.gameObject == _player;
+			var startingPoint = _column.position + directionToPlayerVertical * new Vector3(0, 1, 0);
+			if (Physics.Raycast(startingPoint, directionToPlayerHorizontal, out RaycastHit hit, _detectionRange)) {
+				Debug.Log("Hit:" + hit.collider.name);
+				if (hit.collider.gameObject == _player)
+				{
+					_lastSeenPosition = _player.transform.position;
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 
 	private void DetectPlayer() {
-		Vector3 directionToPlayer = Vector3.Scale(_player.transform.position - transform.position, new Vector3(1, 0, 1)).normalized;
+		if (_headDetached) return;
 
-		Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+		Vector3 directionToPlayer = _player.transform.position - _column.position;
+		if ((_column.rotation * new Vector3(0, 0, 1)) == -directionToPlayer.normalized)
+		{
+			// opposite
+			directionToPlayer += new Vector3(Mathf.Epsilon, 0, Mathf.Epsilon);
+		}
+
+		Vector3 directionToPlayerHorizontal = Vector3.Scale(directionToPlayer, new Vector3(1, 0, 1));
+		float directionToPlayerVertical = directionToPlayer.y + _playerHeightOffset;
+		Quaternion targetRotationHorizontal = Quaternion.LookRotation(directionToPlayerHorizontal) * Quaternion.Inverse(_column.rotation);
+		Vector2 planarTargetRotationHorizontal = CylindricalConverter.Cylinder2Plane(targetRotationHorizontal * new Vector3(0, 0, 1));
+
+		// horizontal
+		var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRotationHorizontal;
+		LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+		_centralRotation = _column.rotation;
+
+		// vertical
+		float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+		LookVertical(_height + verticalUnit * (directionToPlayerVertical - _height));
 
 		if(_isCharging) {
 			return;
@@ -172,9 +341,9 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void FireProjectile() {
 		if (_headDetached) return;
 
-		GameObject proj = Instantiate(_projectile, transform.position + transform.forward * 2, Quaternion.identity);
+		GameObject proj = Instantiate(_projectile, _gunpoint.position, Quaternion.identity);
 
-		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
+		Vector3 directionToPlayer = _column.rotation * new Vector3(0, 0, 1);
 
 		// proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 		Rigidbody rb = proj.GetComponent<Rigidbody>();
@@ -182,6 +351,40 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 		// issue: 필요할까? Destroy를 많은 곳에서 시도하면 뭔가 문제가 생길 수도 있음
 		// Destroy(proj, 5f); 
+	}
+
+	private void ChasePlayer()
+	{
+		return;
+		/*
+		if (_headDetached) return;
+
+		// move to the starting point
+		var lookRotation = Quaternion.LookRotation(Vector3.Scale(_lastSeenPosition - _column.position, new Vector3(1, 0, 1)));
+		Vector2 planarTargetRotation = CylindricalConverter.Cylinder2Plane(lookRotation * Quaternion.Inverse(_centralRotation) * new Vector3(0,0,1));
+		Vector2 planarTargetRotationHorizontal = Vector2.Scale(planarTargetRotation, new Vector2(1, 0));
+		Quaternion horizontalRelativeRotation = _column.rotation * Quaternion.Inverse(_centralRotation);
+		Vector2 planarHorizontalRelativeRotation = CylindricalConverter.Cylinder2Plane(horizontalRelativeRotation * new Vector3(0, 0, 1));
+
+		var planarTargetRelativeHorizontal = planarTargetRotationHorizontal - Vector2.Scale(planarHorizontalRelativeRotation, new Vector2(1, 0));
+		var planarTargetRelativeVertical = new Vector2(0, planarTargetRotation.y - _height);
+
+		// horizontal
+		var temp = Time.deltaTime * _rotationSpeedHorizontal * planarTargetRelativeHorizontal;
+		LookHorizontal(_column.rotation * CylindricalConverter.Plane2Cylinder(temp));
+
+		// vertical
+		float verticalUnit = Time.fixedDeltaTime * _rotationSpeedVertical;
+		LookVertical(_height + verticalUnit * planarTargetRelativeVertical.y);
+		*/
+	}
+
+	private void OnDrawGizmosSelected()
+	{
+		Gizmos.color = Color.red;
+		Gizmos.DrawRay(_column.position, _detectionRange * (_centralRotation * new Vector3(0, 0, 1)));
+		Gizmos.color = Color.green;
+		Gizmos.DrawRay(_head.position, _detectionRange * (_column.rotation * new Vector3(0, 0, 1)));
 	}
 
 	private float Alpha(float h)
@@ -215,9 +418,17 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	
 		if(_headDetached) return;
 
-		_column.localRotation = Quaternion.LookRotation(Vector3.Scale(v,new Vector3(1,0,1)));
+		LookHorizontal(v);
+
 		var h = v.y;
 		LookVertical(h);
+	}
+
+	private void LookHorizontal(Vector3 v)
+	{
+    if (_headDetached) return;
+    
+		_column.rotation = Quaternion.LookRotation(Vector3.Scale(v, new Vector3(1, 0, 1)));
 	}
 
 	private void LookVertical(float h)
@@ -234,6 +445,8 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		_joint2.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dTheta, 0, 0);
 		_joint1.localRotation = Quaternion.Euler( Mathf.Rad2Deg * dGamma, 0, 0);
 		_head.localRotation = Quaternion.Euler(- Mathf.Rad2Deg * (dTheta + dGamma), 0, 0);
+
+		_height = h;
 	}
 
 	public void ReceiveSkill() {
