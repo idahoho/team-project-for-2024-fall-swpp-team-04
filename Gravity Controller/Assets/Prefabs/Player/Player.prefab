@@ -271,6 +271,6 @@ MonoBehaviour:
   _mouseInputWheel: 0
   _wheelInputThreshold: 0.2
   _gravityForceHigh: 2
-  _gravityForceLow: 0.1
+  _gravityForceLow: 0.05
   _globalLowEnergyCost: 60
   _globalHighEnergyCost: 300

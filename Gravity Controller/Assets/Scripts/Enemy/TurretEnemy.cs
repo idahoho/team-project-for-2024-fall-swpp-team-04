@@ -426,11 +426,15 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	private void LookHorizontal(Vector3 v)
 	{
+    if (_headDetached) return;
+    
 		_column.rotation = Quaternion.LookRotation(Vector3.Scale(v, new Vector3(1, 0, 1)));
 	}
 
 	private void LookVertical(float h)
 	{
+		if (_headDetached) return;
+
 		if (h > _hLimit) h = _hLimit;
 		if (h < - _hLimit) h = - _hLimit;
 		var theta = Theta(h);
