@@ -132,7 +132,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void Update() {
 		if (_headDetached && !_isRestoring)
 		{
-			_head.rotation = Quaternion.Slerp(_head.localRotation, Quaternion.Euler(_neutralizedHeadDegree, 0, 0) * _column.rotation, Time.deltaTime * _headDropSpeed);
+			_head.rotation = Quaternion.Slerp(_head.rotation,  _column.rotation * Quaternion.Euler(_neutralizedHeadDegree, 0, 0), Time.deltaTime * _headDropSpeed);
 		}
 
 		/*
@@ -464,7 +464,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		while (relativeAngle < _quaternionEqualityThreshold)
 		{
 			relativeAngle = Quaternion.Dot(_head.rotation, _column.rotation);
-			_head.rotation = Quaternion.Slerp(_head.localRotation, _column.rotation, Time.deltaTime * _headRestoreSpeed);
+			_head.rotation = Quaternion.Slerp(_head.rotation, _column.rotation, Time.deltaTime * _headRestoreSpeed);
 			yield return null;
 		}
 		Debug.Log("Restored");
