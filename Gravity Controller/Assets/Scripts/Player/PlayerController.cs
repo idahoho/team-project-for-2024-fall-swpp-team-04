@@ -46,6 +46,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _globalLowEnergyCost;
     [SerializeField] private float _globalHighEnergyCost;
     private bool _isGravityLow = false;
+
+    [Header("Interactive")]
+    [SerializeField] private float _interactiveRange;
+    [SerializeField] private KeyCode _interactKey;
+
     
 
     void Start() {
@@ -69,6 +74,7 @@ public class PlayerController : MonoBehaviour
             HandleButtonInput();
             HandleWheelInput();
             UpdateEnergy();
+            CheckInteractive();
         }
     }
 
@@ -208,6 +214,18 @@ public class PlayerController : MonoBehaviour
             if(rigid = obj.GetComponent<Rigidbody>()) {
                 rigid.AddForce(Physics.gravity * rigid.mass * (_gravityForceHigh - 1f), ForceMode.Impulse);
                 //
+            }
+        }
+    }
+
+    private void CheckInteractive() {
+        RaycastHit hit;
+        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange)) {
+            if(hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable)) {
+                Debug.Log("Interactable Detected");
+                if(Input.GetKeyDown(_interactKey)) {
+                    interactable.Interactive();
+                }
             }
         }
     }
