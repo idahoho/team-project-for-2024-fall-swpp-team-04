@@ -381,6 +381,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	private void OnDrawGizmosSelected()
 	{
+		if (_column == null) return;
 		Gizmos.color = Color.red;
 		Gizmos.DrawRay(_column.position, _detectionRange * (_centralRotation * new Vector3(0, 0, 1)));
 		Gizmos.color = Color.green;
