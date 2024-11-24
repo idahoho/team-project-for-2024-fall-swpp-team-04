@@ -35,6 +35,8 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	private float _awarenessCoolDownTimer;
 	private Vector3 _lastSeenPosition;
 
+	[SerializeField] private float _attackAnimationLength = 1.25f;
+
 	[SerializeField] private int _maxHp;
 	private int _hp;
 
@@ -266,7 +268,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	// fix: Invoke 대신 Coroutine 사용하는 구조로 변경
 	IEnumerator ResetAttack() {
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(_attackAnimationLength);
 
 		_isAttacking = false;
 		_animator.SetBool("Attack", false);
