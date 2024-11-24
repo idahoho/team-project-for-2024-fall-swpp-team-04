@@ -176,8 +176,11 @@ public class WalkingEnemy : MonoBehaviour, IEnemy
 
 	private void Wander() {
 		_timer += Time.deltaTime;
-		if(_timer > _changeDirectionInterval) {
-			// Issue: interval에도 약간의 랜덤성을 주면 좋을 것 같음
+		RaycastHit hit;
+		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0, 1, 0), _currentDirection, out hit, _obstacleDetectionRange))
+		{
+			// detected an obstacle while moving
+			Debug.Log("detected an obstacle:" + hit.collider.name);
 			SetRandomDirection();
 			_timer = 0f;
 		}
