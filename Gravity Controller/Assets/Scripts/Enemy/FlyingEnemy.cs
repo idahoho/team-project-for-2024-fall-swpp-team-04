@@ -4,7 +4,7 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using UnityEngine;
 
-public class FlyingEnemy : MonoBehaviour, IEnemy
+public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 {
 	private Transform _body;
 	private Transform _joint;
@@ -418,5 +418,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
 		Destroy(gameObject);
+	}
+
+	public void ReceiveSkill()
+	{
 	}
 }
