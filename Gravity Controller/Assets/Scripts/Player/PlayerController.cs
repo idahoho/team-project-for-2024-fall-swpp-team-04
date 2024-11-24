@@ -127,10 +127,12 @@ public class PlayerController : MonoBehaviour
             Debug.Log("fire");
             RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-                if(hit.collider.gameObject.CompareTag("Enemy")) {
-                    Debug.Log("Fire: enemy detected");
-                    // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
-                    hit.collider.gameObject.GetComponent<IEnemy>().OnHit();
+                // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
+				var targetAttackReceiver = hit.collider.gameObject.GetComponent<IAttackReceiver>();
+				if (targetAttackReceiver != null)
+				{
+					Debug.Log("Fire: enemy detected");
+					targetAttackReceiver.OnHit();
                 }
             }
             UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);

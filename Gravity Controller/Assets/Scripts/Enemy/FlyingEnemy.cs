@@ -4,7 +4,7 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using UnityEngine;
 
-public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver
+public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceiver
 {
 	private Transform _body;
 	private Transform _joint;

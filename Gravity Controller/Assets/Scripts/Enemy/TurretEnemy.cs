@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
+public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceiver
 {
 	private Transform _body;
 	private Transform _column;
@@ -472,18 +472,6 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 		_isRestoring = false;
 		_headDetached = false;
 		_head.rotation = _column.rotation;
-	}
-
-	public void OnHit()
-	{
-		// indestructible
-		/*
-		if (--_hp <= 0)
-		{
-			OnDeath();
-		}
-		*/
-		// hit effect goes here: particle, knockback, etc.
 	}
 
 	public void OnDeath()

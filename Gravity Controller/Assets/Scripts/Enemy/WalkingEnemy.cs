@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WalkingEnemy : MonoBehaviour, IEnemy
+public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 {
 	private Animator _animator;
 	[Header("Target")]
