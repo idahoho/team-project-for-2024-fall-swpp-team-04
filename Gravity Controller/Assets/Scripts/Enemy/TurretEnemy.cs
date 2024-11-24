@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceiver
+public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 {
 	private Transform _body;
 	private Transform _column;
