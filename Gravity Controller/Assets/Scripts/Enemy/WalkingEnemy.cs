@@ -36,6 +36,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	private Vector3 _lastSeenPosition;
 
 	[SerializeField] private float _attackAnimationLength = 1.25f;
+	private bool _attackSuccess = false;
 
 	[SerializeField] private int _maxHp;
 	private int _hp;
@@ -276,6 +277,17 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	// fix: player controller가 유효한지 검사하는 과정 삭제
 	public void AttackHitCheck() {
+		if (_attackSuccess)
+		{
+			Debug.Log("Attack Successful");
+			_player.GetComponent<PlayerController>().OnHit();
+		}
+		else
+		{
+			Debug.Log("Attack Fail");
+		}
+		
+		/*
 		float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
 
 		if(distanceToPlayer < _attackHitRange) {
@@ -284,6 +296,12 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		} else {
 			Debug.Log("Attack Fail");
 		}
+		*/
+	}
+
+	public void SetAttackSuccess(bool success)
+	{
+		_attackSuccess = success;
 	}
 
 	private void Follow()
