@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _gravityForceLow;
     [SerializeField] private float _globalLowEnergyCost;
     [SerializeField] private float _globalHighEnergyCost;
-    private bool _isGravityLow = false;
+    public bool _isGravityLow = false;
 
     [Header("Interactive")]
     [SerializeField] private float _interactiveRange;

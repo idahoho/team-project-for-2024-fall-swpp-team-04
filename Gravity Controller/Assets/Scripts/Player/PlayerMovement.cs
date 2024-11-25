@@ -15,8 +15,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _jumpForce; // force jumping
     [SerializeField] private float _groundDrag; // prevent slippery
     [SerializeField] private float _airMultiplier; // lower force when player is not grounded
+    [SerializeField] private float _jumpMultiplier; // adjust the jump force when the gravity low skill is active
 
-    private float _horizontalInput;
+	private float _horizontalInput;
     private float _verticalInput;
     private float _mouseInputX;
     private float _mouseInputY;
@@ -31,11 +32,13 @@ public class PlayerMovement : MonoBehaviour
     private float _rotationLimitY = 80;
 
     private bool _isGrounded = true;
+    private PlayerController _playerController;
 
 
     void Start() {
         _rigid = GetComponent<Rigidbody>();
         _camera = GameObject.Find("PlayerCamera");
+        _playerController = GetComponent<PlayerController>();
     }
 
     private void FixedUpdate() {
@@ -97,8 +100,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump() {
         // reset y velocity
+        float jumpMultiplier = (_playerController._isGravityLow) ? _jumpMultiplier : 1f;
         _rigid.velocity = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
-        _rigid.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
+        _rigid.AddForce(transform.up * _jumpForce * jumpMultiplier, ForceMode.Impulse);
         _isGrounded = false;
     }
     
