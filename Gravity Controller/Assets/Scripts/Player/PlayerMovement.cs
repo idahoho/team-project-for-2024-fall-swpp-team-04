@@ -33,17 +33,22 @@ public class PlayerMovement : MonoBehaviour
 
     private bool _isGrounded = true;
     private PlayerController _playerController;
+    public float _moveSpeedGun;
+    public float _maxSpeedGun;
 
 
     void Start() {
         _rigid = GetComponent<Rigidbody>();
         _camera = GameObject.Find("PlayerCamera");
         _playerController = GetComponent<PlayerController>();
+        _maxSpeedGun = _maxSpeed;
     }
 
     private void FixedUpdate() {
         MovePlayer();
-    }
+		Vector3 flatVelocity = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
+		_moveSpeedGun = flatVelocity.magnitude;
+	}
 
     void Update() {
         HandleInput();
