@@ -11,6 +11,7 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private float _fogDensity;
     [SerializeField] private float _lightOnDamping;
     private bool _isLightOn = false;
+    private float _epsilon = 1e-10f;
 
     [Header("Core Restored")]
     [SerializeField] private Renderer[] _batteries;
@@ -39,7 +40,7 @@ public class CoreController : MonoBehaviour, IInteractable
     }
 
     private IEnumerator GlobalLightOn() {
-        while(_sunLight.intensity < _sunLightIntensity) {
+        while(_sunLight.intensity < _sunLightIntensity - _epsilon) {
             _sunLight.intensity = Mathf.Lerp(_sunLight.intensity, _sunLightIntensity, Time.deltaTime * _lightOnDamping);
             RenderSettings.ambientLight = Color.Lerp(RenderSettings.ambientLight, _environmentLight, Time.deltaTime * _lightOnDamping);
             RenderSettings.fogDensity = Mathf.Lerp(RenderSettings.fogDensity, _fogDensity, Time.deltaTime * _lightOnDamping);
