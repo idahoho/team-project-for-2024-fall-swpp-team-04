@@ -4,7 +4,7 @@ using System.Diagnostics.Tracing;
 using System.Threading;
 using UnityEngine;
 
-public class FlyingEnemy : MonoBehaviour, IEnemy
+public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceiver
 {
 	private Transform _body;
 	private Transform _joint;
@@ -69,6 +69,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	[SerializeField] private int _maxHp;
 	private int _hp;
 
+	[Header("ReceiveSkill")]
+	[SerializeField] private float _fallingSpeed;
+	[SerializeField] private float _minHeight;
+	private bool _isFalling = false;
+	private bool _isNeutralized = false;
 	public EnemyState State { get; private set; }
 
 	void Awake()
@@ -97,6 +102,18 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 
 	private void FixedUpdate()
 	{
+		if(_isFalling)
+		{
+			// fall
+			RaycastHit hitBelow;
+			if(Physics.Raycast(transform.position, new Vector3(0,-1,0), out hitBelow, _minHeight)){
+				Debug.Log("Hit below: " + hitBelow.collider.name);
+				_isFalling = false;
+			}
+			else transform.Translate(new Vector3(0,- _fallingSpeed * Time.fixedDeltaTime,0));
+		}
+		if (_isNeutralized) return;
+
 		var relativePosition = _player.transform.position - transform.position;
 		float distanceHorizontal = Vector3.Scale(relativePosition, new Vector3(1, 0, 1)).magnitude;
 		float distanceVertical = transform.position.y - _player.transform.position.y;
@@ -344,7 +361,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 	}
 
 	private void FireProjectile() {
-		GameObject proj = Instantiate(_projectile, transform.position + transform.forward * 2, Quaternion.identity);
+		GameObject proj = Instantiate(_projectile, _gun.position, Quaternion.identity);
 
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
 
@@ -418,5 +435,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
 		Destroy(gameObject);
+	}
+
+	public void ReceiveSkill()
+	{
+		_isFalling = true;
+		_isNeutralized = true;
 	}
 }
