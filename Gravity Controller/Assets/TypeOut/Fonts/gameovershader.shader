@@ -2,9 +2,15 @@ Shader "Custom/gameovershader"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-        _DissolveTex("DissolveTex" , 2D) = "white"{}
+        [NoScaleOffset] _MainTex ("Texture", 2D) = "white" {}
+        [NoScaleOffset] _DissolveTex("DissolveTex" , 2D) = "white"{}
+        _DissolveScaleOffset("DissolveScaleOffset", vector) = (1,1,0,0)
         _DissolveValue("DissolveValue", range(0, 1)) = 0.0
+
+        [HDR] _EdgeGlowColor("EdgeGlowColor", color) = (1,1,1,1)
+        _EdgeGlowMaskValue("EdgeGlowMaskValue", float) = 0.0
+        _EdgeGlowMaskBlur("EdgeGlowMaskBlur", float) = 0.0
+
     }
     SubShader
     {
@@ -37,6 +43,10 @@ Shader "Custom/gameovershader"
 
             sampler2D _DissolveTex;
             float _DissolveValue;
+            float4 _DissolveScaleOffset;
+            float4 _EdgeGlowColor;
+            float _EdgeGlowMaskValue;
+            float _EdgeGlowMaskBlur;
             
 
             v2f vert (appdata v)
@@ -51,9 +61,12 @@ Shader "Custom/gameovershader"
             fixed4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                float dissolveTex = tex2D(_DissolveTex, i.uv).r;
+                float4 col = tex2D(_MainTex, i.uv);
+                float dissolveTex = tex2D(_DissolveTex, i.uv * _DissolveScaleOffset.xy + _DissolveScaleOffset.zw).r;
                 float clipValue = dissolveTex - _DissolveValue;
+
+                float edgeGlowMask = 1.0 - smoothstep(_EdgeGlowMaskValue, _EdgeGlowMaskBlur + _EdgeGlowMaskValue, clipValue);
+                col.rgb += edgeGlowMask * _EdgeGlowColor;
                 clip(clipValue);
                 
                 return col;
