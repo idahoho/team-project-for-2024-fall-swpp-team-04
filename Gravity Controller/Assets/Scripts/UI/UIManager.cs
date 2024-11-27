@@ -21,6 +21,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private RectTransform _crossHair;
     [SerializeField] private float _defaultSize = 100f;
 	[SerializeField] private float _fireSize = 200f;
+	[Header("Core Interaction")]
+	[SerializeField] private GameObject _warningTriangle;
+	[SerializeField] private Slider _progressBar;
 
 	public static UIManager Instance { get; private set; }
 
@@ -37,8 +40,8 @@ public class UIManager : MonoBehaviour
 	}
 
     private void Start() {
-
-    }
+	    _warningTriangle.SetActive(false);
+	}
 
     private void Update() {
         UpdateEnergy();
@@ -83,5 +86,33 @@ public class UIManager : MonoBehaviour
 
     public void CrossHairHit() {
         // 총에 적이 맞으면 붉은색으로 변한다든가 하는 효과를 주면 좋을 것 같음
+    }
+    public void TriggerCoreInteractionUi()
+    {
+	    StartCoroutine(ShowCoreInteractionUi());
+    }
+
+    private IEnumerator ShowCoreInteractionUi()
+    {
+	    // 경고 삼각형을 1초 동안 표시
+	    _warningTriangle.SetActive(true);
+	    yield return new WaitForSeconds(1f);
+	    _warningTriangle.SetActive(false);
+
+	    // 프로그레스 바를 1분 동안 표시
+	    _progressBar.value = 0;
+	    _progressBar.gameObject.SetActive(true);
+
+	    float duration = 60f;
+	    float elapsed = 0f;
+
+	    while (elapsed < duration)
+	    {
+		    elapsed += Time.deltaTime;
+		    _progressBar.value = Mathf.Clamp01(elapsed / duration);
+		    yield return null;
+	    }
+
+	    _progressBar.gameObject.SetActive(false);
     }
 }
