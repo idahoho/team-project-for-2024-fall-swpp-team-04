@@ -171,6 +171,7 @@ GameObject:
   - component: {fileID: 3940993412661136705}
   - component: {fileID: 3940993412661136710}
   - component: {fileID: 3940993412661136711}
+  - component: {fileID: 265537301}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -238,8 +239,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _moveForce: 10000
-  _maxSpeed: 20
-  _jumpForce: 1200
+  _maxSpeed: 10
+  _jumpForce: 1500
   _groundDrag: 7
   _airMultiplier: 0.3
   sensetivityX: 1000
@@ -256,11 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 135e4bfde9966481392170ed0315b20f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameManager: {fileID: 0}
   _maxHP: 5
   _maxEnergy: 300
   _energyRecoveryPerSec: 30
-  _uiManager: {fileID: 0}
   _reloadKey: 114
   _maxBullet: 10
   _shootCooldown: 0.5
@@ -274,3 +273,13 @@ MonoBehaviour:
   _gravityForceLow: 0.05
   _globalLowEnergyCost: 60
   _globalHighEnergyCost: 300
+  _interactiveRange: 2
+  _interactKey: 101
+--- !u!81 &265537301
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3940993412661136708}
+  m_Enabled: 1

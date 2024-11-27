@@ -46,6 +46,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _globalLowEnergyCost;
     [SerializeField] private float _globalHighEnergyCost;
     private bool _isGravityLow = false;
+
+    [Header("Interactive")]
+    [SerializeField] private float _interactiveRange;
+    [SerializeField] private KeyCode _interactKey;
+
     
 
     void Start() {
@@ -69,6 +74,7 @@ public class PlayerController : MonoBehaviour
             HandleButtonInput();
             HandleWheelInput();
             UpdateEnergy();
+            CheckInteractive();
         }
     }
 
@@ -127,10 +133,12 @@ public class PlayerController : MonoBehaviour
             Debug.Log("fire");
             RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-                if(hit.collider.gameObject.CompareTag("Enemy")) {
-                    Debug.Log("Fire: enemy detected");
-                    // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
-                    hit.collider.gameObject.GetComponent<IEnemy>().OnHit();
+                // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
+				var targetAttackReceiver = hit.collider.gameObject.GetComponent<IAttackReceiver>();
+				if (targetAttackReceiver != null)
+				{
+					Debug.Log("Fire: enemy detected");
+					targetAttackReceiver.OnHit();
                 }
             }
             UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
@@ -172,16 +180,19 @@ public class PlayerController : MonoBehaviour
         }
         RaycastHit hit;
         if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
-            Rigidbody rigid;
-            if(rigid = hit.collider.gameObject.GetComponent<Rigidbody>()) {
+            //Rigidbody rigid;
+			ISkillReceiver targetSkillReceiver =  hit.collider.gameObject.GetComponent<ISkillReceiver>();
+
+			if (targetSkillReceiver != null) {
                 Debug.Log("TargetGravity: target detected");
                 _isTargetable = false;
                 StartCoroutine(ReTargetable());
                 _currentEnergy -= _localEnergyCost;
 
                 // 여기서 피격된 대상의 오브젝트를 불러올 수 있음
-                rigid.AddForce(Physics.gravity * rigid.mass * (_localGravityForce - 1f), ForceMode.Impulse);
+                //rigid.AddForce(Physics.gravity * rigid.mass * (_localGravityForce - 1f), ForceMode.Impulse);
                 // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+				targetSkillReceiver.ReceiveSkill();
             }
         }
     }
@@ -208,6 +219,18 @@ public class PlayerController : MonoBehaviour
             if(rigid = obj.GetComponent<Rigidbody>()) {
                 rigid.AddForce(Physics.gravity * rigid.mass * (_gravityForceHigh - 1f), ForceMode.Impulse);
                 //
+            }
+        }
+    }
+
+    private void CheckInteractive() {
+        RaycastHit hit;
+        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange)) {
+            if(hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable)) {
+                Debug.Log("Interactable Detected");
+                if(Input.GetKeyDown(_interactKey)) {
+                    interactable.Interactive();
+                }
             }
         }
     }

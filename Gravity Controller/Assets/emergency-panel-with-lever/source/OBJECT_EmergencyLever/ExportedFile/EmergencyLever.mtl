@@ -1,0 +1,17 @@
+# Blender MTL File: 'OBJECT_EmergencyLever.blend'
+# Material Count: 1
+
+newmtl Mat_EmergLever
+Ns 489.999983
+Ka 0.700000 0.700000 0.700000
+Kd 0.125000 0.125000 0.125000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Bump /Users/fibonacci-design/Desktop/OBJECT EmergencyLever/OBJECT_EmergencyLever/Textures/EmergLever_Normal.png
+map_Kd /Users/fibonacci-design/Desktop/OBJECT EmergencyLever/OBJECT_EmergencyLever/Textures/EmergLever_BaseColor.png
+map_Ke /Users/fibonacci-design/Desktop/OBJECT EmergencyLever/OBJECT_EmergencyLever/Textures/EmergLever_Emission.png
+map_Ns /Users/fibonacci-design/Desktop/OBJECT EmergencyLever/OBJECT_EmergencyLever/Textures/EmergLever_Roughness.png
+refl /Users/fibonacci-design/Desktop/OBJECT EmergencyLever/OBJECT_EmergencyLever/Textures/EmergLever_Metallic.png

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TurretEnemy : MonoBehaviour, IEnemy
+public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 {
 	private Transform _body;
 	private Transform _column;
@@ -132,7 +132,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 	private void Update() {
 		if (_headDetached && !_isRestoring)
 		{
-			_head.rotation = Quaternion.Slerp(_head.localRotation, Quaternion.Euler(_neutralizedHeadDegree, 0, 0) * _column.rotation, Time.deltaTime * _headDropSpeed);
+			_head.rotation = Quaternion.Slerp(_head.rotation,  _column.rotation * Quaternion.Euler(_neutralizedHeadDegree, 0, 0), Time.deltaTime * _headDropSpeed);
 		}
 
 		/*
@@ -381,6 +381,7 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 
 	private void OnDrawGizmosSelected()
 	{
+		if (_column == null) return;
 		Gizmos.color = Color.red;
 		Gizmos.DrawRay(_column.position, _detectionRange * (_centralRotation * new Vector3(0, 0, 1)));
 		Gizmos.color = Color.green;
@@ -464,25 +465,13 @@ public class TurretEnemy : MonoBehaviour, IEnemy
 		while (relativeAngle < _quaternionEqualityThreshold)
 		{
 			relativeAngle = Quaternion.Dot(_head.rotation, _column.rotation);
-			_head.rotation = Quaternion.Slerp(_head.localRotation, _column.rotation, Time.deltaTime * _headRestoreSpeed);
+			_head.rotation = Quaternion.Slerp(_head.rotation, _column.rotation, Time.deltaTime * _headRestoreSpeed);
 			yield return null;
 		}
 		Debug.Log("Restored");
 		_isRestoring = false;
 		_headDetached = false;
 		_head.rotation = _column.rotation;
-	}
-
-	public void OnHit()
-	{
-		// indestructible
-		/*
-		if (--_hp <= 0)
-		{
-			OnDeath();
-		}
-		*/
-		// hit effect goes here: particle, knockback, etc.
 	}
 
 	public void OnDeath()
