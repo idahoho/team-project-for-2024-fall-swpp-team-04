@@ -9,7 +9,7 @@ public class PunchCollider : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
     {
-		_walkingEnemy = transform.parent.parent.parent.GetComponent<WalkingEnemy>();
+		_walkingEnemy = transform.parent.parent.GetComponent<WalkingEnemy>();
     }
 
 	private void OnTriggerEnter(Collider other)
