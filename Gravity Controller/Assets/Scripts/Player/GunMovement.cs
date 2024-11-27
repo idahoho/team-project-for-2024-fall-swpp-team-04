@@ -138,7 +138,7 @@ public class GunMovement : MonoBehaviour
 			StopCoroutine(_movementSwayCoroutine);
 			_movementSwayCoroutine = null;
 		}
-		StartCoroutine(ReturnGunToInitialPosition());
+		if (!_isAnimating) StartCoroutine(ReturnGunToInitialPosition());
 	}
 	/// <summary>
 	/// Smoothly returns the gun to its initial position over time.
@@ -153,7 +153,9 @@ public class GunMovement : MonoBehaviour
 			yield return null;
 		}
 
+
 		transform.localPosition = _initialPosition;
+
 	}
 	/// <summary>
 	/// Handles the recoil animation when the gun is fired.
