@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
 
     private void Start() {
 	    _warningTriangle.SetActive(false);
+	    _progressBar.gameObject.SetActive(false);
 	}
 
     private void Update() {

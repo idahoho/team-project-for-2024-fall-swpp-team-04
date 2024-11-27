@@ -1,27 +1,49 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CoreInteraction : MonoBehaviour, IInteractable
 {
-	[SerializeField] private Material _coreDeactivatedMaterial; // 코어 비활성화 시의 머티리얼
-	[SerializeField] private Light _coreLight; // 코어 내부의 조명
-	[SerializeField] private GameObject _coreUI; 
+	[SerializeField] private Light _coreLight; 
+	[SerializeField] private GameObject _door;
+	[SerializeField] private GameObject _wall;
+	private GameManager _gameManager;
+
+	private bool _isCheckingEnemies = false; 
 
 	void Start()
 	{
+		_gameManager = FindObjectOfType<GameManager>();
+		_wall.SetActive(false);
 	}
 
 	public void Interactive()
 	{
-		// 조명을 비활성화하여 코어의 상태를 시각적으로 표시
 		if (_coreLight != null)
 		{
 			_coreLight.enabled = false;
 		}
+		_wall.SetActive(true);
 
+		StartCoroutine(StartCheckingEnemiesAfterDelay(62f));
+	}
 
-		// 코어와 상호작용 시 UIManager를 통해 UI를 제어
-		UIManager.Instance.TriggerCoreInteractionUi();
+	private System.Collections.IEnumerator StartCheckingEnemiesAfterDelay(float delay)
+	{
+		yield return new WaitForSeconds(delay);
+
+		_isCheckingEnemies = true;
+
+		while (_isCheckingEnemies)
+		{
+			if (_gameManager.GetActiveEnemies().Count == 0)
+			{
+				if (_door.TryGetComponent<IDoor>(out IDoor door))
+				{
+					door.Open();
+				}
+				_isCheckingEnemies = false; 
+			}
+
+			yield return new WaitForSeconds(1f); 
+		}
 	}
 }
