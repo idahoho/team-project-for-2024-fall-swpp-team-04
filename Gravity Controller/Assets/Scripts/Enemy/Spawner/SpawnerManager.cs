@@ -10,6 +10,7 @@ public class SpawnerManager : MonoBehaviour
 	[SerializeField] private List<float> _customDelays; 
 	private List<IEnemyFactory> _spawners = new List<IEnemyFactory>();
 	private int _currentSpawnerIndex = 0;
+	[SerializeField] private int _spawnCount = -1; // if set as default, do original logic(spawn infinite), set 0 if spawn only onetime in list
 
 	void Start()
 	{
@@ -43,6 +44,11 @@ public class SpawnerManager : MonoBehaviour
 			{
 				_spawners[_currentSpawnerIndex].SpawnEnemy();
 			}
+		}
+		_spawnCount++;
+		if (_spawnCount >=  0 &&_spawnCount >= _spawnTimes.Count)
+		{
+			return;
 		}
 
 		_currentSpawnerIndex = (_currentSpawnerIndex + 1) % _spawners.Count;

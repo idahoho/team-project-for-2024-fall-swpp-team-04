@@ -20,7 +20,7 @@ public class GunMovement : MonoBehaviour
 	[SerializeField] private float _movementSwayAmountZ = 0.2f;  // Movement sway range on Z
 	[SerializeField] private float _movementSwaySpeed = 3f;       // Sway speed
 	[SerializeField] private float _movementAngleLimit = 30f;     // Maximum sway angle in degrees 
-	[SerializeField] private float _maxMoveSpeed = 10f;           // Maximum movement speed for normalization
+	[SerializeField] private float _maxMoveSpeed = 20f;           // Maximum movement speed for normalization
 
 	// **Player Settings**
 	[Header("Player Settings")]

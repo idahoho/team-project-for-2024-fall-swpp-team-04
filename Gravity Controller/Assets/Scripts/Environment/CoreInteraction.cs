@@ -5,6 +5,7 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 	[SerializeField] private Light _coreLight; 
 	[SerializeField] private GameObject _door;
 	[SerializeField] private GameObject _wall;
+	[SerializeField] private GameObject _spawner;
 	private GameManager _gameManager;
 
 	private bool _isCheckingEnemies = false; 
@@ -13,6 +14,7 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 	{
 		_gameManager = FindObjectOfType<GameManager>();
 		_wall.SetActive(false);
+		_spawner.SetActive(false);
 	}
 
 	public void Interactive()
@@ -22,7 +24,8 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 			_coreLight.enabled = false;
 		}
 		_wall.SetActive(true);
-
+		UIManager.Instance.TriggerCoreInteractionUi();
+		_spawner.SetActive(true);
 		StartCoroutine(StartCheckingEnemiesAfterDelay(62f));
 	}
 
