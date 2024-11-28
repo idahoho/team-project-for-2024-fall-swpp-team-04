@@ -361,7 +361,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	}
 
 	private void FireProjectile() {
-		GameObject proj = Instantiate(_projectile, _gun.position, Quaternion.identity);
+		GameObject proj = Instantiate(_projectile, _gun.GetChild(0).position, Quaternion.identity);
 
 		Vector3 directionToPlayer = (_player.transform.position - transform.position).normalized;
 
