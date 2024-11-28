@@ -34,6 +34,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	[SerializeField] private float _awarenessCoolDown;
 	private float _awarenessCoolDownTimer;
 	private Vector3 _lastSeenPosition;
+	[SerializeField] private float _frontOffset;
 
 	[SerializeField] private float _attackAnimationLength = 1.25f;
 	private bool _attackSuccess = false;
@@ -94,7 +95,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
 
-		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0,1,0), Vector3.Scale(relativePosition, new Vector3(1, 0, 1)), out hit, _sightRange))
+		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0,1,0) + _frontOffset * (transform.rotation * new Vector3(0, 0, 1)), Vector3.Scale(relativePosition, new Vector3(1, 0, 1)), out hit, _sightRange))
 		{
 			playerInSight = hit.collider.gameObject.CompareTag("Player");
 			if (playerInSight)
@@ -180,7 +181,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	private void Wander() {
 		_timer += Time.deltaTime;
 		RaycastHit hit;
-		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0, 1, 0), _currentDirection, out hit, _obstacleDetectionRange))
+		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0, 1, 0) + _frontOffset * (transform.rotation * new Vector3(0, 0, 1)), _currentDirection, out hit, _obstacleDetectionRange))
 		{
 			// detected an obstacle while moving
 			Debug.Log("detected an obstacle:" + hit.collider.name);
@@ -336,6 +337,8 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		Gizmos.DrawWireSphere(_spawnPoint, _wanderRange);
 		Gizmos.color = Color.blue;
 		Gizmos.DrawWireSphere(transform.position, _chaseRange);
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawRay(transform.position + _heightOffset * new Vector3(0, 1, 0) + _frontOffset * (transform.rotation * new Vector3(0, 0, 1)), _obstacleDetectionRange * (transform.rotation * new Vector3(0, 0, 1)));
 	}
 
 	public void OnHit()
