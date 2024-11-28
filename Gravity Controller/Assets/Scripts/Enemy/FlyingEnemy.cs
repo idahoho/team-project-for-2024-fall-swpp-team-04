@@ -74,6 +74,13 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	[SerializeField] private float _minHeight;
 	private bool _isFalling = false;
 	private bool _isNeutralized = false;
+
+	[Header("Death")]
+	private bool _isDead = false;
+	[SerializeField] private Vector3 _deathFallDirection;
+	[SerializeField] private float _deathFallSpeed;
+	[SerializeField] private float _beforeDeathTime;
+
 	public EnemyState State { get; private set; }
 
 	void Awake()
@@ -105,17 +112,33 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		if(_isFalling)
 		{
 			// fall
-			RaycastHit hitBelow;
-			if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hitBelow, _fallingSpeed * Time.fixedDeltaTime + _minHeight))
-			{
-				Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
-				transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0));
-				//transform.position = hitBelow.point;
-				_isFalling = false;
+			if (_isNeutralized) {
+				RaycastHit hitBelow;
+				if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hitBelow, _fallingSpeed * Time.fixedDeltaTime + _minHeight))
+				{
+					Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
+					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0));
+					//transform.position = hitBelow.point;
+					_isFalling = false;
+					Invoke("Die", _beforeDeathTime);
+				}
+				else transform.Translate(new Vector3(0, -_fallingSpeed * Time.fixedDeltaTime, 0));
 			}
-			else transform.Translate(new Vector3(0,- _fallingSpeed * Time.fixedDeltaTime,0));
+			else if (_isDead)
+			{
+				RaycastHit hitBelow;
+				if (Physics.Raycast(transform.position, _deathFallDirection.normalized, out hitBelow, _deathFallSpeed * Time.fixedDeltaTime + _minHeight))
+				{
+					Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
+					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0)); 
+					//transform.position = hitBelow.point;
+					_isFalling = false;
+					Invoke("Die", _beforeDeathTime);
+				}
+				else transform.Translate(_deathFallSpeed * Time.fixedDeltaTime * _deathFallDirection.normalized);
+			}
 		}
-		if (_isNeutralized) return;
+		if (_isNeutralized || _isDead) return;
 
 		var relativePosition = _player.transform.position - transform.position;
 		float distanceHorizontal = Vector3.Scale(relativePosition, new Vector3(1, 0, 1)).magnitude;
@@ -435,8 +458,21 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	public void OnDeath()
 	{
+		_isDead = true;
+		var childrenColliders = gameObject.GetComponentsInChildren<Collider>();
+		foreach (Collider collider in childrenColliders)
+		{
+			collider.enabled = false;
+		}
+		StartSmoke();
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
+		//Destroy(gameObject);
+		_isFalling = true;
+	}
+
+	private void Die()
+	{
 		Destroy(gameObject);
 	}
 
@@ -444,5 +480,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	{
 		_isFalling = true;
 		_isNeutralized = true;
+		StartSmoke();
+	}
+
+	private void StartSmoke()
+	{
+		transform.GetChild(1).gameObject.SetActive(true);
 	}
 }
