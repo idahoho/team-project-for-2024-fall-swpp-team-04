@@ -43,7 +43,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	private int _hp;
 
 	[Header("Death")]
-	[SerializeField] public float _dieAnimationLength;
+	[SerializeField] public float _beforeDeathTime; //length of 'Die' animation
 	private bool _isDead = false;
 
 	public EnemyState State { get; private set; }
@@ -367,7 +367,7 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		_animator.SetBool("Die", true);
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
-		Invoke("Die",_dieAnimationLength);
+		Invoke("Die",_beforeDeathTime);
 	}
 
 	private void Die()
