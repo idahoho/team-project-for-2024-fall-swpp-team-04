@@ -119,6 +119,7 @@ MonoBehaviour:
   _attackHitRange: 2
   _sightRange: 15
   _awarenessCoolDown: 3
+  _frontOffset: 0.35
   _attackAnimationLength: 1.25
   _maxHp: 3
 --- !u!54 &5086187305545989720
