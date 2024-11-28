@@ -106,8 +106,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		{
 			// fall
 			RaycastHit hitBelow;
-			if(Physics.Raycast(transform.position, new Vector3(0,-1,0), out hitBelow, _minHeight)){
-				Debug.Log("Hit below: " + hitBelow.collider.name);
+			if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hitBelow, _fallingSpeed * Time.fixedDeltaTime + _minHeight))
+			{
+				Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
+				transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0));
+				//transform.position = hitBelow.point;
 				_isFalling = false;
 			}
 			else transform.Translate(new Vector3(0,- _fallingSpeed * Time.fixedDeltaTime,0));

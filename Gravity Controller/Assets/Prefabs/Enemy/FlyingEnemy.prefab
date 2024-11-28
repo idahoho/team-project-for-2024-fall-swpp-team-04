@@ -103,7 +103,7 @@ MonoBehaviour:
   _adjustingAimAngleRatio: 0.7
   _maxHp: 3
   _fallingSpeed: 50
-  _minHeight: 0.75
+  _minHeight: 0.2
 --- !u!1001 &4180432047341359737
 PrefabInstance:
   m_ObjectHideFlags: 0
