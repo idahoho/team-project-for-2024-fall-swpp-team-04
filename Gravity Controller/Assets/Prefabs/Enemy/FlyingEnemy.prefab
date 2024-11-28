@@ -105,7 +105,6 @@ MonoBehaviour:
   _maxHp: 3
   _fallingSpeed: 50
   _minHeight: 0.2
-  _deathFallDirection: {x: 0, y: -1, z: 0}
   _deathFallSpeed: 20
   _beforeDeathTime: 3
 --- !u!1001 &4180432047341359737

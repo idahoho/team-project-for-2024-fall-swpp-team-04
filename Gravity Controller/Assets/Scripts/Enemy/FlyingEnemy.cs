@@ -77,7 +77,6 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	[Header("Death")]
 	private bool _isDead = false;
-	[SerializeField] private Vector3 _deathFallDirection;
 	[SerializeField] private float _deathFallSpeed;
 	[SerializeField] private float _beforeDeathTime;
 
@@ -127,7 +126,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 			else if (_isDead)
 			{
 				RaycastHit hitBelow;
-				if (Physics.Raycast(transform.position, _deathFallDirection.normalized, out hitBelow, _deathFallSpeed * Time.fixedDeltaTime + _minHeight))
+				if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hitBelow, _deathFallSpeed * Time.fixedDeltaTime + _minHeight))
 				{
 					Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
 					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0)); 
@@ -135,7 +134,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					_isFalling = false;
 					Invoke("Die", _beforeDeathTime);
 				}
-				else transform.Translate(_deathFallSpeed * Time.fixedDeltaTime * _deathFallDirection.normalized);
+				else transform.Translate(new Vector3(0, -_deathFallSpeed * Time.fixedDeltaTime, 0));
 			}
 		}
 		if (_isNeutralized || _isDead) return;
