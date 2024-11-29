@@ -106,7 +106,10 @@ MonoBehaviour:
   _fallingSpeed: 50
   _minHeight: 0.2
   _deathFallSpeed: 20
-  _beforeDeathTime: 3
+  _beforeDeathTime: 2
+  _smokeDeclineTime: 1
+  _dissolveSpeed: 1
+  _dissolveTime: 5
 --- !u!1001 &4180432047341359737
 PrefabInstance:
   m_ObjectHideFlags: 0

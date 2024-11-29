@@ -44,6 +44,8 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	[Header("Death")]
 	[SerializeField] public float _beforeDeathTime; //length of 'Die' animation
+	[SerializeField] public float _dissolveSpeed;
+	[SerializeField] public float _dissolveTime;
 	private bool _isDead = false;
 
 	public EnemyState State { get; private set; }
@@ -367,11 +369,30 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		_animator.SetBool("Die", true);
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
-		Invoke("Die",_beforeDeathTime);
+		StartCoroutine("Die");
 	}
 
-	private void Die()
+	private IEnumerator Die()
 	{
+		yield return new WaitForSeconds(_beforeDeathTime);
+
+		foreach (var rend in gameObject.GetComponentsInChildren<Renderer>())
+		{
+			rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		}
+
+		float timer = 0;
+		while (timer < _dissolveTime)
+		{
+			timer += Time.deltaTime;
+			foreach (var rend in gameObject.GetComponentsInChildren<Renderer>()) 
+			{
+				foreach(var mat in rend.materials){
+					mat.SetFloat("_DissolveProgress", timer * _dissolveSpeed);
+				}
+			};
+			yield return null;
+		}
 		Destroy(gameObject);
 	}
 }

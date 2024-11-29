@@ -79,6 +79,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	private bool _isDead = false;
 	[SerializeField] private float _deathFallSpeed;
 	[SerializeField] private float _beforeDeathTime;
+	[SerializeField] private float _smokeDeclineTime;
+	[SerializeField] public float _dissolveSpeed;
+	[SerializeField] public float _dissolveTime;
 
 	public EnemyState State { get; private set; }
 
@@ -119,7 +122,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0));
 					//transform.position = hitBelow.point;
 					_isFalling = false;
-					Invoke("Die", _beforeDeathTime);
+					StartCoroutine("Die");
 				}
 				else transform.Translate(new Vector3(0, -_fallingSpeed * Time.fixedDeltaTime, 0));
 			}
@@ -132,7 +135,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0)); 
 					//transform.position = hitBelow.point;
 					_isFalling = false;
-					Invoke("Die", _beforeDeathTime);
+					StartCoroutine("Die");
 				}
 				else transform.Translate(new Vector3(0, -_deathFallSpeed * Time.fixedDeltaTime, 0));
 			}
@@ -470,8 +473,30 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		_isFalling = true;
 	}
 
-	private void Die()
+	private IEnumerator Die()
 	{
+		yield return new WaitForSeconds(_beforeDeathTime);
+		transform.GetChild(1).gameObject.GetComponent<ParticleSystem>().Stop();
+		yield return new WaitForSeconds(_smokeDeclineTime);
+
+		foreach (var rend in gameObject.GetComponentsInChildren<Renderer>())
+		{
+			rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		}
+
+			float timer = 0;
+		while (timer < _dissolveTime)
+		{
+			timer += Time.deltaTime;
+			foreach (var rend in gameObject.GetComponentsInChildren<Renderer>())
+			{
+				foreach (var mat in rend.materials)
+				{
+					mat.SetFloat("_DissolveProgress", timer * _dissolveSpeed);
+				}
+			};
+			yield return null;
+		}
 		Destroy(gameObject);
 	}
 
