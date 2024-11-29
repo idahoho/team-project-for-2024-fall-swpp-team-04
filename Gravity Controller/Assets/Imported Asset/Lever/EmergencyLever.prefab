@@ -235,7 +235,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e72a3fe4f6ef4f86ba7ead07d12d0a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lightoff: {fileID: 2100000, guid: a4e5924b61eaf4a2da0fccd047734435, type: 2}
+  _lightOff: {fileID: 2100000, guid: a4e5924b61eaf4a2da0fccd047734435, type: 2}
   _door: {fileID: 0}
 --- !u!65 &6634601982498897773
 BoxCollider:

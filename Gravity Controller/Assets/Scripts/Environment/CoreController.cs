@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class CoreController : MonoBehaviour, IInteractable
 {
+    [Header("Initial Global Light")]
+    [SerializeField] private float _initialSunLightIntensity;
+    [SerializeField] private Color _initialEnvironmentLight;
+    [SerializeField] private float _initialFogDensity;
     [Header("Global Light On")]
     [SerializeField] private Light _sunLight;
     [SerializeField] private float _sunLightIntensity;
@@ -11,7 +15,7 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private float _fogDensity;
     [SerializeField] private float _lightOnDamping;
     private bool _isLightOn = false;
-    private float _epsilon = 1e-10f;
+    private float _epsilon = 1e-5f;
 
     [Header("Core Restored")]
     [SerializeField] private Renderer[] _batteries;
@@ -23,7 +27,8 @@ public class CoreController : MonoBehaviour, IInteractable
     // Start is called before the first frame update
     void Start()
     {
-        
+        InitializeGlobalLight();
+        StartCoroutine(GlobalLightOn());
     }
 
     // Update is called once per frame
@@ -38,6 +43,12 @@ public class CoreController : MonoBehaviour, IInteractable
             StartCoroutine(GlobalLightOn());
         }
     }
+    
+    private void InitializeGlobalLight() {
+        _sunLight.intensity = _initialSunLightIntensity;
+        RenderSettings.ambientLight = _initialEnvironmentLight;
+        RenderSettings.fogDensity = _initialFogDensity;
+    }
 
     private IEnumerator GlobalLightOn() {
         while(_sunLight.intensity < _sunLightIntensity - _epsilon) {
@@ -46,6 +57,9 @@ public class CoreController : MonoBehaviour, IInteractable
             RenderSettings.fogDensity = Mathf.Lerp(RenderSettings.fogDensity, _fogDensity, Time.deltaTime * _lightOnDamping);
             yield return null;
         }
+        _sunLight.intensity = _sunLightIntensity;
+        RenderSettings.ambientLight = _environmentLight;
+        RenderSettings.fogDensity = _fogDensity;
     }
 
     public void RestoreCore(int stage) {
