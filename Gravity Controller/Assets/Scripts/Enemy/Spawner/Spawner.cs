@@ -10,6 +10,7 @@ public class Spawner : MonoBehaviour, IEnemyFactory
 	void Start()
 	{
 		transform.localScale = Vector3.zero;
+		SpawnEnemy();
 	}
 
 	public void SpawnEnemy()
