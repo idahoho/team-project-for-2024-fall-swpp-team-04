@@ -24,8 +24,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int _maxBullet;
     [SerializeField] private float _shootCooldown;
     [SerializeField] private float _reloadTime;
-    // to set direction of raycast
-    private Transform _camera;
+    [SerializeField] private GameObject _gunGameObject;
+	// to set direction of raycast
+	private Transform _camera;
     private int _currentBullet;
     private bool _isShootable = true;
     private bool _isReloading = false;
@@ -131,7 +132,8 @@ public class PlayerController : MonoBehaviour
         if(_currentBullet-- > 0) {
             _isShootable = false;
             Debug.Log("fire");
-            RaycastHit hit;
+            _gunGameObject.SendMessage("HandleRecoil", SendMessageOptions.DontRequireReceiver);
+			RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
                 // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
 				var targetAttackReceiver = hit.collider.gameObject.GetComponent<IAttackReceiver>();
@@ -151,10 +153,15 @@ public class PlayerController : MonoBehaviour
 
     // 재장전
     private void Reload() {
-        // Debug.Log("reloading...");
-        _isReloading = true;
+		// Debug.Log("reloading...");
+		if (_isReloading) return;
+		_isReloading = true;
         _isShootable = false;
-        StartCoroutine(ReShootable());
+        if (_gunGameObject != null)
+        {
+	        _gunGameObject.SendMessage("HideGunOnReload", SendMessageOptions.DontRequireReceiver);
+        }
+		StartCoroutine(ReShootable());
     }
 
     // 발포 딜레이, 재장전 딜레이 처리
@@ -213,7 +220,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
         _currentEnergy -= _globalHighEnergyCost;
-        foreach(var obj in gameObjects) {
+		_gunGameObject.SendMessage("HideGunOnSkill", SendMessageOptions.DontRequireReceiver);
+		foreach (var obj in gameObjects) {
             Rigidbody rigid;
             // 여기서 오브젝트 내 스크립트에 있는 함수를 호출해야 함
             if(rigid = obj.GetComponent<Rigidbody>()) {
