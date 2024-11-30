@@ -42,6 +42,12 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	[SerializeField] private int _maxHp;
 	private int _hp;
 
+	[Header("Death")]
+	[SerializeField] public float _beforeDeathTime; //length of 'Die' animation
+	[SerializeField] public float _dissolveSpeed;
+	[SerializeField] public float _dissolveTime;
+	private bool _isDead = false;
+
 	public EnemyState State { get; private set; }
 
 	void Awake()
@@ -87,6 +93,8 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	private void FixedUpdate()
 	{
+		if (_isDead) return;
+
 		var relativePosition = _player.transform.position + _playerHeightOffset * new Vector3(0, 1, 0) - transform.position - _heightOffset * new Vector3(0, 1, 0);
 		float distanceHorizontal = Vector3.Scale(relativePosition, new Vector3(1, 0, 1)).magnitude;
 		float distanceVertical = transform.position.y - _player.transform.position.y;
@@ -352,8 +360,39 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	public void OnDeath()
 	{
+		_isDead = true;
+		var childrenColliders = gameObject.GetComponentsInChildren<Collider>();
+		foreach (Collider collider in childrenColliders)
+		{
+			collider.enabled = false;
+		}
+		_animator.SetBool("Die", true);
 		// death animation goes here; must wait till the animation to be finished before destroying
 		GameManager.Instance.UnregisterEnemy(gameObject);
+		StartCoroutine("Die");
+	}
+
+	private IEnumerator Die()
+	{
+		yield return new WaitForSeconds(_beforeDeathTime);
+
+		foreach (var rend in gameObject.GetComponentsInChildren<Renderer>())
+		{
+			rend.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+		}
+
+		float timer = 0;
+		while (timer < _dissolveTime)
+		{
+			timer += Time.deltaTime;
+			foreach (var rend in gameObject.GetComponentsInChildren<Renderer>()) 
+			{
+				foreach(var mat in rend.materials){
+					mat.SetFloat("_DissolveProgress", timer * _dissolveSpeed);
+				}
+			};
+			yield return null;
+		}
 		Destroy(gameObject);
 	}
 }
