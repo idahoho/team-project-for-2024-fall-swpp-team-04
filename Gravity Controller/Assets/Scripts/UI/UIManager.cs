@@ -24,6 +24,9 @@ public class UIManager : MonoBehaviour
 	[Header("Core Interaction")]
 	[SerializeField] private GameObject _warningTriangle;
 	[SerializeField] private Slider _progressBar;
+	[SerializeField] private GameObject _coreText;
+
+	[SerializeField] private GameObject _doorText;
 
 	public static UIManager Instance { get; private set; }
 
@@ -93,7 +96,22 @@ public class UIManager : MonoBehaviour
 	    StartCoroutine(ShowCoreInteractionUi());
     }
 
-    private IEnumerator ShowCoreInteractionUi()
+    public void ECoreInteractionUi()
+    {
+	    _coreText.SetActive(true);
+    }
+
+    public void EDoorInteractionUi()
+    {
+	    _doorText.SetActive(true);
+    }
+
+    public void HideInteractionUi()
+    {
+	    _coreText.SetActive(false);
+	    _doorText.SetActive(false);
+    }
+	private IEnumerator ShowCoreInteractionUi()
     {
 	    // 경고 삼각형을 1초 동안 표시
 	    _warningTriangle.SetActive(true);

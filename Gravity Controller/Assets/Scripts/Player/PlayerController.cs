@@ -51,10 +51,12 @@ public class PlayerController : MonoBehaviour
     [Header("Interactive")]
     [SerializeField] private float _interactiveRange;
     [SerializeField] private KeyCode _interactKey;
+    private HashSet<GameObject> _interactedObjects = new HashSet<GameObject>();
 
-    
 
-    void Start() {
+
+
+	void Start() {
         _camera = GameObject.Find("PlayerCamera").transform;
         _rigidbody = GetComponent<Rigidbody>();
         _currentHP = _maxHP;
@@ -231,20 +233,49 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CheckInteractive() {
-        RaycastHit hit;
-        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange)) {
-            if(hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable)) {
-                Debug.Log("Interactable Detected");
-                if(Input.GetKeyDown(_interactKey)) {
-                    interactable.Interactive();
-                }
-            }
-        }
-    }
+	private void CheckInteractive()
+	{
+		RaycastHit hit;
+		if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
+		{
+			GameObject targetObject = hit.collider.gameObject;
 
-    // 피격 시 호출(외부에서)
-    public void OnHit() {
+			if (_interactedObjects.Contains(targetObject))
+			{
+				Debug.Log("Already interacted with this object.");
+				UIManager.Instance.HideInteractionUi();
+				return;
+			}
+
+			if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable))
+			{
+				Debug.Log("Interactable Detected");
+				if (targetObject.CompareTag("Core"))
+				{
+					UIManager.Instance.ECoreInteractionUi();
+				}
+				else
+				{
+					UIManager.Instance.EDoorInteractionUi();
+				}
+
+				if (Input.GetKeyDown(_interactKey))
+				{
+					interactable.Interactive();
+					_interactedObjects.Add(targetObject); 
+					UIManager.Instance.HideInteractionUi();
+				}
+			}
+		}
+		else
+		{
+			UIManager.Instance.HideInteractionUi();
+		}
+	}
+
+
+	// 피격 시 호출(외부에서)
+	public void OnHit() {
         if(!_isAlive) {
             return;
         }
