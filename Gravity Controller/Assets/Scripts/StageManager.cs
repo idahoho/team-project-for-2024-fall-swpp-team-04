@@ -9,6 +9,8 @@ public class StageManager : MonoBehaviour
     [SerializeField] private CoreController _core;
     [SerializeField] private List<Door_2> _stageDoors;
     [SerializeField] private List<GameObject> _stages;
+    [SerializeField] private GameObject _bossStageDoor;
+    [SerializeField] private GameObject _bossStage;
 
     private List<bool> _isCleared;
     private int _maxStage = 4;
@@ -30,7 +32,7 @@ public class StageManager : MonoBehaviour
     void Start()
     {
         _isCleared = new List<bool>(new bool[] {false, false, false, false});
-        LoadStage(3);
+        LoadStage(0);
     }
 
     // Update is called once per frame
@@ -48,20 +50,40 @@ public class StageManager : MonoBehaviour
         for(int i = 0; i < _maxStage; i++) {
             if(i == stage) {
                 _stages[i].SetActive(true);
-                _stageDoors[i]._isTriggerOpenable = true;
+                _stageDoors[i].isOpenableFromLobby = true;
             } else {
                 _stages[i].SetActive(false);
-                _stageDoors[i]._isTriggerOpenable = false;
+                _stageDoors[i].isOpenableFromLobby = false;
+                _stageDoors[i].Close();
             }
         }
     }
 
-    public void StageCleared(int stage) {
+    public void EnterStage(int stage) {
+        if(stage < 0 || stage >= _maxStage) {
+            Debug.Log("StageManager.StageEnter: stage index out of range");
+            return;
+        }
+        _stageDoors[stage].isOpenableFromLobby = false;
+        _stageDoors[stage].isOpenableFromStage = false;
+    }
+
+    public void ClearStage(int stage) {
         if(stage < 0 || stage >= _maxStage) {
             Debug.Log("StageManager.StageCleared: stage index out of range");
             return;
         }
         _isCleared[stage] = true;
+        _stageDoors[stage].isOpenableFromStage = true;
         _core.RestoreCore(stage);
+    }
+
+    private void LoadBossStage() {
+        for(int i = 0; i < _maxStage; i++) {
+            _stages[i].SetActive(false);
+            _stageDoors[i].isOpenableFromLobby = false;
+        }
+        _bossStage.SetActive(true);
+        _bossStageDoor.GetComponent<IDoor>().Open();
     }
 }

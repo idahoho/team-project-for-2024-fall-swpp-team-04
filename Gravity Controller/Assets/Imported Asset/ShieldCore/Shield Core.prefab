@@ -456,12 +456,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96ad3ce495c26485caa4bb8b11e0f4c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _initialSunLightIntensity: 0.05
-  _initialEnvironmentLight: {r: 0.103773594, g: 0.103773594, b: 0.103773594, a: 0}
-  _initialFogDensity: 1
+  _initialSunLightIntensity: 0
+  _initialEnvironmentLightColor: {r: 0.17, g: 0.17, b: 0.17, a: 0}
+  _initialEnvironmentLightIntensity: -5
+  _initialFogColor: {r: 0, g: 0, b: 0, a: 0}
+  _initialFogDensity: 0.05
   _sunLight: {fileID: 0}
-  _sunLightIntensity: 1
-  _environmentLight: {r: 0.73333335, g: 0.7529412, b: 0.78431374, a: 0}
+  _sunLightIntensity: 1.5
+  _environmentLightColor: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 0}
+  _environmentLightIntensity: 0
   _fogDensity: 0
   _lightOnDamping: 1
   _batteries:

@@ -5,10 +5,13 @@ using UnityEngine;
 
 public class Door_2 : MonoBehaviour, IDoor
 {
-    [SerializeField] private GameObject _openTrigger;
-    [SerializeField] private GameObject _closeTrigger;
+    [SerializeField] private GameObject _openTriggerFromLobby;
+    [SerializeField] private GameObject _openTriggerFromStage;
+    [SerializeField] private GameObject _closeTriggerFromLobby;
+    [SerializeField] private GameObject _closeTriggerFromStage;
     private Animator _animator;
-    public bool _isTriggerOpenable = false;
+    public bool isOpenableFromLobby = false;
+    public bool isOpenableFromStage = false;
     private bool _isOpened = false;
     
     void Start()
@@ -19,13 +22,30 @@ public class Door_2 : MonoBehaviour, IDoor
     // Update is called once per frame
     void Update()
     {
-        if(_isTriggerOpenable) {
-            if(_isOpened && _closeTrigger && !_closeTrigger.activeSelf) {
+        if(isOpenableFromLobby) {
+            if(_isOpened && _closeTriggerFromLobby && !_closeTriggerFromLobby.activeSelf) {
                 Close();
-                _openTrigger.SetActive(true);
-            } else if(!_isOpened && _openTrigger && !_openTrigger.activeSelf) {
+                _openTriggerFromLobby.SetActive(true);
+                _openTriggerFromStage.SetActive(true);
+                _closeTriggerFromStage.SetActive(true);
+            } else if(!_isOpened && _openTriggerFromLobby && !_openTriggerFromLobby.activeSelf) {
                 Open();
-                _closeTrigger.SetActive(true);
+                _closeTriggerFromLobby.SetActive(true);
+                _openTriggerFromStage.SetActive(true);
+                _closeTriggerFromStage.SetActive(true);
+            }
+        }
+        if(isOpenableFromStage) {
+            if(_isOpened && _closeTriggerFromStage && !_closeTriggerFromStage.activeSelf) {
+                Close();
+                _openTriggerFromStage.SetActive(true);
+                _openTriggerFromLobby.SetActive(true);
+                _closeTriggerFromLobby.SetActive(true);
+            } else if (!_isOpened && _openTriggerFromStage && !_openTriggerFromStage.activeSelf) {
+                Open();
+                _closeTriggerFromStage.SetActive(true);
+                _openTriggerFromLobby.SetActive(true);
+                _closeTriggerFromLobby.SetActive(true);
             }
         }
     }
