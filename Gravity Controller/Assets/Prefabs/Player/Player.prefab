@@ -264,6 +264,7 @@ MonoBehaviour:
   _maxBullet: 10
   _shootCooldown: 0.5
   _reloadTime: 2
+  _sparkParticle: {fileID: 4802001733177264264, guid: 91b5e47d130ae0641a81b111c88a0f4b, type: 3}
   _localGravityCooldown: 0.5
   _localGravityForce: 2
   _localEnergyCost: 100
