@@ -24,10 +24,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int _maxBullet;
     [SerializeField] private float _shootCooldown;
     [SerializeField] private float _reloadTime;
-    // to set direction of raycast
-    private Transform _camera;
-	[SerializeField] private GameObject _sparkParticle;
+
+    [SerializeField] private GameObject _gunGameObject;
+	// to set direction of raycast
+	  private Transform _camera;
+    
+	  [SerializeField] private GameObject _sparkParticle;
 	
+
     private int _currentBullet;
     private bool _isShootable = true;
     private bool _isReloading = false;
@@ -52,10 +56,12 @@ public class PlayerController : MonoBehaviour
     [Header("Interactive")]
     [SerializeField] private float _interactiveRange;
     [SerializeField] private KeyCode _interactKey;
+    private HashSet<GameObject> _interactedObjects = new HashSet<GameObject>();
 
-    
 
-    void Start() {
+
+
+	void Start() {
         _camera = GameObject.Find("PlayerCamera").transform;
         _rigidbody = GetComponent<Rigidbody>();
         _currentHP = _maxHP;
@@ -133,7 +139,8 @@ public class PlayerController : MonoBehaviour
         if(_currentBullet-- > 0) {
             _isShootable = false;
             Debug.Log("fire");
-            RaycastHit hit;
+            _gunGameObject.SendMessage("HandleRecoil", SendMessageOptions.DontRequireReceiver);
+			RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
                 // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
 				Instantiate(_sparkParticle, hit.point, Quaternion.identity);
@@ -154,10 +161,15 @@ public class PlayerController : MonoBehaviour
 
     // 재장전
     private void Reload() {
-        // Debug.Log("reloading...");
-        _isReloading = true;
+		// Debug.Log("reloading...");
+		if (_isReloading) return;
+		_isReloading = true;
         _isShootable = false;
-        StartCoroutine(ReShootable());
+        if (_gunGameObject != null)
+        {
+	        _gunGameObject.SendMessage("HideGunOnReload", SendMessageOptions.DontRequireReceiver);
+        }
+		StartCoroutine(ReShootable());
     }
 
     // 발포 딜레이, 재장전 딜레이 처리
@@ -216,7 +228,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
         _currentEnergy -= _globalHighEnergyCost;
-        foreach(var obj in gameObjects) {
+		_gunGameObject.SendMessage("HideGunOnSkill", SendMessageOptions.DontRequireReceiver);
+		foreach (var obj in gameObjects) {
             Rigidbody rigid;
             // 여기서 오브젝트 내 스크립트에 있는 함수를 호출해야 함
             if(rigid = obj.GetComponent<Rigidbody>()) {
@@ -226,20 +239,49 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CheckInteractive() {
-        RaycastHit hit;
-        if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange)) {
-            if(hit.collider.gameObject.TryGetComponent<IInteractable>(out IInteractable interactable)) {
-                Debug.Log("Interactable Detected");
-                if(Input.GetKeyDown(_interactKey)) {
-                    interactable.Interactive();
-                }
-            }
-        }
-    }
+	private void CheckInteractive()
+	{
+		RaycastHit hit;
+		if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
+		{
+			GameObject targetObject = hit.collider.gameObject;
 
-    // 피격 시 호출(외부에서)
-    public void OnHit() {
+			if (_interactedObjects.Contains(targetObject))
+			{
+				Debug.Log("Already interacted with this object.");
+				UIManager.Instance.HideInteractionUi();
+				return;
+			}
+
+			if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable))
+			{
+				Debug.Log("Interactable Detected");
+				if (targetObject.CompareTag("Core"))
+				{
+					UIManager.Instance.ECoreInteractionUi();
+				}
+				else
+				{
+					UIManager.Instance.EDoorInteractionUi();
+				}
+
+				if (Input.GetKeyDown(_interactKey))
+				{
+					interactable.Interactive();
+					_interactedObjects.Add(targetObject); 
+					UIManager.Instance.HideInteractionUi();
+				}
+			}
+		}
+		else
+		{
+			UIManager.Instance.HideInteractionUi();
+		}
+	}
+
+
+	// 피격 시 호출(외부에서)
+	public void OnHit() {
         if(!_isAlive) {
             return;
         }
