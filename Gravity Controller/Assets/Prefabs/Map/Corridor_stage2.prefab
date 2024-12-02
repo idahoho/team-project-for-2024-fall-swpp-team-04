@@ -105,7 +105,7 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 2315938}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!1 &116882
 GameObject:
   m_ObjectHideFlags: 0
@@ -345,7 +345,7 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 2382630}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!1 &161234
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,7 +363,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &466490
 Transform:
   m_ObjectHideFlags: 0
@@ -447,7 +447,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &454006
 Transform:
   m_ObjectHideFlags: 0
@@ -522,9 +522,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 473370}
     m_Modifications:
+    - target: {fileID: 108972, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 174438, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 183158, guid: b38a3290156af5046a449900e3163984, type: 3}
       propertyPath: m_Name
       value: wall_big
+      objectReference: {fileID: 0}
+    - target: {fileID: 183158, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 497032, guid: b38a3290156af5046a449900e3163984, type: 3}
       propertyPath: m_RootOrder
@@ -588,9 +600,21 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 473370}
     m_Modifications:
+    - target: {fileID: 108972, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 174438, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 183158, guid: b38a3290156af5046a449900e3163984, type: 3}
       propertyPath: m_Name
       value: wall_big (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 183158, guid: b38a3290156af5046a449900e3163984, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 497032, guid: b38a3290156af5046a449900e3163984, type: 3}
       propertyPath: m_RootOrder

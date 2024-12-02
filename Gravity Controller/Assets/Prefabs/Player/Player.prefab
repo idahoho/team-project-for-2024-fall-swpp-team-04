@@ -240,11 +240,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveForce: 10000
   _maxSpeed: 10
-  _jumpForce: 1500
+  _jumpForce: 1250
   _groundDrag: 7
   _airMultiplier: 0.3
+  _jumpMultiplier: 1.3
   sensetivityX: 1000
   sensetivityY: 1000
+  _moveSpeedGun: 0
+  _maxSpeedGun: 0
 --- !u!114 &3940993412661136711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,12 +272,13 @@ MonoBehaviour:
   _localGravityForce: 2
   _localEnergyCost: 100
   _mouseInputWheel: 0
-  _wheelInputThreshold: 0.2
+  _wheelInputThreshold: 0.05
   _gravityForceHigh: 2
   _gravityForceLow: 0.05
   _globalLowEnergyCost: 60
   _globalHighEnergyCost: 300
-  _interactiveRange: 2
+  _isGravityLow: 0
+  _interactiveRange: 5
   _interactKey: 101
 --- !u!81 &265537301
 AudioListener:

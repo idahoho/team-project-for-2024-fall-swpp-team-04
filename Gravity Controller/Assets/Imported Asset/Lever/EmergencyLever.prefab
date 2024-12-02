@@ -32,7 +32,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 5347535488495245948}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 89.98022, y: -0.0038757324, z: -0.0038757324}
 --- !u!33 &1197941488695827009
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -194,7 +194,7 @@ Transform:
   m_GameObject: {fileID: 4719090287698084038}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.880027, y: 2.880027, z: 2.880027}
+  m_LocalScale: {x: 2.8800268, y: 2.880027, z: 2.8800268}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3683281739420034495}
@@ -235,8 +235,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e72a3fe4f6ef4f86ba7ead07d12d0a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _lightoff: {fileID: 2100000, guid: a4e5924b61eaf4a2da0fccd047734435, type: 2}
+  _lightOff: {fileID: 2100000, guid: a4e5924b61eaf4a2da0fccd047734435, type: 2}
   _door: {fileID: 0}
+  _isInitiallyInteractable: 0
 --- !u!65 &6634601982498897773
 BoxCollider:
   m_ObjectHideFlags: 0
