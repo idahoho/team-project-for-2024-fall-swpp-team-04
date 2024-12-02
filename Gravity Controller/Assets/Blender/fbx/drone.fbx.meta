@@ -3,7 +3,52 @@ guid: 8c2994b0c22f4459a88fa8d7a5aa6853
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body
+    second: {fileID: 2100000, guid: 855ffc8f728a3e041823f8ec79b54a82, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CameraBody
+    second: {fileID: 2100000, guid: 94454ce5af05ffa4facc42c71b22d8dd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CameraLens
+    second: {fileID: 2100000, guid: 426561a54ab584b49a4e8ca324f555fd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Gun
+    second: {fileID: 2100000, guid: 6fb16ffdfe805d043ac6af120d89e1d2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GunBody
+    second: {fileID: 2100000, guid: 48f914c7d2d01964aac4a39d8d623ce9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Joint
+    second: {fileID: 2100000, guid: e0d23ad5ddc83134d804fb5ba6d45f00, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: JointBody
+    second: {fileID: 2100000, guid: 5b12fa4e2e514d24ea7d673795cb930e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wing
+    second: {fileID: 2100000, guid: 8ad03481bdcd23142a6fade59d935de6, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WingLight
+    second: {fileID: 2100000, guid: 156aa76a674f4814eb3f8d5c347921a2, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

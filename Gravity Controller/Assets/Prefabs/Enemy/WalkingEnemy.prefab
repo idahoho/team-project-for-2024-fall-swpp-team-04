@@ -119,8 +119,12 @@ MonoBehaviour:
   _attackHitRange: 2
   _sightRange: 15
   _awarenessCoolDown: 3
+  _frontOffset: 0.35
   _attackAnimationLength: 1.25
   _maxHp: 3
+  _beforeDeathTime: 2
+  _dissolveSpeed: 1
+  _dissolveTime: 5
 --- !u!54 &5086187305545989720
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -26,6 +26,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _reloadTime;
     // to set direction of raycast
     private Transform _camera;
+	[SerializeField] private GameObject _sparkParticle;
+	
     private int _currentBullet;
     private bool _isShootable = true;
     private bool _isReloading = false;
@@ -134,6 +136,7 @@ public class PlayerController : MonoBehaviour
             RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
                 // 여기에서 맞은 대상의 오브젝트 가져올 수 있음
+				Instantiate(_sparkParticle, hit.point, Quaternion.identity);
 				var targetAttackReceiver = hit.collider.gameObject.GetComponent<IAttackReceiver>();
 				if (targetAttackReceiver != null)
 				{
