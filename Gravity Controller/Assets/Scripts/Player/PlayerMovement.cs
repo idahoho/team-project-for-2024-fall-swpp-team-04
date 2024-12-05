@@ -26,6 +26,8 @@ public class PlayerMovement : MonoBehaviour
     // mouse sensetivity
     public float sensetivityX;
     public float sensetivityY;
+	[SerializeField] private KeyCode _viewResetKey;
+
     // determine camera rotation
     private float _accumRotationX = 0;
     private float _accumRotationY = 0;
@@ -68,6 +70,12 @@ public class PlayerMovement : MonoBehaviour
             Jump();
         }
     
+		// reset view
+		if (Input.GetKeyDown(_viewResetKey))
+		{
+			_accumRotationY = 0f;
+		}
+
         // player rotation
         transform.eulerAngles = new Vector3(0, _accumRotationX, 0);
         _accumRotationX += Time.deltaTime * _mouseInputX * sensetivityX;
