@@ -9,6 +9,11 @@ public class PlatformController : MonoBehaviour
 	private bool _isMoving = false; // 발판 이동 상태
 	private Rigidbody _rb;
 
+	private ParticleSystem[] _dust;
+	[SerializeField] private float _unitParticleRate = 100;
+	[SerializeField] private float _emissionPower;
+	[SerializeField] private float _unitSpeed = 1;
+
 	// 플랫폼의 이전 위치를 추적하기 위한 변수
 	private Vector3 _previousPosition;
 
@@ -29,6 +34,8 @@ public class PlatformController : MonoBehaviour
 		_rb.interpolation = RigidbodyInterpolation.Interpolate;
 
 		_previousPosition = _rb.position;
+
+		_dust = transform.Find("Dust").GetComponentsInChildren<ParticleSystem>();
 	}
 
 	void OnCollisionEnter(Collision collision)
@@ -53,7 +60,18 @@ public class PlatformController : MonoBehaviour
 	{
 		if (_isPlayerOnPlatform && _isMoving)
 		{
+			foreach(ParticleSystem dustParticle in _dust)
+			{
+				dustParticle.Play();
+			}
 			MovePlatform();
+		}
+		else
+		{
+			foreach (ParticleSystem dustParticle in _dust)
+			{
+				dustParticle.Stop();
+			}
 		}
 
 		_previousPosition = _rb.position;
@@ -65,6 +83,14 @@ public class PlatformController : MonoBehaviour
 		Vector3 targetPosition = new Vector3(transform.position.x, _targetY, transform.position.z);
 		Vector3 newPosition = Vector3.MoveTowards(_rb.position, targetPosition, step);
 		_rb.MovePosition(newPosition);
+
+		foreach (ParticleSystem dustParticle in _dust)
+		{
+			var mult = dustParticle.main.startSpeedMultiplier;
+			var em = dustParticle.emission;
+			mult = _unitSpeed * (7 + _targetY - transform.position.y);
+			em.rateOverTime = _unitParticleRate * Mathf.Pow((7 + _targetY - transform.position.y), _emissionPower);
+		}
 
 		if (newPosition.y <= _targetY)
 		{
