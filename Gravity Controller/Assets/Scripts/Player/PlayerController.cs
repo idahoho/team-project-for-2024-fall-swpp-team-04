@@ -239,44 +239,56 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void CheckInteractive()
-    {
-	    RaycastHit hit;
-	    if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
-	    {
-		    GameObject targetObject = hit.collider.gameObject;
+	private void CheckInteractive()
+	{
+		RaycastHit hit;
+		if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
+		{
+			GameObject targetObject = hit.collider.gameObject;
 
-		    if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable))
-		    {
-			    Debug.Log("Interactable Detected");
+			if (targetObject.CompareTag("Lever"))
+			{
+				Debug.Log("Lever Detected");
+				if (targetObject.TryGetComponent<DoorLever>(out DoorLever lever))
+				{
+					if (!lever._isInteractable)
+					{
+						Debug.Log("Lever is not interactable.");
+						UIManager.Instance.HideInteractionUi();
+					}
+					else
+					{
+						UIManager.Instance.EDoorInteractionUi();
+					}
+				}
+			}
+			else if (targetObject.CompareTag("Core"))
+			{
+				Debug.Log("Core Detected");
+				if (targetObject.TryGetComponent<IInteractable>(out IInteractable coreInteraction))
+				{
+					if (!coreInteraction.IsInteractable())
+					{
+						Debug.Log("Core is not interactable.");
+						UIManager.Instance.HideInteractionUi();
+						return;
+					}
+					UIManager.Instance.ECoreInteractionUi();
+				}
+			}
 
-			    if (targetObject.TryGetComponent<CoreInteraction>(out CoreInteraction coreInteraction))
-			    {
-				    if (!coreInteraction.IsInteractable()) // 상호작용 가능 여부 확인
-				    {
-					    Debug.Log("Core is not interactable.");
-					    UIManager.Instance.HideInteractionUi();
-					    return;
-				    }
-				    UIManager.Instance.ECoreInteractionUi();
-			    }
-			    else
-			    {
-				    UIManager.Instance.EDoorInteractionUi();
-			    }
+			if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable) && Input.GetKeyDown(_interactKey))
+			{
+				interactable.Interactive();
+				UIManager.Instance.HideInteractionUi();
+			}
+		}
+		else
+		{
+			UIManager.Instance.HideInteractionUi();
+		}
+	}
 
-			    if (Input.GetKeyDown(_interactKey))
-			    {
-				    interactable.Interactive();
-				    UIManager.Instance.HideInteractionUi();
-			    }
-		    }
-	    }
-	    else
-	    {
-		    UIManager.Instance.HideInteractionUi();
-	    }
-    }
 
 
 	// 피격 시 호출(외부에서)

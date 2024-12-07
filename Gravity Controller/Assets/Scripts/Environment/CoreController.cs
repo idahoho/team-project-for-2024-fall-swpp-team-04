@@ -17,15 +17,15 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private float _environmentLightIntensity;
     [SerializeField] private float _fogDensity;
     [SerializeField] private float _lightOnDamping;
-    private bool _isLightOn = false;
+    public bool _isInteractable = true;
     private float _epsilon = 1e-5f;
+    private int _current_stage = 1;
 
     [Header("Core Restored")]
     [SerializeField] private Renderer[] _batteries;
     [SerializeField] private Material _blueEmission;
     [SerializeField] private Light[] _batteryLights;
     [SerializeField] private float _batteryLightIntensity;
-    private bool _fullCharged = false;
 
     // Start is called before the first frame update
     void Start()
@@ -41,15 +41,21 @@ public class CoreController : MonoBehaviour, IInteractable
     }
 
     public void Interactive() {
-        if(!_isLightOn) {
-            _isLightOn = true;
+        if(_isInteractable) {
+			_isInteractable = false;
             StartCoroutine(GlobalLightOn());
         }
+
+        StageManager.Instance.LoadStage(_current_stage);
+		RestoreCore(_current_stage-1);
+		_current_stage++;
     }
     
-    private void InitializeGlobalLight() {
-        _isLightOn = false;
-        _sunLight.intensity = _initialSunLightIntensity;
+    private void InitializeGlobalLight()
+    {
+	    _isInteractable = true;
+
+		_sunLight.intensity = _initialSunLightIntensity;
         RenderSettings.ambientLight = _initialEnvironmentLightColor;
         RenderSettings.ambientIntensity = _initialEnvironmentLightIntensity;
         RenderSettings.fogColor = _initialFogColor;
@@ -77,5 +83,14 @@ public class CoreController : MonoBehaviour, IInteractable
         }
         _batteries[stage].materials[1] = _blueEmission;
         _batteryLights[stage].intensity = _batteryLightIntensity;
+    }
+    public bool IsInteractable()
+    {
+	    return _isInteractable; 
+    }
+
+    public void ResetCoreController()
+    {
+	    _isInteractable = true;
     }
 }

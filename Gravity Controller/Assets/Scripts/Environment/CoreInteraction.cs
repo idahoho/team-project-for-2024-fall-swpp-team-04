@@ -7,6 +7,7 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 	[SerializeField] private GameObject _wall;
 	[SerializeField] private GameObject _spawner;
 	[SerializeField] private Renderer _forceFieldRenderer;
+	[SerializeField] private CoreController _coreController;
 	private GameManager _gameManager;
 
 	private bool _isInteractable = true;
@@ -62,6 +63,7 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 			{
 				door.Open();
 			}
+			_coreController.ResetCoreController();
 		}
 	}
 

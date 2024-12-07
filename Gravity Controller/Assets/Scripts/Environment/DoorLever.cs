@@ -11,7 +11,7 @@ public class DoorLever : MonoBehaviour, IInteractable
     private Material _lightOn;
     private Animator _animator;
     private Renderer _renderer;
-    private bool _isInteractable;
+    public bool _isInteractable = true;
 
     void Start()
     {
@@ -41,5 +41,9 @@ public class DoorLever : MonoBehaviour, IInteractable
     private IEnumerator ReActivate() {
         yield return new WaitForSeconds(2.0f);
         _isInteractable = true;
+    }
+    public bool IsInteractable()
+    {
+	    return _isInteractable;
     }
 }
