@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_Color: {r: 0.9481132, g: 0.94364095, b: 0.94364095, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -413,7 +413,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 943383055}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -531,7 +531,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1614783741}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 09f23f1d667fe0a45a70dd0f5d0f0bcb, type: 3}
+  m_VideoClip: {fileID: 32900000, guid: 0100338237df5774686c7167c6bcf9a5, type: 3}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -609,6 +609,7 @@ MonoBehaviour:
   _bossStageController: {fileID: 1758719947}
   _videoCanvasGroup: {fileID: 1614783750}
   _fadeDuration: 1.5
+  _bossStage: {fileID: 8206955723989601976}
 --- !u!225 &1614783750
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1905,6 +1906,7 @@ MonoBehaviour:
   _moveDirection: {x: 0, y: 1, z: 0}
   _moveDistance: 100
   _moveDuration: 10
+  _videoCanvas: {fileID: 1614783741}
   _finalCanvas: {fileID: 943383055}
 --- !u!1 &2706562001350186749
 GameObject:
@@ -3417,6 +3419,7 @@ GameObject:
   - component: {fileID: 4049568014463732001}
   - component: {fileID: 6932239682425653610}
   - component: {fileID: 823061648}
+  - component: {fileID: 5002424274511076493}
   m_Layer: 0
   m_Name: Circle.010_0
   m_TagString: Untagged
@@ -3490,6 +3493,20 @@ MeshRenderer:
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &823061648
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6716419420848189879}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 3d7a8679da39b914f9bf1c11e8cd070e, type: 2}
+--- !u!64 &5002424274511076493
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

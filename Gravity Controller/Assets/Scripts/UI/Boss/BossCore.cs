@@ -42,22 +42,18 @@ public class BossCore : MonoBehaviour
 		_hasInteracted = true;
 		_coreLight.enabled = true;
 
-		_videoCanvas.SetActive(true);
-		_videoManager.PlayVideo();
+		// 영상이 아닌 텍스트 먼저 노출
+		StartCoroutine(ShowTextFirstCoroutine());
 	}
 
-	public void ShowTextAfterVideoEnded()
+	private IEnumerator ShowTextFirstCoroutine()
 	{
-		StartCoroutine(ShowTextCoroutine());
-	}
-
-	private IEnumerator ShowTextCoroutine()
-	{
+		// 텍스트 캔버스 활성화
 		_textCanvas.SetActive(true);
-		yield return new WaitForSeconds(3f);
+		yield return new WaitForSeconds(3f); // 3초 노출
+		_textCanvas.SetActive(false);		
 
-		_textCanvas.SetActive(false);
-
+		// 텍스트 노출 후 스테이지 이동 시작
 		if (_videoManager._bossStageController != null)
 			_videoManager._bossStageController.StartMoving();
 	}

@@ -7,7 +7,8 @@ public class BossStageController : MonoBehaviour
 	[SerializeField] private float _moveDistance = 1000f;
 	[SerializeField] private float _moveDuration = 20f;
 
-	[SerializeField] private GameObject _finalCanvas;
+	[SerializeField] private GameObject _videoCanvas;
+	[SerializeField] public GameObject _finalCanvas; // finalCanvas 접근을 위해 public으로 변경
 
 	private Vector3 _startPosition;
 	private Vector3 _targetPosition;
@@ -43,13 +44,11 @@ public class BossStageController : MonoBehaviour
 		transform.position = _targetPosition;
 		_isMoving = false;
 
-		
-		if (_finalCanvas != null)
-		{
-			_finalCanvas.transform.SetParent(null, true);
-			_finalCanvas.SetActive(true);
-		}
+		_videoCanvas.SetActive(true); _videoCanvas.SetActive(true);
 
-		gameObject.SetActive(false);
+		// 스테이지 이동 완료 후 영상 재생
+		VideoManager vm = FindObjectOfType<VideoManager>();
+		if (vm != null)
+			vm.PlayVideo();
 	}
 }
