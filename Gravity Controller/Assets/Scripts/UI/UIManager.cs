@@ -13,7 +13,6 @@ public class UIManager : MonoBehaviour
 	[SerializeField] private float _hpBarDamping;
     [Header("Energy")]
     [SerializeField] private Image _energyGauge;
-    [SerializeField] private TextMeshProUGUI _energyText;
     [SerializeField] private float _energyGaugeDamping;
     [Header("Bullet")]
     [SerializeField] private TextMeshProUGUI _bulletText;
@@ -69,7 +68,6 @@ public class UIManager : MonoBehaviour
 
 		// 게이지 값 업데이트 (Lerp로 부드럽게 전환)
 		_energyGauge.fillAmount = Mathf.Lerp(_energyGauge.fillAmount, energyRatio, Time.deltaTime * _energyGaugeDamping);
-		_energyText.text = (energyRatio * 100f).ToString("0.0") + "%";
 
 		// 색상 변경 로직
 		if (energyRatio >= 1f)
