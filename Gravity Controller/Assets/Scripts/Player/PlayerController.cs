@@ -239,45 +239,44 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-	private void CheckInteractive()
-	{
-		RaycastHit hit;
-		if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
-		{
-			GameObject targetObject = hit.collider.gameObject;
+    private void CheckInteractive()
+    {
+	    RaycastHit hit;
+	    if (Physics.Raycast(_camera.position, _camera.transform.forward, out hit, _interactiveRange))
+	    {
+		    GameObject targetObject = hit.collider.gameObject;
 
-			if (_interactedObjects.Contains(targetObject))
-			{
-				Debug.Log("Already interacted with this object.");
-				UIManager.Instance.HideInteractionUi();
-				return;
-			}
+		    if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable))
+		    {
+			    Debug.Log("Interactable Detected");
 
-			if (targetObject.TryGetComponent<IInteractable>(out IInteractable interactable))
-			{
-				Debug.Log("Interactable Detected");
-				if (targetObject.CompareTag("Core"))
-				{
-					UIManager.Instance.ECoreInteractionUi();
-				}
-				else
-				{
-					UIManager.Instance.EDoorInteractionUi();
-				}
+			    if (targetObject.TryGetComponent<CoreInteraction>(out CoreInteraction coreInteraction))
+			    {
+				    if (!coreInteraction.IsInteractable()) // 상호작용 가능 여부 확인
+				    {
+					    Debug.Log("Core is not interactable.");
+					    UIManager.Instance.HideInteractionUi();
+					    return;
+				    }
+				    UIManager.Instance.ECoreInteractionUi();
+			    }
+			    else
+			    {
+				    UIManager.Instance.EDoorInteractionUi();
+			    }
 
-				if (Input.GetKeyDown(_interactKey))
-				{
-					interactable.Interactive();
-					_interactedObjects.Add(targetObject); 
-					UIManager.Instance.HideInteractionUi();
-				}
-			}
-		}
-		else
-		{
-			UIManager.Instance.HideInteractionUi();
-		}
-	}
+			    if (Input.GetKeyDown(_interactKey))
+			    {
+				    interactable.Interactive();
+				    UIManager.Instance.HideInteractionUi();
+			    }
+		    }
+	    }
+	    else
+	    {
+		    UIManager.Instance.HideInteractionUi();
+	    }
+    }
 
 
 	// 피격 시 호출(외부에서)

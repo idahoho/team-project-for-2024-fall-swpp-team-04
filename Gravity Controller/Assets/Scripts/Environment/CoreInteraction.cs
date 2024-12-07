@@ -9,7 +9,8 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 	[SerializeField] private Renderer _forceFieldRenderer;
 	private GameManager _gameManager;
 
-	private bool _isCheckingEnemies = false;
+	private bool _isInteractable = true;
+	private bool _hasEnemiesCleared = false; // 적 처치 완료 여부
 
 	void Start()
 	{
@@ -17,7 +18,6 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 		_wall.SetActive(false);
 		_spawner.SetActive(false);
 
-		// 조명과 Emission을 초기 상태에서 비활성화
 		if (_coreLight != null)
 		{
 			_coreLight.enabled = false;
@@ -32,44 +32,60 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 
 	public void Interactive()
 	{
-		// 조명 활성화
-		if (_coreLight != null)
+		if (!_isInteractable) return;
+
+		if (!_hasEnemiesCleared)
 		{
-			_coreLight.enabled = true;
-		}
-		// ForceField Emission 활성화
-		if (_forceFieldRenderer != null)
-		{
-			Material forceFieldMaterial = _forceFieldRenderer.material;
-			forceFieldMaterial.EnableKeyword("_EMISSION");
-			forceFieldMaterial.SetColor("_EmissionColor", Color.white); // 원하는 색으로 설정
-		}
-
-		_wall.SetActive(true);
-		UIManager.Instance.TriggerCoreInteractionUi();
-		_spawner.SetActive(true);
-
-		StartCoroutine(StartCheckingEnemiesAfterDelay(62f));
-	}
-
-	private System.Collections.IEnumerator StartCheckingEnemiesAfterDelay(float delay)
-	{
-		yield return new WaitForSeconds(delay);
-
-		_isCheckingEnemies = true;
-
-		while (_isCheckingEnemies)
-		{
-			if (_gameManager.GetActiveEnemies().Count == 0)
+			// 첫 번째 상호작용: 조명(Light)만 활성화
+			_isInteractable = false;
+			if (_coreLight != null)
 			{
-				if (_door.TryGetComponent<IDoor>(out IDoor door))
-				{
-					door.Open();
-				}
-				_isCheckingEnemies = false;
+				_coreLight.enabled = true;
 			}
 
-			yield return new WaitForSeconds(1f);
+			_wall.SetActive(true);
+			UIManager.Instance.TriggerCoreInteractionUi();
+			_spawner.SetActive(true);
+
+			StartCoroutine(ClearEnemiesAndActivateEmission());
+		}
+		else
+		{
+			if (_forceFieldRenderer != null)
+			{
+				Material forceFieldMaterial = _forceFieldRenderer.material;
+				forceFieldMaterial.EnableKeyword("_EMISSION");
+				forceFieldMaterial.SetColor("_EmissionColor", Color.white); 
+			}
+
+			if (_door.TryGetComponent<IDoor>(out IDoor door))
+			{
+				door.Open();
+			}
 		}
 	}
+
+	private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
+	{
+		yield return new WaitForSeconds(60f);
+		SendOnDeathSignalToEnemies();
+
+		// 상호작용 가능 상태 복구
+		_hasEnemiesCleared = true;
+		_isInteractable = true;
+	}
+
+	private void SendOnDeathSignalToEnemies()
+	{
+		var activeEnemies = _gameManager.GetActiveEnemies().ToArray(); 
+		foreach (var enemy in activeEnemies)
+		{
+			if (enemy.TryGetComponent<IEnemy>(out IEnemy enemyScript))
+			{
+				enemyScript.OnDeath();
+			}
+		}
+	}
+
+	public bool IsInteractable() => _isInteractable;
 }
