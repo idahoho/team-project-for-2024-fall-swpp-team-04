@@ -7,27 +7,37 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] PlayerController _playerController;
-    [Header("HP")]
+	[SerializeField] PlayerController _playerController;
+
+	[Header("HP")]
 	[SerializeField] private List<Image> _hpSegments;
 	[SerializeField] private float _hpBarDamping;
-    [Header("Energy")]
-    [SerializeField] private Image _energyGauge;
-    [SerializeField] private float _energyGaugeDamping;
-    [Header("Bullet")]
-    [SerializeField] private TextMeshProUGUI _bulletText;
-    [Header("Crosshair")]
-    [SerializeField] private RectTransform _crossHair;
-    [SerializeField] private float _defaultSize = 100f;
+
+	[Header("Energy")]
+	[SerializeField] private Image _energyGauge;
+	[SerializeField] private float _energyGaugeDamping;
+
+	[Header("Bullet")]
+	[SerializeField] private TextMeshProUGUI _bulletText;
+
+	[Header("Crosshair")]
+	[SerializeField] private RectTransform _crossHair;
+	[SerializeField] private float _defaultSize = 100f;
 	[SerializeField] private float _fireSize = 200f;
+
 	[Header("Core Interaction")]
 	[SerializeField] private GameObject _warningTriangle;
 	[SerializeField] private Slider _progressBar;
 	[SerializeField] private GameObject _coreText;
-
 	[SerializeField] private GameObject _doorText;
 
+	[Header("Stage Intro UI")]
+	[SerializeField] private GameObject _stageIntroBackground; 
+	[SerializeField] private List<GameObject> _stageTexts;
+
 	public static UIManager Instance { get; private set; }
+
+	private bool _isFullyCharged = false;
 
 	private void Awake()
 	{
@@ -41,27 +51,39 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
-    private void Start() {
-	    _warningTriangle.SetActive(false);
-	    _progressBar.gameObject.SetActive(false);
+	private void Start()
+	{
+		_warningTriangle.SetActive(false);
+		_progressBar.gameObject.SetActive(false);
+
+		if (_stageIntroBackground != null)
+			_stageIntroBackground.SetActive(false);
+
+		if (_stageTexts != null)
+		{
+			foreach (var text in _stageTexts)
+			{
+				if (text != null)
+					text.gameObject.SetActive(false);
+			}
+		}
 	}
 
-    private void Update() {
-        UpdateEnergy();
-    }
+	private void Update()
+	{
+		UpdateEnergy();
+	}
 
-	// issue: 어떤 건 인자를 플레이어에게 요청하고, 어떤 건 플레이어가 알아서 넘겨주는 방식이 통일성이 없어보임
-	// 차라리 전부 public으로 선언하고, PlayerController에서 이를 호출하도록 해야 하나?
-	// HP
+	// 기존 HP 업데이트 메서드
 	public void UpdateHP(int currentHP, int maxHP)
 	{
 		for (int i = 0; i < _hpSegments.Count; i++)
 		{
-			_hpSegments[i].enabled = i < currentHP; 
+			_hpSegments[i].enabled = i < currentHP;
 		}
 	}
 
-	// Energy
+	// 기존 Energy 업데이트 메서드
 	private void UpdateEnergy()
 	{
 		float energyRatio = _playerController.GetEnergyRatio();
@@ -73,7 +95,7 @@ public class UIManager : MonoBehaviour
 		if (energyRatio >= 1f)
 		{
 			// 완충 시 진한 보라색으로 변경 및 추가 효과
-			_energyGauge.color = new Color(75/255f, 0, 130/255f);
+			_energyGauge.color = new Color(75 / 255f, 0, 130 / 255f);
 			if (!_isFullyCharged)
 			{ // 이미 효과가 실행된 상태가 아니라면
 				StartCoroutine(PlayFullEnergyEffect());
@@ -94,8 +116,6 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
-	// 완충 시 발생하는 추가 효과
-	private bool _isFullyCharged = false;
 
 	private IEnumerator PlayFullEnergyEffect()
 	{
@@ -117,71 +137,124 @@ public class UIManager : MonoBehaviour
 		_energyGauge.color = new Color(75 / 255f, 0, 130 / 255f);
 	}
 
-	// Bullet
-	public void UpdateBullet(int currentBullet, int maxBullet) {
-        _bulletText.text = currentBullet + " / " + maxBullet;
-    }
+	// 기존 Bullet 업데이트 메서드
+	public void UpdateBullet(int currentBullet, int maxBullet)
+	{
+		_bulletText.text = currentBullet + " / " + maxBullet;
+	}
 
-    // Crosshair
-    private void SetCrosshairSize(float size) {
+	// 기존 Crosshair 관련 메서드
+	private void SetCrosshairSize(float size)
+	{
 		_crossHair.sizeDelta = new Vector2(size, size);
 	}
 
-    public void CrossHairFire() {
-        SetCrosshairSize(_fireSize);
-        StartCoroutine(ResetCrossHair());
-    }
+	public void CrossHairFire()
+	{
+		SetCrosshairSize(_fireSize);
+		StartCoroutine(ResetCrossHair());
+	}
 
-    private IEnumerator ResetCrossHair() {
-        yield return new WaitForSeconds(0.1f);
+	private IEnumerator ResetCrossHair()
+	{
+		yield return new WaitForSeconds(0.1f);
 
-        SetCrosshairSize(_defaultSize);
-    }
+		SetCrosshairSize(_defaultSize);
+	}
 
-    public void CrossHairHit() {
-        // 총에 적이 맞으면 붉은색으로 변한다든가 하는 효과를 주면 좋을 것 같음
-    }
-    public void TriggerCoreInteractionUi()
-    {
-	    StartCoroutine(ShowCoreInteractionUi());
-    }
+	public void CrossHairHit()
+	{
+		// 총에 적이 맞으면 붉은색으로 변한다든가 하는 효과를 주면 좋을 것 같음
+	}
 
-    public void ECoreInteractionUi()
-    {
-	    _coreText.SetActive(true);
-    }
+	// 기존 Core Interaction 관련 메서드
+	public void TriggerCoreInteractionUi()
+	{
+		StartCoroutine(ShowCoreInteractionUi());
+	}
 
-    public void EDoorInteractionUi()
-    {
-	    _doorText.SetActive(true);
-    }
+	public void ECoreInteractionUi()
+	{
+		_coreText.SetActive(true);
+	}
 
-    public void HideInteractionUi()
-    {
-	    _coreText.SetActive(false);
-	    _doorText.SetActive(false);
-    }
+	public void EDoorInteractionUi()
+	{
+		_doorText.SetActive(true);
+	}
+
+	public void HideInteractionUi()
+	{
+		_coreText.SetActive(false);
+		_doorText.SetActive(false);
+	}
+
 	private IEnumerator ShowCoreInteractionUi()
-    {
-	    // 경고 삼각형을 1초 동안 표시
-	    _warningTriangle.SetActive(true);
-	    yield return new WaitForSeconds(1f);
-	    _warningTriangle.SetActive(false);
+	{
+		// 경고 삼각형을 1초 동안 표시
+		_warningTriangle.SetActive(true);
+		yield return new WaitForSeconds(1f);
+		_warningTriangle.SetActive(false);
 
-	    // 프로그레스 바를 1분 동안 표시
-	    _progressBar.value = 0;
-	    _progressBar.gameObject.SetActive(true);
+		// 프로그레스 바를 1분 동안 표시
+		_progressBar.value = 0;
+		_progressBar.gameObject.SetActive(true);
 
-	    float duration = 60f;
-	    float elapsed = 0f;
+		float duration = 60f;
+		float elapsed = 0f;
 
-	    while (elapsed < duration)
-	    {
-		    elapsed += Time.deltaTime;
-		    _progressBar.value = Mathf.Clamp01(elapsed / duration);
-		    yield return null;
-	    }
+		while (elapsed < duration)
+		{
+			elapsed += Time.deltaTime;
+			_progressBar.value = Mathf.Clamp01(elapsed / duration);
+			yield return null;
+		}
 
-	    _progressBar.gameObject.SetActive(false);
-    }
+		_progressBar.gameObject.SetActive(false);
+	}
+
+	public IEnumerator ShowStageIntro(int stageIndex)
+	{
+		if (_stageIntroBackground == null || _stageTexts == null || _stageTexts.Count == 0)
+		{
+			Debug.LogError("No Stage UI.");
+			yield break;
+		}
+
+		foreach (var text in _stageTexts)
+		{
+			if (text != null)
+				text.SetActive(false);
+		}
+
+		if (stageIndex >= 0 && stageIndex < _stageTexts.Count)
+		{
+			_stageTexts[stageIndex].SetActive(true);
+		}
+		else
+		{
+			Debug.LogWarning($"ShowStageIntro: {stageIndex}");
+		}
+
+		// 배경 활성화
+		_stageIntroBackground.SetActive(true);
+
+		// Enter 키 입력 대기
+		bool enterPressed = false;
+		while (!enterPressed)
+		{
+			if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+			{
+				enterPressed = true;
+			}
+			yield return null;
+		}
+
+		// UI 요소 비활성화
+		_stageIntroBackground.SetActive(false);
+		if (stageIndex >= 0 && stageIndex < _stageTexts.Count)
+		{
+			_stageTexts[stageIndex].SetActive(false);
+		}
+	}
 }

@@ -49,6 +49,7 @@ public class CoreController : MonoBehaviour, IInteractable
 
         StageManager.Instance.LoadStage(_current_stage);
         RestoreCore(_current_stage - 1);
+        StartCoroutine(UIManager.Instance.ShowStageIntro(_current_stage - 1));
 		_current_stage++;
     }
     

@@ -76,22 +76,18 @@ public class ClearCore : MonoBehaviour, IInteractable
 	{
 		var activeEnemies = _gameManager.GetActiveEnemies();
 		int enemyCount = activeEnemies != null ? activeEnemies.Count : 0;
-		Debug.Log($"Enemy Count: {enemyCount}");
 
 		if (enemyCount == 0)
 		{
-			Debug.Log("All enemies have been eliminated. Core interaction is now enabled.");
 
 			if (_coreLight != null)
 			{
 				_coreLight.enabled = true;
-				Debug.Log("Core light is now on.");
 			}
 			_isInteractable = true;
 		}
 		else
 		{
-			Debug.Log("There are still enemies remaining. Core interaction is disabled.");
 
 			// Disable interaction
 			_isInteractable = false;
@@ -109,28 +105,20 @@ public class ClearCore : MonoBehaviour, IInteractable
 	{
 		if (!_isInteractable)
 		{
-			Debug.Log("ClearCore is not currently interactable.");
 			return;
 		}
 
-		Debug.Log("Interacted with ClearCore.");
 
 		if (_forceFieldRenderer != null)
 		{
 			Material forceFieldMaterial = _forceFieldRenderer.material;
 			forceFieldMaterial.EnableKeyword("_EMISSION");
-			forceFieldMaterial.SetColor("_EmissionColor", Color.white);
-			Debug.Log("Force field emission is now enabled.");
+			forceFieldMaterial.SetColor("_EmissionColor", Color.white);;
 		}
 
 		if (_door != null && _door.TryGetComponent<IDoor>(out IDoor doorComponent))
 		{
 			doorComponent.Open();
-			Debug.Log("The door is now open.");
-		}
-		else
-		{
-			Debug.LogWarning("The door object does not have an IDoor component.");
 		}
 
 		_coreController.ResetCoreController();

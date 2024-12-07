@@ -248,12 +248,10 @@ public class PlayerController : MonoBehaviour
 
 			if (targetObject.CompareTag("Lever"))
 			{
-				Debug.Log("Lever Detected");
 				if (targetObject.TryGetComponent<DoorLever>(out DoorLever lever))
 				{
 					if (!lever._isInteractable)
 					{
-						Debug.Log("Lever is not interactable.");
 						UIManager.Instance.HideInteractionUi();
 					}
 					else
@@ -264,12 +262,10 @@ public class PlayerController : MonoBehaviour
 			}
 			else if (targetObject.CompareTag("Core"))
 			{
-				Debug.Log("Core Detected");
 				if (targetObject.TryGetComponent<IInteractable>(out IInteractable coreInteraction))
 				{
 					if (!coreInteraction.IsInteractable())
 					{
-						Debug.Log("Core is not interactable.");
 						UIManager.Instance.HideInteractionUi();
 						return;
 					}
