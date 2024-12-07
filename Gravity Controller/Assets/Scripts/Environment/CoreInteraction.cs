@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CoreInteraction : MonoBehaviour, IInteractable
@@ -56,6 +57,23 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 	{
 		yield return new WaitForSeconds(delay);
 
+		// kill all enemies instantly
+		List<GameObject> enemList = new List<GameObject>(_gameManager.GetActiveEnemies());
+		foreach (GameObject enem in enemList)
+		{
+			var enemyScript = enem.GetComponent<IEnemy>();
+			if(enemyScript != null)
+			{
+				enemyScript.OnDeath();
+			}
+
+			if (_door.TryGetComponent<IDoor>(out IDoor door))
+			{
+				door.Open();
+			}
+		}
+		
+		/*
 		_isCheckingEnemies = true;
 
 		while (_isCheckingEnemies)
@@ -71,5 +89,6 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 
 			yield return new WaitForSeconds(1f);
 		}
+		*/
 	}
 }
