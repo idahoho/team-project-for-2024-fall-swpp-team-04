@@ -69,7 +69,7 @@ public class CoreInteraction : MonoBehaviour, IInteractable
 
 	private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
 	{
-		yield return new WaitForSeconds(60f);
+		yield return new WaitForSeconds(5f);
 		SendOnDeathSignalToEnemies();
 
 		// 상호작용 가능 상태 복구

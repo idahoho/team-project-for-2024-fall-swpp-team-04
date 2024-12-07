@@ -27,8 +27,9 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private Light[] _batteryLights;
     [SerializeField] private float _batteryLightIntensity;
 
-    // Start is called before the first frame update
-    void Start()
+
+	// Start is called before the first frame update
+	void Start()
     {
         InitializeGlobalLight();
         // StartCoroutine(GlobalLightOn());
@@ -47,7 +48,7 @@ public class CoreController : MonoBehaviour, IInteractable
         }
 
         StageManager.Instance.LoadStage(_current_stage);
-		RestoreCore(_current_stage-1);
+        RestoreCore(_current_stage - 1);
 		_current_stage++;
     }
     
