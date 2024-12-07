@@ -57,6 +57,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _interactiveRange;
     [SerializeField] private KeyCode _interactKey;
     private HashSet<GameObject> _interactedObjects = new HashSet<GameObject>();
+    private int _stage = 1;
 
 
 
@@ -93,7 +94,7 @@ public class PlayerController : MonoBehaviour
             Fire();
         }
         // right click event
-        if(Input.GetButtonDown("Fire2")) {
+        if(Input.GetButtonDown("Fire2") && _stage >= 2) {
             TargetGravity();
         }
         // reload key event
@@ -105,15 +106,29 @@ public class PlayerController : MonoBehaviour
     // _wheelInputThreshold 값을 기준으로 입력 판정 여부 판단
     private void HandleWheelInput() {
         _mouseInputWheel = Input.GetAxis("Mouse ScrollWheel");
-        if(_mouseInputWheel > _wheelInputThreshold) {
-            _isGravityLow = true;
-        } else if(_mouseInputWheel < -_wheelInputThreshold) {
-            if(_isGravityLow) {
-                _isGravityLow = false;
-            } else {
-                GlobalGravity(GameManager.Instance.GetActiveEnemies());
-            }
+        if (_stage >= 3)
+        {
+	        if (_mouseInputWheel > _wheelInputThreshold)
+	        {
+		        _isGravityLow = true;
+	        }
+	        else if (_mouseInputWheel < -_wheelInputThreshold)
+	        {
+		        if (_isGravityLow)
+		        {
+			        _isGravityLow = false;
+		        }
+		        else if(_stage >= 4)
+		        {
+			        GlobalGravity(GameManager.Instance.GetActiveEnemies());
+		        }
+	        }
         }
+    }
+
+    public void UpdateStage()
+    {
+	    _stage++;
     }
 
 

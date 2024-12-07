@@ -26,14 +26,15 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private Material _blueEmission;
     [SerializeField] private Light[] _batteryLights;
     [SerializeField] private float _batteryLightIntensity;
-
+    [SerializeField] private PlayerController _player;
 
 	// Start is called before the first frame update
 	void Start()
     {
         InitializeGlobalLight();
-        // StartCoroutine(GlobalLightOn());
-    }
+		// StartCoroutine(GlobalLightOn());
+		_player = FindObjectOfType<PlayerController>();
+	}
 
     // Update is called once per frame
     void Update()
@@ -50,6 +51,8 @@ public class CoreController : MonoBehaviour, IInteractable
         StageManager.Instance.LoadStage(_current_stage);
         RestoreCore(_current_stage - 1);
         StartCoroutine(UIManager.Instance.ShowStageIntro(_current_stage - 1));
+        _player.UpdateStage();
+        UIManager.Instance.EnergyGaugeUi();
 		_current_stage++;
     }
     

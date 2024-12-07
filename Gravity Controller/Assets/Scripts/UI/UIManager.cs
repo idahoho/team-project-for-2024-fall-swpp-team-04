@@ -67,6 +67,7 @@ public class UIManager : MonoBehaviour
 					text.gameObject.SetActive(false);
 			}
 		}
+		_energyGauge.gameObject.SetActive(false);
 	}
 
 	private void Update()
@@ -74,7 +75,6 @@ public class UIManager : MonoBehaviour
 		UpdateEnergy();
 	}
 
-	// 기존 HP 업데이트 메서드
 	public void UpdateHP(int currentHP, int maxHP)
 	{
 		for (int i = 0; i < _hpSegments.Count; i++)
@@ -88,38 +88,32 @@ public class UIManager : MonoBehaviour
 	{
 		float energyRatio = _playerController.GetEnergyRatio();
 
-		// 게이지 값 업데이트 (Lerp로 부드럽게 전환)
 		_energyGauge.fillAmount = Mathf.Lerp(_energyGauge.fillAmount, energyRatio, Time.deltaTime * _energyGaugeDamping);
 
-		// 색상 변경 로직
 		if (energyRatio >= 1f)
 		{
-			// 완충 시 진한 보라색으로 변경 및 추가 효과
 			_energyGauge.color = new Color(75 / 255f, 0, 130 / 255f);
 			if (!_isFullyCharged)
-			{ // 이미 효과가 실행된 상태가 아니라면
+			{ 
 				StartCoroutine(PlayFullEnergyEffect());
-				_isFullyCharged = true; // 중복 실행 방지
+				_isFullyCharged = true; 
 			}
 		}
 		else if (energyRatio > 1f / 3f)
 		{
-			// 1/3 이상 시 연한 보라색으로 변경
-			_energyGauge.color = new Color(0.8f, 0.6f, 1f); // 연한 보라색
-			_isFullyCharged = false; // 다시 완충 효과 가능하도록 초기화
+			_energyGauge.color = new Color(0.8f, 0.6f, 1f); 
+			_isFullyCharged = false; 
 		}
 		else
 		{
-			// 1/3 이하일 경우 기본 색상 (흰색)
 			_energyGauge.color = Color.white;
-			_isFullyCharged = false; // 다시 완충 효과 가능하도록 초기화
+			_isFullyCharged = false; 
 		}
 	}
 
 
 	private IEnumerator PlayFullEnergyEffect()
 	{
-		// 예: 에너지 게이지가 번쩍이는 효과
 		float effectDuration = 1f;
 		float elapsedTime = 0f;
 
@@ -127,23 +121,19 @@ public class UIManager : MonoBehaviour
 		{
 			elapsedTime += Time.deltaTime;
 
-			// 색상을 깜빡이듯 변경
 			_energyGauge.color = Color.Lerp(new Color(75 / 255f, 0, 130 / 255f), Color.white, Mathf.PingPong(elapsedTime * 2f, 1f));
 
 			yield return null;
 		}
 
-		// 최종적으로 진한 보라색으로 유지
 		_energyGauge.color = new Color(75 / 255f, 0, 130 / 255f);
 	}
 
-	// 기존 Bullet 업데이트 메서드
 	public void UpdateBullet(int currentBullet, int maxBullet)
 	{
 		_bulletText.text = currentBullet + " / " + maxBullet;
 	}
 
-	// 기존 Crosshair 관련 메서드
 	private void SetCrosshairSize(float size)
 	{
 		_crossHair.sizeDelta = new Vector2(size, size);
@@ -166,8 +156,6 @@ public class UIManager : MonoBehaviour
 	{
 		// 총에 적이 맞으면 붉은색으로 변한다든가 하는 효과를 주면 좋을 것 같음
 	}
-
-	// 기존 Core Interaction 관련 메서드
 	public void TriggerCoreInteractionUi()
 	{
 		StartCoroutine(ShowCoreInteractionUi());
@@ -189,14 +177,16 @@ public class UIManager : MonoBehaviour
 		_doorText.SetActive(false);
 	}
 
+	public void EnergyGaugeUi()
+	{
+		_energyGauge.gameObject.SetActive(true);
+	}
 	private IEnumerator ShowCoreInteractionUi()
 	{
-		// 경고 삼각형을 1초 동안 표시
 		_warningTriangle.SetActive(true);
 		yield return new WaitForSeconds(1f);
 		_warningTriangle.SetActive(false);
 
-		// 프로그레스 바를 1분 동안 표시
 		_progressBar.value = 0;
 		_progressBar.gameObject.SetActive(true);
 
@@ -236,7 +226,6 @@ public class UIManager : MonoBehaviour
 			Debug.LogWarning($"ShowStageIntro: {stageIndex}");
 		}
 
-		// 배경 활성화
 		_stageIntroBackground.SetActive(true);
 
 		// Enter 키 입력 대기
@@ -250,7 +239,6 @@ public class UIManager : MonoBehaviour
 			yield return null;
 		}
 
-		// UI 요소 비활성화
 		_stageIntroBackground.SetActive(false);
 		if (stageIndex >= 0 && stageIndex < _stageTexts.Count)
 		{
