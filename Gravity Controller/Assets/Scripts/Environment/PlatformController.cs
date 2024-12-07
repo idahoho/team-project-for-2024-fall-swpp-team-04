@@ -96,6 +96,11 @@ public class PlatformController : MonoBehaviour
 		{
 			_rb.position = targetPosition;
 			_isMoving = false;
+			
+			var sparkle = transform.parent.Find("SparkleDust");
+			sparkle.position = newPosition;
+			sparkle.gameObject.SetActive(true);
+
 			gameObject.SetActive(false);
 		}
 	}
