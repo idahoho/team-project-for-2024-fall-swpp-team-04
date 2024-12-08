@@ -6,13 +6,35 @@ using UnityEngine.UI;
 
 public class CanvasSwitcher : MonoBehaviour
 {
+	public static CanvasSwitcher Instance { get; private set; }
+
 	public CanvasGroup currentCanvas; // 현재 활성화된 캔버스
 	public CanvasGroup newCanvas; // 활성화할 새로운 캔버스
 	public float fadeDuration = 0.5f; // 페이드 효과 지속 시간
 	public GameObject[] panels; // 버튼과 연결된 패널들을 배열로 저장.
 
+	public SettingsSave settingsSave = null;
+
 	[SerializeField] private GameObject[] _sliders;
-	[SerializeField] private float[] _defaultValues;
+	[SerializeField] private int[] _defaultValues;
+
+	private void Awake()
+	{
+		if (Instance == null)
+		{
+			Instance = this;
+		}
+		else
+		{
+			Destroy(gameObject);
+		}
+	}
+
+	private void Start()
+	{
+		// Load settings
+		LoadSettingsSave();
+	}
 
 	// 버튼 클릭 시 호출되는 함수
 	public void ShowPanel(int index)
@@ -33,8 +55,7 @@ public class CanvasSwitcher : MonoBehaviour
 	// 캔버스를 스위치하는 첫 번째 버튼 함수
 	public void SwitchToNewCanvas()
 	{
-		// Load settings
-		LoadSettingsSave();
+		SetSliders();
 		StartCoroutine(FadeOutAndIn(currentCanvas, newCanvas));
 	}
 
@@ -100,40 +121,67 @@ public class CanvasSwitcher : MonoBehaviour
 		if (!FileManager.LoadFromFile("settings.dat", out json))
 		{
 			// No file; Set to default
-			SetSliders(_defaultValues);
+			SetDefaultSettings();
 			return;
 		}
-		var settingsSave = SettingsSave.Restore(json);
-		if(settingsSave == null)
+		var save = SettingsSave.Restore(json);
+		if (save == null)
 		{
 			// Invalid file; Set to default
 			Debug.Log("Invalid file: " + "settings.dat");
-			SetSliders(_defaultValues);
+			SetDefaultSettings();
 			return;
 		}
-		var values = new float[3];
-		values[0] = settingsSave.backGroundVolume;
-		values[1] = settingsSave.effectVolume;
-		values[2] = settingsSave.sensitivity;
-		SetSliders(values);
+
+		settingsSave = new SettingsSave();
+		settingsSave.backGroundVolume = Percentify.Convert(save.backGroundVolume);
+		settingsSave.effectVolume = Percentify.Convert(save.effectVolume);
+		settingsSave.sensitivity = Percentify.Convert(save.sensitivity);
 	}
 	private void SaveSettingsSave()
 	{
 		var save = new SettingsSave();
-		save.backGroundVolume = _sliders[0].GetComponent<Slider>().value;
-		save.effectVolume = _sliders[1].GetComponent<Slider>().value;
-		save.sensitivity = _sliders[2].GetComponent<Slider>().value;
+		save.backGroundVolume = (int)_sliders[0].GetComponent<Slider>().value;
+		save.effectVolume = (int)_sliders[1].GetComponent<Slider>().value;
+		save.sensitivity = (int)_sliders[2].GetComponent<Slider>().value;
+
+		settingsSave = save;
 
 		FileManager.WriteToFile("settings.dat", JsonUtility.ToJson(save));
 	}
 
+	private void SetDefaultSettings()
+	{
+		settingsSave = new SettingsSave();
+		settingsSave.backGroundVolume = _defaultValues[0];
+		settingsSave.effectVolume = _defaultValues[1];
+		settingsSave.sensitivity = _defaultValues[2];
+	}
+
 	private void SetSliders(float[] values)
 	{
-		for(int i=0; i< values.Length; i++)
+		for (int i = 0; i < values.Length; i++)
 		{
 			if (values[i] < 0) values[i] = 0;
 			if (values[i] > 100) values[i] = 100;
 			_sliders[i].GetComponent<Slider>().value = values[i];
 		}
+	}
+
+	private void SetSliders()
+	{
+		_sliders[0].GetComponent<Slider>().value = settingsSave.backGroundVolume;
+		_sliders[1].GetComponent<Slider>().value = settingsSave.effectVolume;
+		_sliders[2].GetComponent<Slider>().value = settingsSave.sensitivity;
+	}
+}
+
+public class Percentify
+{
+	public static int Convert(int x)
+	{
+		if (x < 0) return 0;
+		if (x > 100) return 100;
+		return x;
 	}
 }

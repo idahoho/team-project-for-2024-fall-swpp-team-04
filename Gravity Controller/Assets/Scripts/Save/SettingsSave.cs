@@ -3,9 +3,9 @@ using UnityEngine;
 [SerializeField]
 public class SettingsSave
 {
-	public float backGroundVolume;
-	public float effectVolume;
-	public float sensitivity;
+	public int backGroundVolume;
+	public int effectVolume;
+	public int sensitivity;
 
 	public static SettingsSave Restore(string json)
 	{

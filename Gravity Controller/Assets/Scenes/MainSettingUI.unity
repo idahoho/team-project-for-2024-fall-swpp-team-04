@@ -6944,10 +6944,7 @@ MonoBehaviour:
   - {fileID: 141143316}
   - {fileID: 773050754}
   - {fileID: 1361033028}
-  _defaultValues:
-  - 50
-  - 50
-  - 50
+  _defaultValues: 320000003200000032000000
 --- !u!4 &1497681282
 Transform:
   m_ObjectHideFlags: 0
