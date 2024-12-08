@@ -27,6 +27,9 @@ public class PlayerMovement : MonoBehaviour
     public float sensetivityX;
     public float sensetivityY;
 	[SerializeField] private KeyCode _viewResetKey;
+	private float _sensitivityMultiplier;
+	[SerializeField] private float _sensitivityMultiplierMin = 0.5f;
+	[SerializeField] private float _sensitivityMultiplierMax = 1.5f;
 
     // determine camera rotation
     private float _accumRotationX = 0;
@@ -78,9 +81,9 @@ public class PlayerMovement : MonoBehaviour
 
         // player rotation
         transform.eulerAngles = new Vector3(0, _accumRotationX, 0);
-        _accumRotationX += Time.deltaTime * _mouseInputX * sensetivityX;
+        _accumRotationX += Time.deltaTime * _mouseInputX * sensetivityX * _sensitivityMultiplier;
         // camera rotation
-        _accumRotationY += Time.deltaTime * _mouseInputY * sensetivityY;
+        _accumRotationY += Time.deltaTime * _mouseInputY * sensetivityY * _sensitivityMultiplier;
         _accumRotationY = Math.Clamp(_accumRotationY, -_rotationLimitY, _rotationLimitY);
 
         _camera.transform.eulerAngles = new Vector3(-_accumRotationY, _accumRotationX, 0);
@@ -145,4 +148,9 @@ public class PlayerMovement : MonoBehaviour
     //         _isGrounded = true;
     //     }
     // }
+
+	public void SetSensitivityMultiplier(int percentage)
+	{
+		_sensitivityMultiplier = _sensitivityMultiplierMin + (_sensitivityMultiplierMax - _sensitivityMultiplierMin) * ((float)percentage) / 100;
+	}
 }
