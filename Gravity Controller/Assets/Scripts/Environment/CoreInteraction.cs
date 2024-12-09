@@ -2,92 +2,93 @@ using UnityEngine;
 
 public class CoreInteraction : MonoBehaviour, IInteractable
 {
-	[SerializeField] private Light _coreLight;
-	[SerializeField] private GameObject _door;
-	[SerializeField] private GameObject _wall;
-	[SerializeField] private GameObject _spawner;
-	[SerializeField] private Renderer _forceFieldRenderer;
-	[SerializeField] private CoreController _coreController;
-	private GameManager _gameManager;
+   [SerializeField] private Light _coreLight;
+   [SerializeField] private GameObject _door;
+   [SerializeField] private GameObject _wall;
+   [SerializeField] private GameObject _spawner;
+   [SerializeField] private Renderer _forceFieldRenderer;
+   [SerializeField] private CoreController _coreController;
+   [SerializeField] private float _delay;
+   private GameManager _gameManager;
 
-	private bool _isInteractable = true;
-	private bool _hasEnemiesCleared = false; // ¿˚ √≥ƒ° øœ∑· ø©∫Œ
+   private bool _isInteractable = true;
+   private bool _hasEnemiesCleared = false; // Ï†Å Ï≤òÏπò ÏôÑÎ£å Ïó¨Î∂Ä
 
-	void Start()
-	{
-		_gameManager = FindObjectOfType<GameManager>();
-		_wall.SetActive(false);
-		_spawner.SetActive(false);
+   void Start()
+   {
+      _gameManager = FindObjectOfType<GameManager>();
+      _wall.SetActive(false);
+      _spawner.SetActive(false);
 
-		if (_coreLight != null)
-		{
-			_coreLight.enabled = false;
-		}
-		if (_forceFieldRenderer != null)
-		{
-			Material forceFieldMaterial = _forceFieldRenderer.material;
-			forceFieldMaterial.DisableKeyword("_EMISSION");
-			forceFieldMaterial.SetColor("_EmissionColor", Color.black);
-		}
-	}
+      if (_coreLight != null)
+      {
+         _coreLight.enabled = false;
+      }
+      if (_forceFieldRenderer != null)
+      {
+         Material forceFieldMaterial = _forceFieldRenderer.material;
+         forceFieldMaterial.DisableKeyword("_EMISSION");
+         forceFieldMaterial.SetColor("_EmissionColor", Color.black);
+      }
+   }
 
-	public void Interactive()
-	{
-		if (!_isInteractable) return;
+   public void Interactive()
+   {
+      if (!_isInteractable) return;
 
-		if (!_hasEnemiesCleared)
-		{
-			// √π π¯¬∞ ªÛ»£¿€øÎ: ¡∂∏Ì(Light)∏∏ »∞º∫»≠
-			_isInteractable = false;
-			if (_coreLight != null)
-			{
-				_coreLight.enabled = true;
-			}
+      if (!_hasEnemiesCleared)
+      {
+         // Ï≤´ Î≤àÏß∏ ÏÉÅÌò∏ÏûëÏö©: Ï°∞Î™Ö(Light)Îßå ÌôúÏÑ±Ìôî
+         _isInteractable = false;
+         if (_coreLight != null)
+         {
+            _coreLight.enabled = true;
+         }
 
-			_wall.SetActive(true);
-			UIManager.Instance.TriggerCoreInteractionUi();
-			_spawner.SetActive(true);
+         _wall.SetActive(true);
+         UIManager.Instance.TriggerCoreInteractionUi();
+         _spawner.SetActive(true);
 
-			StartCoroutine(ClearEnemiesAndActivateEmission());
-		}
-		else
-		{
-			if (_forceFieldRenderer != null)
-			{
-				Material forceFieldMaterial = _forceFieldRenderer.material;
-				forceFieldMaterial.EnableKeyword("_EMISSION");
-				forceFieldMaterial.SetColor("_EmissionColor", Color.white); 
-			}
+         StartCoroutine(ClearEnemiesAndActivateEmission());
+      }
+      else
+      {
+         if (_forceFieldRenderer != null)
+         {
+            Material forceFieldMaterial = _forceFieldRenderer.material;
+            forceFieldMaterial.EnableKeyword("_EMISSION");
+            forceFieldMaterial.SetColor("_EmissionColor", Color.white); 
+         }
 
-			if (_door.TryGetComponent<IDoor>(out IDoor door))
-			{
-				door.Open();
-			}
-			_coreController.ResetCoreController();
-		}
-	}
+         if (_door.TryGetComponent<IDoor>(out IDoor door))
+         {
+            door.Open();
+         }
+         _coreController.ResetCoreController();
+      }
+   }
 
-	private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
-	{
-		yield return new WaitForSeconds(5f);
-		SendOnDeathSignalToEnemies();
+   private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
+   {
+      yield return new WaitForSeconds(_delay);
+      SendOnDeathSignalToEnemies();
 
-		// ªÛ»£¿€øÎ ∞°¥… ªÛ≈¬ ∫π±∏
-		_hasEnemiesCleared = true;
-		_isInteractable = true;
-	}
+      // ÏÉÅÌò∏ÏûëÏö© Í∞ÄÎä• ÏÉÅÌÉú Î≥µÍµ¨
+      _hasEnemiesCleared = true;
+      _isInteractable = true;
+   }
 
-	private void SendOnDeathSignalToEnemies()
-	{
-		var activeEnemies = _gameManager.GetActiveEnemies().ToArray(); 
-		foreach (var enemy in activeEnemies)
-		{
-			if (enemy.TryGetComponent<IEnemy>(out IEnemy enemyScript))
-			{
-				enemyScript.OnDeath();
-			}
-		}
-	}
+   private void SendOnDeathSignalToEnemies()
+   {
+      var activeEnemies = _gameManager.GetActiveEnemies().ToArray(); 
+      foreach (var enemy in activeEnemies)
+      {
+         if (enemy.TryGetComponent<IEnemy>(out IEnemy enemyScript))
+         {
+            enemyScript.OnDeath();
+         }
+      }
+   }
 
-	public bool IsInteractable() => _isInteractable;
+   public bool IsInteractable() => _isInteractable;
 }
