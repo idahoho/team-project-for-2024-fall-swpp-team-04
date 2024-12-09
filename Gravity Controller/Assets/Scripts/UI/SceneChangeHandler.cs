@@ -12,14 +12,21 @@ public class SceneChangeHandler : MonoBehaviour
 
 	public void LoadGame(string scene)
 	{
+		if (CanvasSwitcher.Instance.gameSave.HasProgressed())
+		{
+			// savefile exists
+			// TODO alert
+			return;
+		}
+		
 		StartCoroutine(LoadGameCoroutine(scene));
 	}
 
 	public void ContinueGame(string scene)
 	{
-		string json;
-		if (!FileManager.LoadFromFile("save.dat", out json))
+		if (!CanvasSwitcher.Instance.gameSave.HasProgressed())
 		{
+			// save is empty
 			// TODO alert
 			return;
 		}
@@ -30,6 +37,23 @@ public class SceneChangeHandler : MonoBehaviour
 	private void InitGameSave()
 	{
 		// TODO Initial settings
+		var gameSave = CanvasSwitcher.Instance.gameSave;
+		var player = GameObject.Find("Player");
+		GameObject summonPoint = null;
+		if (gameSave.atLobby) { 
+			summonPoint = GameObject.Find("Summon Point").transform.GetChild(0).gameObject;
+		}
+		else {
+			summonPoint = GameObject.Find("Summon Point").transform.GetChild(1).GetChild(gameSave.stage - 1).gameObject;
+		}
+		player.transform.position = summonPoint.transform.position;
+		player.transform.rotation = summonPoint.transform.rotation;
+
+		// deactivate spawners
+		// activate cores -- _coreLight.enabled, RestoreCore
+		// light
+		// unlock doors
+		// unlock abilities
 	}
 
 	private void InitSettingsSave()

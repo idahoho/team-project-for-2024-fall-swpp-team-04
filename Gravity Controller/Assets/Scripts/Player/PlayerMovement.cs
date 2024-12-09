@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour
     public float sensetivityX;
     public float sensetivityY;
 	[SerializeField] private KeyCode _viewResetKey;
-	private float _sensitivityMultiplier;
+	private float _sensitivityMultiplier = 0.5f;
 	[SerializeField] private float _sensitivityMultiplierMin = 0.5f;
 	[SerializeField] private float _sensitivityMultiplierMax = 1.5f;
 

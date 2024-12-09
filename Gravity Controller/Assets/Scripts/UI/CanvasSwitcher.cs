@@ -14,6 +14,7 @@ public class CanvasSwitcher : MonoBehaviour
 	public GameObject[] panels; // 버튼과 연결된 패널들을 배열로 저장.
 
 	public SettingsSave settingsSave = null;
+	public GameSave gameSave = null;
 
 	[SerializeField] private GameObject[] _sliders;
 	[SerializeField] private int[] _defaultValues;
@@ -34,6 +35,8 @@ public class CanvasSwitcher : MonoBehaviour
 	{
 		// Load settings
 		LoadSettingsSave();
+
+		LoadGameSave();
 	}
 
 	// 버튼 클릭 시 호출되는 함수
@@ -138,6 +141,32 @@ public class CanvasSwitcher : MonoBehaviour
 		settingsSave.effectVolume = Percentify.Convert(save.effectVolume);
 		settingsSave.sensitivity = Percentify.Convert(save.sensitivity);
 	}
+
+	private void LoadGameSave()
+	{
+		string json;
+		if (!FileManager.LoadFromFile("save.dat", out json))
+		{
+			// No file; Set to default
+			gameSave.atLobby = false;
+			gameSave.stage = 1;
+			return;
+		}
+		var save = GameSave.Restore(json);
+		if (save == null)
+		{
+			// Invalid file; Set to default
+			Debug.Log("Invalid file: " + "save.dat");
+			gameSave.atLobby = false;
+			gameSave.stage = 1;
+			return;
+		}
+
+		gameSave = new GameSave();
+		gameSave.atLobby = save.atLobby;
+		gameSave.stage = (save.stage < 1) ? 1 : (save.stage > 4) ? 4 : save.stage;
+	}
+
 	private void SaveSettingsSave()
 	{
 		var save = new SettingsSave();
