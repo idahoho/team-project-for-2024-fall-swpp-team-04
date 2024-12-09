@@ -14,7 +14,7 @@ public class StageManager : MonoBehaviour
 
     private List<bool> _isCleared;
     private int _maxStage = 4;
-    private int _currentStage = 0;
+    private int _currentStage = 1;
     
 
     private void Awake()
@@ -41,22 +41,32 @@ public class StageManager : MonoBehaviour
         
     }
 
-    private void LoadStage(int stage) {
-        if(stage < 0 || stage >= _maxStage) {
+    public void LoadStage(int stage) {
+        if(stage < 0 || stage > _maxStage) {
             Debug.Log("StageManager.LoadStage: stage index out of range");
             return;
         }
-        _currentStage = stage;
-        for(int i = 0; i < _maxStage; i++) {
-            if(i == stage) {
-                _stages[i].SetActive(true);
-                _stageDoors[i].isOpenableFromLobby = true;
-            } else {
-                _stages[i].SetActive(false);
-                _stageDoors[i].isOpenableFromLobby = false;
-                _stageDoors[i].Close();
-            }
-        }
+		else if(stage == _maxStage) LoadBossStage();
+		else
+		{
+			_currentStage = stage;
+			for (int i = 0; i < _maxStage; i++)
+			{
+				if (i == stage)
+				{
+					_stages[i].SetActive(true);
+					_stageDoors[i].isOpenableFromLobby = true;
+				}
+				else
+				{
+					_stages[i].SetActive(false);
+					_stageDoors[i].isOpenableFromLobby = false;
+					_stageDoors[i].Close();
+				}
+			}
+		}
+
+		_currentStage++;
     }
 
     public void EnterStage(int stage) {

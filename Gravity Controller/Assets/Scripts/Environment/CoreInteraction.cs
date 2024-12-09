@@ -1,94 +1,94 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CoreInteraction : MonoBehaviour, IInteractable
 {
-	[SerializeField] private Light _coreLight;
-	[SerializeField] private GameObject _door;
-	[SerializeField] private GameObject _wall;
-	[SerializeField] private GameObject _spawner;
-	[SerializeField] private Renderer _forceFieldRenderer;
-	private GameManager _gameManager;
+   [SerializeField] private Light _coreLight;
+   [SerializeField] private GameObject _door;
+   [SerializeField] private GameObject _wall;
+   [SerializeField] private GameObject _spawner;
+   [SerializeField] private Renderer _forceFieldRenderer;
+   [SerializeField] private CoreController _coreController;
+   [SerializeField] private float _delay;
+   private GameManager _gameManager;
 
-	private bool _isCheckingEnemies = false;
+   private bool _isInteractable = true;
+   private bool _hasEnemiesCleared = false; // Ï†Å Ï≤òÏπò ÏôÑÎ£å Ïó¨Î∂Ä
 
-	void Start()
-	{
-		_gameManager = FindObjectOfType<GameManager>();
-		_wall.SetActive(false);
-		_spawner.SetActive(false);
+   void Start()
+   {
+      _gameManager = FindObjectOfType<GameManager>();
+      _wall.SetActive(false);
+      _spawner.SetActive(false);
 
-		// ¡∂∏Ì∞˙ Emission¿ª √ ±‚ ªÛ≈¬ø°º≠ ∫Ò»∞º∫»≠
-		if (_coreLight != null)
-		{
-			_coreLight.enabled = false;
-		}
-		if (_forceFieldRenderer != null)
-		{
-			Material forceFieldMaterial = _forceFieldRenderer.material;
-			forceFieldMaterial.DisableKeyword("_EMISSION");
-			forceFieldMaterial.SetColor("_EmissionColor", Color.black);
-		}
-	}
+      if (_coreLight != null)
+      {
+         _coreLight.enabled = false;
+      }
+      if (_forceFieldRenderer != null)
+      {
+         Material forceFieldMaterial = _forceFieldRenderer.material;
+         forceFieldMaterial.DisableKeyword("_EMISSION");
+         forceFieldMaterial.SetColor("_EmissionColor", Color.black);
+      }
+   }
 
-	public void Interactive()
-	{
-		// ¡∂∏Ì »∞º∫»≠
-		if (_coreLight != null)
-		{
-			_coreLight.enabled = true;
-		}
-		// ForceField Emission »∞º∫»≠
-		if (_forceFieldRenderer != null)
-		{
-			Material forceFieldMaterial = _forceFieldRenderer.material;
-			forceFieldMaterial.EnableKeyword("_EMISSION");
-			forceFieldMaterial.SetColor("_EmissionColor", Color.white); // ø¯«œ¥¬ ªˆ¿∏∑Œ º≥¡§
-		}
+   public void Interactive()
+   {
+      if (!_isInteractable) return;
 
-		_wall.SetActive(true);
-		UIManager.Instance.TriggerCoreInteractionUi();
-		_spawner.SetActive(true);
+      if (!_hasEnemiesCleared)
+      {
+         // Ï≤´ Î≤àÏß∏ ÏÉÅÌò∏ÏûëÏö©: Ï°∞Î™Ö(Light)Îßå ÌôúÏÑ±Ìôî
+         _isInteractable = false;
+         if (_coreLight != null)
+         {
+            _coreLight.enabled = true;
+         }
 
-		StartCoroutine(StartCheckingEnemiesAfterDelay(62f));
-	}
+         _wall.SetActive(true);
+         UIManager.Instance.TriggerCoreInteractionUi();
+         _spawner.SetActive(true);
 
-	private System.Collections.IEnumerator StartCheckingEnemiesAfterDelay(float delay)
-	{
-		yield return new WaitForSeconds(delay);
+         StartCoroutine(ClearEnemiesAndActivateEmission());
+      }
+      else
+      {
+         if (_forceFieldRenderer != null)
+         {
+            Material forceFieldMaterial = _forceFieldRenderer.material;
+            forceFieldMaterial.EnableKeyword("_EMISSION");
+            forceFieldMaterial.SetColor("_EmissionColor", Color.white); 
+         }
 
-		// kill all enemies instantly
-		List<GameObject> enemList = new List<GameObject>(_gameManager.GetActiveEnemies());
-		foreach (GameObject enem in enemList)
-		{
-			var enemyScript = enem.GetComponent<IEnemy>();
-			if(enemyScript != null)
-			{
-				enemyScript.OnDeath();
-			}
+         if (_door.TryGetComponent<IDoor>(out IDoor door))
+         {
+            door.Open();
+         }
+         _coreController.ResetCoreController();
+      }
+   }
 
-			if (_door.TryGetComponent<IDoor>(out IDoor door))
-			{
-				door.Open();
-			}
-		}
-		
-		/*
-		_isCheckingEnemies = true;
+   private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
+   {
+      yield return new WaitForSeconds(_delay);
+      SendOnDeathSignalToEnemies();
 
-		while (_isCheckingEnemies)
-		{
-			if (_gameManager.GetActiveEnemies().Count == 0)
-			{
-				if (_door.TryGetComponent<IDoor>(out IDoor door))
-				{
-					door.Open();
-				}
-				_isCheckingEnemies = false;
-			}
+      // ÏÉÅÌò∏ÏûëÏö© Í∞ÄÎä• ÏÉÅÌÉú Î≥µÍµ¨
+      _hasEnemiesCleared = true;
+      _isInteractable = true;
+   }
 
-			yield return new WaitForSeconds(1f);
-		}
-		*/
-	}
+   private void SendOnDeathSignalToEnemies()
+   {
+      var activeEnemies = _gameManager.GetActiveEnemies().ToArray(); 
+      foreach (var enemy in activeEnemies)
+      {
+         if (enemy.TryGetComponent<IEnemy>(out IEnemy enemyScript))
+         {
+            enemyScript.OnDeath();
+         }
+      }
+   }
+
+   public bool IsInteractable() => _isInteractable;
 }

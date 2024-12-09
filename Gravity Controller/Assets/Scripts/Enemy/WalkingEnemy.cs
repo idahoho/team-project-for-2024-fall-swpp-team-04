@@ -27,7 +27,6 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 	[SerializeField] private float _chaseRange;
 	[SerializeField] private float _attackRange;
 	[SerializeField] private float _attackHitRange;
-	private bool _isChasing = false;
 	private bool _isAttacking = false;
 
 	[SerializeField] private float _sightRange;

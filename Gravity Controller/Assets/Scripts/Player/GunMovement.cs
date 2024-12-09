@@ -13,7 +13,6 @@ public class GunMovement : MonoBehaviour
 	[Header("Hide Gun Settings")]
 	[SerializeField] private Vector3 _hiddenOffset = new Vector3(0, -4.5f, -0.5f); // Position to hide the gun
 	[SerializeField] private float _hiddenDurationSkill = 0.25f; // Duration to hide gun during skill usage
-	[SerializeField] private float _hiddenDurationReload = 1f; // Duration to hide gun during reload
 
 	// **Movement Parameters**
 	[Header("Movement Settings")]
