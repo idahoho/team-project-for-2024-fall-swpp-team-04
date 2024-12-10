@@ -75,9 +75,10 @@ public class CoreInteraction : MonoBehaviour, IInteractable
    private System.Collections.IEnumerator ClearEnemiesAndActivateEmission()
    {
       yield return new WaitForSeconds(_delay);
-      SendOnDeathSignalToEnemies();
 
-	  _audioSource.PlayOneShot(_timeOutSound);
+		_audioSource.PlayOneShot(_timeOutSound);
+
+		SendOnDeathSignalToEnemies();	  
 
 		// 상호작용 가능 상태 복구
 	  _hasEnemiesCleared = true;
