@@ -59,6 +59,12 @@ public class PlayerController : MonoBehaviour
     private HashSet<GameObject> _interactedObjects = new HashSet<GameObject>();
     private int _stage = 1;
 
+	[SerializeField] private AudioClip _fireSound; 
+	[SerializeField] private AudioClip _reloadSound;
+	[SerializeField] private AudioClip _globalGravityUpSound;
+	[SerializeField] private AudioClip _globalGravityDownSound;
+	[SerializeField] private AudioClip _localGravitySound;
+	private AudioSource _audioSource;
 
 
 
@@ -69,8 +75,10 @@ public class PlayerController : MonoBehaviour
         _currentBullet = _maxBullet;
         UIManager.Instance.UpdateBullet(_currentBullet, _maxBullet);
         _currentEnergy = _maxEnergy;
-    }
-    private void FixedUpdate() {
+		_audioSource = GetComponent<AudioSource>();
+
+	}
+	private void FixedUpdate() {
         // 낮아진 전체 중력에 대한 처리
         // 플레이어에게만 영향을 주도록 할 경우 이걸로 사용
         // 전체적으로 영향을 주도록 하려면 Physics.gravity 자체를 바꿔줘야 함
@@ -111,7 +119,8 @@ public class PlayerController : MonoBehaviour
 	        if (_mouseInputWheel > _wheelInputThreshold)
 	        {
 		        _isGravityLow = true;
-	        }
+				_audioSource.PlayOneShot(_globalGravityDownSound);
+			}
 	        else if (_mouseInputWheel < -_wheelInputThreshold)
 	        {
 		        if (_isGravityLow)
@@ -153,7 +162,8 @@ public class PlayerController : MonoBehaviour
         }
         if(_currentBullet-- > 0) {
             _isShootable = false;
-            Debug.Log("fire");
+			_audioSource.PlayOneShot(_fireSound);
+			Debug.Log("fire");
             _gunGameObject.SendMessage("HandleRecoil", SendMessageOptions.DontRequireReceiver);
 			RaycastHit hit;
             if(Physics.Raycast(_camera.position, _camera.transform.forward, out hit)) {
@@ -178,6 +188,7 @@ public class PlayerController : MonoBehaviour
     private void Reload() {
 		// Debug.Log("reloading...");
 		if (_isReloading) return;
+		_audioSource.PlayOneShot(_reloadSound);
 		_isReloading = true;
         _isShootable = false;
         if (_gunGameObject != null)
@@ -218,10 +229,11 @@ public class PlayerController : MonoBehaviour
                 _isTargetable = false;
                 StartCoroutine(ReTargetable());
                 _currentEnergy -= _localEnergyCost;
+				_audioSource.PlayOneShot(_localGravitySound);
 
-                // 여기서 피격된 대상의 오브젝트를 불러올 수 있음
-                //rigid.AddForce(Physics.gravity * rigid.mass * (_localGravityForce - 1f), ForceMode.Impulse);
-                // hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
+				// 여기서 피격된 대상의 오브젝트를 불러올 수 있음
+				//rigid.AddForce(Physics.gravity * rigid.mass * (_localGravityForce - 1f), ForceMode.Impulse);
+				// hit.collider.gameObject.GetComponent<EnemyController>().OnHit();
 				targetSkillReceiver.ReceiveSkill();
             }
         }
@@ -243,6 +255,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
         _currentEnergy -= _globalHighEnergyCost;
+		_audioSource.PlayOneShot(_globalGravityUpSound);
 		_gunGameObject.SendMessage("HideGunOnSkill", SendMessageOptions.DontRequireReceiver);
 		foreach (var obj in gameObjects) {
             Rigidbody rigid;

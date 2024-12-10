@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class Door_Stage4 : MonoBehaviour, IDoor
 {
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _doorSound;
 	public void Open()
 	{
+		_audioSource.Play();
 		// deleteCeils 안의 모든 자식 오브젝트 가져오기
 		foreach (Transform child in transform)
 		{
@@ -24,6 +27,7 @@ public class Door_Stage4 : MonoBehaviour, IDoor
 
 	public void Close()
 	{
+		_audioSource.Play();
 		return;
 	}
 }

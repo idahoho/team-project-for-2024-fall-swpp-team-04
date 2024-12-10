@@ -13,8 +13,11 @@ public class Door_2 : MonoBehaviour, IDoor
     public bool isOpenableFromLobby = false;
     public bool isOpenableFromStage = false;
     private bool _isOpened = false;
-    
-    void Start()
+
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _doorSound;
+
+	void Start()
     {
         _animator = GetComponent<Animator>();    
     }
@@ -54,6 +57,7 @@ public class Door_2 : MonoBehaviour, IDoor
         if(_isOpened) {
             return;
         }
+		_audioSource.Play();
         _isOpened = true;
         _animator.SetBool("Open", true);
         // GetComponent<MeshCollider>().enabled = false;
@@ -63,7 +67,8 @@ public class Door_2 : MonoBehaviour, IDoor
         if(!_isOpened) {
             return;
         }
-        _isOpened = false;
+		_audioSource.Play();
+		_isOpened = false;
         _animator.SetBool("Open", false);
     }
 }

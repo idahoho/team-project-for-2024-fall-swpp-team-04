@@ -41,8 +41,16 @@ public class PlayerMovement : MonoBehaviour
     public float _moveSpeedGun;
     public float _maxSpeedGun;
 
+	[Header("Footstep Audio Settings")]
+	[SerializeField] private AudioSource _footstepAudioSource;
+	[SerializeField] private AudioClip _footstepClip;
+	[SerializeField] private float _footstepInterval = 0.5f;
 
-    void Start() {
+	private bool _isPlayingFootsteps = false;
+
+
+
+	void Start() {
         _rigid = GetComponent<Rigidbody>();
         _camera = GameObject.Find("PlayerCamera");
         _playerController = GetComponent<PlayerController>();
@@ -60,7 +68,8 @@ public class PlayerMovement : MonoBehaviour
         ControlSpeed();
         GroundCheck();
         HandleDrag();
-    }
+		HandleFootsteps();
+	}
 
     private void HandleInput() {
         _horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -153,4 +162,41 @@ public class PlayerMovement : MonoBehaviour
 	{
 		_sensitivityMultiplier = _sensitivityMultiplierMin + (_sensitivityMultiplierMax - _sensitivityMultiplierMin) * ((float)percentage) / 100;
 	}
+
+	private void HandleFootsteps()
+	{
+		Vector3 flatVel = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
+		bool hasInput = Mathf.Abs(_horizontalInput) > 0.1f || Mathf.Abs(_verticalInput) > 0.1f; // 방향키 입력 유무 판단
+		bool isMoving = flatVel.magnitude > 0.1f; // 실제 속도 기반 이동 여부 판단
+
+		// 방향키 입력이 있고, 속도가 일정 이상이며, 땅에 있을 때만 발소리 재생
+		if (_isGrounded && isMoving && hasInput && !_isPlayingFootsteps)
+		{
+			StartCoroutine(PlayFootsteps());
+		}
+		else
+		{
+			StopCoroutine(PlayFootsteps());
+			_isPlayingFootsteps = false;
+		}
+	}
+
+
+
+	private IEnumerator PlayFootsteps()
+	{
+		_isPlayingFootsteps = true;
+
+		while (true)
+		{
+			if (_footstepClip != null && _footstepAudioSource != null)
+			{
+				_footstepAudioSource.clip = _footstepClip;
+				_footstepAudioSource.Play();
+			}
+
+			yield return new WaitForSeconds(_footstepInterval);
+		}
+	}
+
 }

@@ -14,9 +14,11 @@ public class Door_Boss : MonoBehaviour, IDoor
     private Vector3 _originalPosRight;
     private float _delta = 0;
     private bool _isOpened = false;
-    
 
-    private void Start() {
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _doorSound;
+
+	private void Start() {
         _originalPosLeft = _doorLeft.transform.position;
         _originalPosRight = _doorRight.transform.position;
     }
@@ -25,7 +27,8 @@ public class Door_Boss : MonoBehaviour, IDoor
         if(_isOpened) {
             return;
         }
-        _delta = 0;
+		_audioSource.Play();
+		_delta = 0;
         _isOpened = true;
         StartCoroutine(MoveDoor());
     }
@@ -33,7 +36,8 @@ public class Door_Boss : MonoBehaviour, IDoor
         if(!_isOpened) {
             return;
         }
-        _delta = 0;
+		_audioSource.Play();
+		_delta = 0;
         _isOpened = false;
         StartCoroutine(MoveDoor());
     }
