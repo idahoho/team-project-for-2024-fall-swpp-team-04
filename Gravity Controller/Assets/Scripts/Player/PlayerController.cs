@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -327,8 +328,8 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.UpdateHP(_currentHP, _maxHP);
         if(_currentHP <= 0) {
             _isAlive = false;
-            // 사망 이벤트 여기서 호출
-        }
+			SceneManager.LoadScene("GameOverScene");
+		}
     }
 
     // UIManager에서 호출
