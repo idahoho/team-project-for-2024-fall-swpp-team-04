@@ -12,15 +12,6 @@ public class StageManager : MonoBehaviour
     [SerializeField] private GameObject _bossStageDoor;
     [SerializeField] private GameObject _bossStage;
 
-	[Header("BGM Settings")]
-	[SerializeField] private AudioSource _audioSource;
-	[SerializeField] private AudioClip _lobbyBGM;
-	[SerializeField] private AudioClip _stage1BGM;
-	[SerializeField] private AudioClip _stage2BGM;
-	[SerializeField] private AudioClip _stage3BGM;
-	[SerializeField] private AudioClip _stage4BGM;
-	[SerializeField] private AudioClip _bossBGM;
-
 	private List<bool> _isCleared;
     private int _maxStage = 4;
     private int _currentStage = 1;
@@ -42,7 +33,6 @@ public class StageManager : MonoBehaviour
     {
         _isCleared = new List<bool>(new bool[] {false, false, false, false});
         LoadStage(0);
-		PlayBGM(_stage1BGM);
 	}
 
     // Update is called once per frame
@@ -74,25 +64,6 @@ public class StageManager : MonoBehaviour
 					_stageDoors[i].Close();
 				}
 				
-				switch (stage)
-				{
-					case 0:
-						PlayBGM(_stage1BGM);
-						break;
-					case 1:
-						PlayBGM(_stage2BGM);
-						break;
-					case 2:
-						PlayBGM(_stage3BGM);
-						break;
-					case 3:
-						PlayBGM(_stage4BGM);
-						break;
-					default:
-						PlayBGM(_lobbyBGM);
-						break;
-				}
-				
 			}
 		}
 
@@ -116,8 +87,6 @@ public class StageManager : MonoBehaviour
         _isCleared[stage] = true;
         _stageDoors[stage].isOpenableFromStage = true;
         _core.RestoreCore(stage);
-
-		PlayBGM(_lobbyBGM);
 	}
 
     private void LoadBossStage() {
@@ -128,23 +97,4 @@ public class StageManager : MonoBehaviour
         _bossStage.SetActive(true);
         _bossStageDoor.GetComponent<IDoor>().Open();
     }
-
-	private void PlayBGM(AudioClip clip)
-	{
-		if (_audioSource == null)
-		{
-			Debug.LogWarning("StageManager: AudioSource is not assigned.");
-			return;
-		}
-
-		if (clip == null)
-		{
-			Debug.LogWarning("StageManager: Attempt to play null AudioClip.");
-			return;
-		}
-
-		_audioSource.clip = clip;
-		_audioSource.loop = true;
-		_audioSource.Play();
-	}
 }
