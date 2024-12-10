@@ -44,11 +44,10 @@ public class PlayerMovement : MonoBehaviour
 	[Header("Footstep Audio Settings")]
 	[SerializeField] private AudioSource _footstepAudioSource;
 	[SerializeField] private AudioClip _footstepClip;
+	[SerializeField] private float _footstepInterval = 0.5f;
 
-	// 이전 프레임에서 발소리 재생 조건을 충족하고 있었는지 추적하는 변수
+	private float _footstepTimer = 0f;
 	private bool _wasFootstepConditionMet = false;
-
-
 
 	void Start() {
         _rigid = GetComponent<Rigidbody>();
@@ -169,19 +168,33 @@ public class PlayerMovement : MonoBehaviour
 		bool hasInput = Mathf.Abs(_horizontalInput) > 0.1f || Mathf.Abs(_verticalInput) > 0.1f;
 		bool isMoving = flatVel.magnitude > 0.1f;
 
-		// 조건: 바닥에 있고, 플레이어가 이동 키 입력 중이며, 일정 속도 이상 이동 중일 때
 		bool currentCondition = (_isGrounded && isMoving && hasInput);
-
-		// 이전 프레임에는 조건을 만족하지 않았는데 이번 프레임에 조건을 만족하게 되었다면 한번 재생
 		if (currentCondition && !_wasFootstepConditionMet)
 		{
 			if (_footstepAudioSource != null && _footstepClip != null)
 			{
 				_footstepAudioSource.PlayOneShot(_footstepClip);
 			}
+			_footstepTimer = 0f;
 		}
 
-		// 현재 프레임 조건 상태를 기록
+		if (currentCondition)
+		{
+			_footstepTimer += Time.deltaTime;
+			if (_footstepTimer >= _footstepInterval)
+			{
+				if (_footstepAudioSource != null && _footstepClip != null)
+				{
+					_footstepAudioSource.PlayOneShot(_footstepClip);
+				}
+				_footstepTimer = 0f;
+			}
+		}
+		else
+		{
+			_footstepTimer = 0f;
+		}
+
 		_wasFootstepConditionMet = currentCondition;
 	}
 }

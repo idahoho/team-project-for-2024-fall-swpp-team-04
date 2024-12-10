@@ -68,6 +68,10 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		_animator = transform.GetChild(0).GetComponent<Animator>();
 		_spawnPoint = transform.position;
 
+		_audioSource.clip = _walkingSound;
+		_audioSource.loop = true;
+		_audioSource.Play();
+
 		SetRandomDirection();
 		BeforeWander();
 	}
@@ -107,8 +111,6 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 		bool playerInSight = false;
 
 		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
-
-		_audioSource.PlayOneShot(_walkingSound);
 
 		if (Physics.Raycast(transform.position + _heightOffset * new Vector3(0,1,0) + _frontOffset * (transform.rotation * new Vector3(0, 0, 1)), Vector3.Scale(relativePosition, new Vector3(1, 0, 1)), out hit, _sightRange))
 		{

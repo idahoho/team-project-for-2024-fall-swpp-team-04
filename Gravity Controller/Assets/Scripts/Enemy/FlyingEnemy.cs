@@ -109,6 +109,13 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		_gun = _joint.GetChild(0);
 
 		_player = GameObject.Find("Player");
+
+		if (_audioSource != null && _flyingSound != null)
+		{
+			_audioSource.clip = _flyingSound;
+			_audioSource.loop = true;
+			_audioSource.Play();
+		}
 	}
 
 	private void Update() {
@@ -156,8 +163,6 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
 
-		_audioSource.PlayOneShot(_flyingSound);
-
 		if (Physics.Raycast(transform.position, relativePosition, out hit, _sightRange))
 		{
 			playerInSight = hit.collider.gameObject.CompareTag("Player");
@@ -190,7 +195,10 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					{
 						// Aware -> Follow
 						State = EnemyState.Follow;
-						_audioSource.PlayOneShot(_followingSound);
+						if (_audioSource != null && _followingSound != null)
+						{
+							_audioSource.PlayOneShot(_followingSound);
+						}
 						ChasePlayer();
 						break;
 					}
@@ -250,6 +258,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		if(_isCharging) {
 			return;
 		}
+
 		// two-phase of moving and waiting
 		_timer += Time.fixedDeltaTime;
 		RaycastHit hit;
@@ -392,7 +401,6 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		yield return new WaitForSeconds(_chargeTime);	
 
 		FireProjectile();
-		_audioSource.PlayOneShot(_attackingSound);
 
 		_chargeCooldownTimer = 0f;
 		_isCharging = false;
@@ -402,6 +410,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		GameObject proj = Instantiate(_projectile, _gun.GetChild(0).position, Quaternion.identity);
 
 		Vector3 directionToPlayer = (_player.transform.position - _gun.GetChild(0).position).normalized;
+
+		_audioSource.PlayOneShot(_attackingSound);
 
 		// proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 		Rigidbody rb = proj.GetComponent<Rigidbody>();

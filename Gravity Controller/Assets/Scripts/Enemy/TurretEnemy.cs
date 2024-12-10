@@ -129,6 +129,10 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 
 		_player = GameObject.Find("Player");
 
+		_audioSource.clip = _workingSound;
+		_audioSource.loop = true;
+		_audioSource.Play();
+
 		_centralRotation = _column.rotation;
 
 		State = EnemyState.Idle;
@@ -232,8 +236,6 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 	private void Surveil()
 	{
 		if (_headDetached) return;
-
-		_audioSource.PlayOneShot(_workingSound);
 
 		if (_isInitiatingSurveil)
 		{
