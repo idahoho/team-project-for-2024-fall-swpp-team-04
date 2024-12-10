@@ -28,6 +28,10 @@ public class CoreController : MonoBehaviour, IInteractable
     [SerializeField] private float _batteryLightIntensity;
     [SerializeField] private PlayerController _player;
 
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _lightSound;
+	[SerializeField] private AudioClip _coreSound;
+
 	// Start is called before the first frame update
 	void Start()
     {
@@ -45,7 +49,8 @@ public class CoreController : MonoBehaviour, IInteractable
     public void Interactive() {
         if(_isInteractable) {
 			_isInteractable = false;
-            StartCoroutine(GlobalLightOn());
+			_audioSource.PlayOneShot(_lightSound);
+			StartCoroutine(GlobalLightOn());
         }
 
         StageManager.Instance.LoadStage(_current_stage);
@@ -58,7 +63,7 @@ public class CoreController : MonoBehaviour, IInteractable
     
     private void InitializeGlobalLight()
     {
-	    _isInteractable = true;
+		_isInteractable = true;
 
 		_sunLight.intensity = _initialSunLightIntensity;
         RenderSettings.ambientLight = _initialEnvironmentLightColor;
@@ -79,7 +84,8 @@ public class CoreController : MonoBehaviour, IInteractable
         RenderSettings.ambientLight = _environmentLightColor;
         RenderSettings.ambientIntensity = _environmentLightIntensity;
         RenderSettings.fogDensity = _fogDensity;
-    }
+
+	}
 
     public void RestoreCore(int stage) {
         if(stage < 0 || stage > 3) {
@@ -88,7 +94,8 @@ public class CoreController : MonoBehaviour, IInteractable
         }
         _batteries[stage].materials[1] = _blueEmission;
         _batteryLights[stage].intensity = _batteryLightIntensity;
-    }
+		_audioSource.PlayOneShot(_coreSound);
+	}
     public bool IsInteractable()
     {
 	    return _isInteractable; 

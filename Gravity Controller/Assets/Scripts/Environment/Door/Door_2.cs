@@ -57,8 +57,8 @@ public class Door_2 : MonoBehaviour, IDoor
         if(_isOpened) {
             return;
         }
-		_audioSource.Play();
-        _isOpened = true;
+		_audioSource.PlayOneShot(_doorSound);
+		_isOpened = true;
         _animator.SetBool("Open", true);
         // GetComponent<MeshCollider>().enabled = false;
     }
@@ -67,7 +67,7 @@ public class Door_2 : MonoBehaviour, IDoor
         if(!_isOpened) {
             return;
         }
-		_audioSource.Play();
+		_audioSource.PlayOneShot(_doorSound);
 		_isOpened = false;
         _animator.SetBool("Open", false);
     }

@@ -27,7 +27,7 @@ public class Door_Boss : MonoBehaviour, IDoor
         if(_isOpened) {
             return;
         }
-		_audioSource.Play();
+		_audioSource.PlayOneShot(_doorSound);
 		_delta = 0;
         _isOpened = true;
         StartCoroutine(MoveDoor());
@@ -36,7 +36,7 @@ public class Door_Boss : MonoBehaviour, IDoor
         if(!_isOpened) {
             return;
         }
-		_audioSource.Play();
+		_audioSource.PlayOneShot(_doorSound);
 		_delta = 0;
         _isOpened = false;
         StartCoroutine(MoveDoor());

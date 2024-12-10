@@ -15,6 +15,9 @@ public class ClearCore : MonoBehaviour, IInteractable
 	[SerializeField] private CoreController _coreController;
 	private bool _isInteractable = false; // Current interactable state
 
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _coreSound;
+
 	void Start()
 	{
 		_gameManager = FindObjectOfType<GameManager>();
@@ -114,6 +117,11 @@ public class ClearCore : MonoBehaviour, IInteractable
 			Material forceFieldMaterial = _forceFieldRenderer.material;
 			forceFieldMaterial.EnableKeyword("_EMISSION");
 			forceFieldMaterial.SetColor("_EmissionColor", Color.white);;
+
+			if (_audioSource != null && _coreSound != null)
+			{
+				_audioSource.PlayOneShot(_coreSound);
+			}
 		}
 
 		if (_door != null && _door.TryGetComponent<IDoor>(out IDoor doorComponent))

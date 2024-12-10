@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
 
 	[SerializeField] private AudioClip _fireSound; 
 	[SerializeField] private AudioClip _reloadSound;
+	[SerializeField] private AudioClip _hitSound;
 	[SerializeField] private AudioClip _globalGravityUpSound;
 	[SerializeField] private AudioClip _globalGravityDownSound;
 	[SerializeField] private AudioClip _localGravitySound;
@@ -321,7 +322,8 @@ public class PlayerController : MonoBehaviour
             return;
         }
         Debug.Log("hit");
-        _currentHP--;
+		_audioSource.PlayOneShot(_hitSound);
+		_currentHP--;
         UIManager.Instance.UpdateHP(_currentHP, _maxHP);
         if(_currentHP <= 0) {
             _isAlive = false;
