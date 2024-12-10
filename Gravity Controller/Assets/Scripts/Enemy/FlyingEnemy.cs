@@ -83,6 +83,12 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	[SerializeField] public float _dissolveSpeed;
 	[SerializeField] public float _dissolveTime;
 
+	[Header("Audio")]
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _flyingSound;
+	[SerializeField] private AudioClip _followingSound;
+	[SerializeField] private AudioClip _attackingSound;
+
 	public EnemyState State { get; private set; }
 
 	void Awake()
@@ -150,6 +156,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 		_awarenessCoolDownTimer -= Time.fixedDeltaTime;
 
+		_audioSource.PlayOneShot(_flyingSound);
+
 		if (Physics.Raycast(transform.position, relativePosition, out hit, _sightRange))
 		{
 			playerInSight = hit.collider.gameObject.CompareTag("Player");
@@ -182,6 +190,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					{
 						// Aware -> Follow
 						State = EnemyState.Follow;
+						_audioSource.PlayOneShot(_followingSound);
 						ChasePlayer();
 						break;
 					}
@@ -383,7 +392,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		yield return new WaitForSeconds(_chargeTime);	
 
 		FireProjectile();
-		
+		_audioSource.PlayOneShot(_attackingSound);
+
 		_chargeCooldownTimer = 0f;
 		_isCharging = false;
 	}
