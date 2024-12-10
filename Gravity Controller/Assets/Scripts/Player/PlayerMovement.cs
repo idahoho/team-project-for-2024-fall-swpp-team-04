@@ -169,6 +169,8 @@ public class PlayerMovement : MonoBehaviour
 		bool isMoving = flatVel.magnitude > 0.1f;
 
 		bool currentCondition = (_isGrounded && isMoving && hasInput);
+
+		/*
 		if (currentCondition && !_wasFootstepConditionMet)
 		{
 			if (_footstepAudioSource != null && _footstepClip != null)
@@ -177,6 +179,7 @@ public class PlayerMovement : MonoBehaviour
 			}
 			_footstepTimer = 0f;
 		}
+		*/
 
 		if (currentCondition)
 		{
@@ -190,11 +193,15 @@ public class PlayerMovement : MonoBehaviour
 				_footstepTimer = 0f;
 			}
 		}
+
+		/*
 		else
 		{
 			_footstepTimer = 0f;
 		}
+		
 
 		_wasFootstepConditionMet = currentCondition;
+		*/
 	}
 }

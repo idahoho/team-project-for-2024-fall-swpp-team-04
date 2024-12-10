@@ -121,14 +121,17 @@ public class PlayerController : MonoBehaviour
 	        if (_mouseInputWheel > _wheelInputThreshold)
 	        {
 		        _isGravityLow = true;
-				_audioSource.PlayOneShot(_globalGravityDownSound);
+				_audioSource.clip = _globalGravityDownSound;
+				_audioSource.loop = true;
+				_audioSource.Play();
 			}
 	        else if (_mouseInputWheel < -_wheelInputThreshold)
 	        {
 		        if (_isGravityLow)
 		        {
 			        _isGravityLow = false;
-		        }
+					_audioSource.Stop();
+				}
 		        else if(_stage >= 4)
 		        {
 			        GlobalGravity(GameManager.Instance.GetActiveEnemies());
