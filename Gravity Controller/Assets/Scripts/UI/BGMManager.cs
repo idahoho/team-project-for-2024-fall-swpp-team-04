@@ -8,6 +8,7 @@ public class BGMManager : MonoBehaviour
 
 	[Header("Audio Settings")]
 	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private float _fadeDuration = 1.0f;
 
 	[Header("BGM Clips")]
 	[SerializeField] private AudioClip _lobbyBGM;
@@ -16,6 +17,8 @@ public class BGMManager : MonoBehaviour
 	[SerializeField] private AudioClip _stage3BGM;
 	[SerializeField] private AudioClip _stage4BGM;
 	[SerializeField] private AudioClip _bossBGM;
+
+	private Coroutine _currentFadeCoroutine;
 
 	private void Awake()
 	{
@@ -30,7 +33,6 @@ public class BGMManager : MonoBehaviour
 		}
 	}
 
-	
 	/// stage 0 = lobby, 1~4 = stage1~4, 5 = boss
 	public void SetStageBGM(int stage)
 	{
@@ -78,8 +80,44 @@ public class BGMManager : MonoBehaviour
 			return;
 		}
 
-		_audioSource.clip = clip;
+		if (_currentFadeCoroutine != null)
+		{
+			StopCoroutine(_currentFadeCoroutine);
+		}
+
+		_currentFadeCoroutine = StartCoroutine(FadeBGM(clip));
+	}
+
+	private IEnumerator FadeBGM(AudioClip newClip)
+	{
+		float initialVolume = _audioSource.volume;
+
+		// fade out
+		float elapsed = 0f;
+		while (elapsed < _fadeDuration)
+		{
+			float t = elapsed / _fadeDuration;
+			_audioSource.volume = Mathf.Lerp(initialVolume, 0f, t);
+			elapsed += Time.deltaTime;
+			yield return null;
+		}
+		_audioSource.volume = 0f;
+
+		_audioSource.clip = newClip;
 		_audioSource.loop = true;
 		_audioSource.Play();
+
+		// fade in
+		elapsed = 0f;
+		while (elapsed < _fadeDuration)
+		{
+			float t = elapsed / _fadeDuration;
+			_audioSource.volume = Mathf.Lerp(0f, 1f, t);
+			elapsed += Time.deltaTime;
+			yield return null;
+		}
+		_audioSource.volume = 1f;
+
+		_currentFadeCoroutine = null;
 	}
 }
