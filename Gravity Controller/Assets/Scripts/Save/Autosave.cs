@@ -10,6 +10,6 @@ public class Autosave
 		save.atLobby = atLobby;
 		save.stage = stage;
 
-		FileManager.WriteToFile("settings.dat", JsonUtility.ToJson(save));
+		FileManager.WriteToFile("save.dat", JsonUtility.ToJson(save));
 	}
 }
