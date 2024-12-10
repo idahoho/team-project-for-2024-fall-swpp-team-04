@@ -893,6 +893,7 @@ GameObject:
   - component: {fileID: 4673456783509517111}
   - component: {fileID: 297130453907954525}
   - component: {fileID: 8159370753726055389}
+  - component: {fileID: 1074218212}
   m_Layer: 0
   m_Name: Circle.027_0
   m_TagString: Untagged
@@ -965,6 +966,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1074218212
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 407582877666612868}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 6c34aa70dd3b91a46a65222aa2b1058f, type: 2}
 --- !u!1 &514657782785265251
 GameObject:
   m_ObjectHideFlags: 0
@@ -3021,6 +3036,7 @@ GameObject:
   - component: {fileID: 3379556119299917526}
   - component: {fileID: 107601965438679237}
   - component: {fileID: 8853049269270484642}
+  - component: {fileID: 1575955837}
   m_Layer: 0
   m_Name: Circle.026_0
   m_TagString: Untagged
@@ -3093,6 +3109,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &1575955837
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6200803413364794165}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 40dba765261cfea4aa3e7126f94aa072, type: 2}
 --- !u!1 &6306559168482350662
 GameObject:
   m_ObjectHideFlags: 0
@@ -3419,7 +3449,6 @@ GameObject:
   - component: {fileID: 4049568014463732001}
   - component: {fileID: 6932239682425653610}
   - component: {fileID: 823061648}
-  - component: {fileID: 5002424274511076493}
   m_Layer: 0
   m_Name: Circle.010_0
   m_TagString: Untagged
@@ -3493,20 +3522,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!64 &823061648
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6716419420848189879}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4300000, guid: 3d7a8679da39b914f9bf1c11e8cd070e, type: 2}
---- !u!64 &5002424274511076493
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4606,8 +4621,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8549231791297810301}
+  - component: {fileID: 567646437}
+  - component: {fileID: 567646438}
+  - component: {fileID: 567646439}
   m_Layer: 0
-  m_Name: Circle.010
+  m_Name: Door_Boss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4633,6 +4651,46 @@ Transform:
   m_Father: {fileID: 3921538518537666517}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &567646437
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8247433093742364927}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 50, y: 5, z: 40}
+  m_Center: {x: 0, y: -10, z: -20}
+--- !u!65 &567646438
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8247433093742364927}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 40, y: 5, z: 20}
+  m_Center: {x: 0, y: 20, z: -10}
+--- !u!114 &567646439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8247433093742364927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7debd1ea6c5d84b57b4d9ac839ba087a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _duration: 1
+  _offset: 10
 --- !u!1 &8269230882513161404
 GameObject:
   m_ObjectHideFlags: 0
