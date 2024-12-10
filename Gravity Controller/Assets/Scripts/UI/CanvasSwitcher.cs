@@ -145,6 +145,7 @@ public class CanvasSwitcher : MonoBehaviour
 	private void LoadGameSave()
 	{
 		string json;
+		gameSave = new GameSave();
 		if (!FileManager.LoadFromFile("save.dat", out json))
 		{
 			// No file; Set to default
@@ -162,7 +163,6 @@ public class CanvasSwitcher : MonoBehaviour
 			return;
 		}
 
-		gameSave = new GameSave();
 		gameSave.atLobby = save.atLobby;
 		gameSave.stage = (save.stage < 1) ? 1 : (save.stage > 4) ? 4 : save.stage;
 	}
