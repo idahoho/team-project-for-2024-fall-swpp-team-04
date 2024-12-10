@@ -14,7 +14,11 @@ public class CoreInteraction : MonoBehaviour, IInteractable
    private bool _isInteractable = true;
    private bool _hasEnemiesCleared = false; // 적 처치 완료 여부
 
-   void Start()
+	[Header("Audio")]
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _timeOutSound;
+
+	void Start()
    {
       _gameManager = FindObjectOfType<GameManager>();
       _wall.SetActive(false);
@@ -73,8 +77,10 @@ public class CoreInteraction : MonoBehaviour, IInteractable
       yield return new WaitForSeconds(_delay);
       SendOnDeathSignalToEnemies();
 
-      // 상호작용 가능 상태 복구
-      _hasEnemiesCleared = true;
+	  _audioSource.PlayOneShot(_timeOutSound);
+
+		// 상호작용 가능 상태 복구
+	  _hasEnemiesCleared = true;
       _isInteractable = true;
    }
 
