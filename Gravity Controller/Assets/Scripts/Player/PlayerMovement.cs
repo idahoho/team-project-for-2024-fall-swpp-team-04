@@ -60,13 +60,14 @@ public class PlayerMovement : MonoBehaviour
         MovePlayer();
 		Vector3 flatVelocity = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
 		_moveSpeedGun = flatVelocity.magnitude;
+
+        GroundCheck();
+        HandleDrag();
 	}
 
     void Update() {
         HandleInput();
         ControlSpeed();
-        GroundCheck();
-        HandleDrag();
 		HandleFootsteps();
 	}
 
@@ -76,6 +77,7 @@ public class PlayerMovement : MonoBehaviour
         _mouseInputX = Input.GetAxis("Mouse X");
         _mouseInputY = Input.GetAxis("Mouse Y");
 
+        GroundCheck();
         // jump
         if(_isGrounded && Input.GetButtonDown("Jump")) {
             Jump();
