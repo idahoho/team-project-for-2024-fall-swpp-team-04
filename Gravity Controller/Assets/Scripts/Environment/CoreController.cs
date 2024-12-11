@@ -51,9 +51,11 @@ public class CoreController : MonoBehaviour, IInteractable
         StageManager.Instance.LoadStage(_current_stage);
         RestoreCore(_current_stage - 1);
         StartCoroutine(UIManager.Instance.ShowStageIntro(_current_stage - 1));
-        _player.UpdateStage();
+        _player.UpdateStage(_current_stage + 1);
         UIManager.Instance.EnergyGaugeUi();
 		_current_stage++;
+
+		Autosave.SaveGameSave(true, _current_stage);
     }
     
     private void InitializeGlobalLight()
@@ -98,4 +100,22 @@ public class CoreController : MonoBehaviour, IInteractable
     {
 	    _isInteractable = true;
     }
+
+	public void OnLoad(int stage)
+	{
+		if(stage == 0)
+		{
+			return;
+		}
+
+		_isInteractable = false;
+		StartCoroutine(GlobalLightOn());
+
+		for(int i=0;i < stage;i++)
+		{
+			RestoreCore(i);
+		}
+
+		_current_stage = stage + 1;
+	}
 }

@@ -96,4 +96,12 @@ public class StageManager : MonoBehaviour
         _bossStage.SetActive(true);
         _bossStageDoor.GetComponent<IDoor>().Open();
     }
+
+	public void InitIsCleared(int stage)
+	{
+		for(int i = 0;i<_maxStage;i++)
+		{
+			_isCleared[i] = i <= stage;
+		}
+	}
 }

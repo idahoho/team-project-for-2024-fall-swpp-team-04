@@ -126,9 +126,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void UpdateStage()
+    public void UpdateStage(int stage)
     {
-	    _stage++;
+	    _stage = stage;
     }
 
 
