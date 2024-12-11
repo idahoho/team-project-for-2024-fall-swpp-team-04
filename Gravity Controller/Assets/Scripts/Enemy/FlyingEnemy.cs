@@ -83,6 +83,12 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 	[SerializeField] public float _dissolveSpeed;
 	[SerializeField] public float _dissolveTime;
 
+	[Header("Audio")]
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _flyingSound;
+	[SerializeField] private AudioClip _followingSound;
+	[SerializeField] private AudioClip _attackingSound;
+
 	public EnemyState State { get; private set; }
 
 	void Awake()
@@ -103,6 +109,13 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		_gun = _joint.GetChild(0);
 
 		_player = GameObject.Find("Player");
+
+		if (_audioSource != null && _flyingSound != null)
+		{
+			_audioSource.clip = _flyingSound;
+			_audioSource.loop = true;
+			_audioSource.Play();
+		}
 	}
 
 	private void Update() {
@@ -182,6 +195,10 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 					{
 						// Aware -> Follow
 						State = EnemyState.Follow;
+						if (_audioSource != null && _followingSound != null)
+						{
+							_audioSource.PlayOneShot(_followingSound);
+						}
 						ChasePlayer();
 						break;
 					}
@@ -241,6 +258,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		if(_isCharging) {
 			return;
 		}
+
 		// two-phase of moving and waiting
 		_timer += Time.fixedDeltaTime;
 		RaycastHit hit;
@@ -383,7 +401,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		yield return new WaitForSeconds(_chargeTime);	
 
 		FireProjectile();
-		
+
 		_chargeCooldownTimer = 0f;
 		_isCharging = false;
 	}
@@ -392,6 +410,8 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		GameObject proj = Instantiate(_projectile, _gun.GetChild(0).position, Quaternion.identity);
 
 		Vector3 directionToPlayer = (_player.transform.position - _gun.GetChild(0).position).normalized;
+
+		_audioSource.PlayOneShot(_attackingSound);
 
 		// proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 		Rigidbody rb = proj.GetComponent<Rigidbody>();
@@ -463,6 +483,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 		if(_isDead) {
 			return;
 		}
+		// rotate
+		var tempRotation = _body.rotation;
+		transform.rotation = tempRotation;
+		_body.rotation = tempRotation;
+
 		_isDead = true;
 		var childrenColliders = gameObject.GetComponentsInChildren<Collider>();
 		foreach (Collider collider in childrenColliders)
@@ -505,6 +530,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	public void ReceiveSkill()
 	{
+		// rotate
+		var tempRotation = _body.rotation;
+		transform.rotation = tempRotation;
+		_body.rotation = tempRotation;
+
 		_isFalling = true;
 		_isNeutralized = true;
 		StartSmoke();

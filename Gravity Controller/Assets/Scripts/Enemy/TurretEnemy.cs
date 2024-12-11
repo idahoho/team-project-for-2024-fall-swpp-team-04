@@ -75,6 +75,12 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 	[SerializeField] private float _quaternionEqualityThreshold;
 	//private float _neutralizeCoolDownTimer = 0;
 
+	[Header("Audio")]
+	[SerializeField] private AudioSource _audioSource;
+	[SerializeField] private AudioClip _workingSound;
+	[SerializeField] private AudioClip _chargingSound;
+	[SerializeField] private AudioClip _attackingSound;
+
 	private bool _isCharging = false;
 	private bool _headDetached = false;
 	private bool _isRestoring = false;
@@ -122,6 +128,10 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 		_hLimit = Mathf.Sqrt(Mathf.Pow(_a + _b, 2) - Mathf.Pow(_d, 2)) * _headVerticalLimitRate;
 
 		_player = GameObject.Find("Player");
+
+		_audioSource.clip = _workingSound;
+		_audioSource.loop = true;
+		_audioSource.Play();
 
 		_centralRotation = _column.rotation;
 
@@ -324,10 +334,11 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 	}
 
 	private IEnumerator ChargeAndFire() {
+		_audioSource.PlayOneShot(_chargingSound);
 		yield return new WaitForSeconds(_chargeTime);
 
 		FireProjectile();
-		
+
 		_isCharging = false;
 		StartCoroutine(ReChargable());
 	}
@@ -344,6 +355,8 @@ public class TurretEnemy : MonoBehaviour, IEnemy, ISkillReceiver
 		GameObject proj = Instantiate(_projectile, _gunpoint.position, Quaternion.identity);
 
 		Vector3 directionToPlayer = _column.rotation * new Vector3(0, 0, 1);
+
+		_audioSource.PlayOneShot(_attackingSound);
 
 		// proj.transform.rotation = Quaternion.LookRotation(directionToPlayer);
 		Rigidbody rb = proj.GetComponent<Rigidbody>();
