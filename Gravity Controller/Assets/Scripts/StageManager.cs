@@ -12,7 +12,7 @@ public class StageManager : MonoBehaviour
     [SerializeField] private GameObject _bossStageDoor;
     [SerializeField] private GameObject _bossStage;
 
-    private List<bool> _isCleared;
+	private List<bool> _isCleared;
     private int _maxStage = 4;
     private int _currentStage = 1;
     
@@ -33,7 +33,7 @@ public class StageManager : MonoBehaviour
     {
         _isCleared = new List<bool>(new bool[] {false, false, false, false});
         LoadStage(0);
-    }
+	}
 
     // Update is called once per frame
     void Update()
@@ -63,6 +63,7 @@ public class StageManager : MonoBehaviour
 					_stageDoors[i].isOpenableFromLobby = false;
 					_stageDoors[i].Close();
 				}
+				
 			}
 		}
 
@@ -76,7 +77,7 @@ public class StageManager : MonoBehaviour
         }
         _stageDoors[stage].isOpenableFromLobby = false;
         _stageDoors[stage].isOpenableFromStage = false;
-    }
+	}
 
     public void ClearStage(int stage) {
         if(stage < 0 || stage >= _maxStage) {
@@ -86,7 +87,7 @@ public class StageManager : MonoBehaviour
         _isCleared[stage] = true;
         _stageDoors[stage].isOpenableFromStage = true;
         _core.RestoreCore(stage);
-    }
+	}
 
     private void LoadBossStage() {
         for(int i = 0; i < _maxStage; i++) {

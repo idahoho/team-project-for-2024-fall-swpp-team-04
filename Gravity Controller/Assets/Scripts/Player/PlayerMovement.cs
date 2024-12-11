@@ -41,8 +41,15 @@ public class PlayerMovement : MonoBehaviour
     public float _moveSpeedGun;
     public float _maxSpeedGun;
 
+	[Header("Footstep Audio Settings")]
+	[SerializeField] private AudioSource _footstepAudioSource;
+	[SerializeField] private AudioClip _footstepClip;
+	[SerializeField] private float _footstepInterval = 0.5f;
 
-    void Start() {
+	private float _footstepTimer = 0f;
+	private bool _wasFootstepConditionMet = false;
+
+	void Start() {
         _rigid = GetComponent<Rigidbody>();
         _camera = GameObject.Find("PlayerCamera");
         _playerController = GetComponent<PlayerController>();
@@ -60,7 +67,8 @@ public class PlayerMovement : MonoBehaviour
         ControlSpeed();
         GroundCheck();
         HandleDrag();
-    }
+		HandleFootsteps();
+	}
 
     private void HandleInput() {
         _horizontalInput = Input.GetAxisRaw("Horizontal");
@@ -152,5 +160,48 @@ public class PlayerMovement : MonoBehaviour
 	public void SetSensitivityMultiplier(int percentage)
 	{
 		_sensitivityMultiplier = _sensitivityMultiplierMin + (_sensitivityMultiplierMax - _sensitivityMultiplierMin) * ((float)percentage) / 100;
+	}
+
+	private void HandleFootsteps()
+	{
+		Vector3 flatVel = new Vector3(_rigid.velocity.x, 0f, _rigid.velocity.z);
+		bool hasInput = Mathf.Abs(_horizontalInput) > 0.1f || Mathf.Abs(_verticalInput) > 0.1f;
+		bool isMoving = flatVel.magnitude > 0.1f;
+
+		bool currentCondition = (_isGrounded && isMoving && hasInput);
+
+		/*
+		if (currentCondition && !_wasFootstepConditionMet)
+		{
+			if (_footstepAudioSource != null && _footstepClip != null)
+			{
+				_footstepAudioSource.PlayOneShot(_footstepClip);
+			}
+			_footstepTimer = 0f;
+		}
+		*/
+
+		if (currentCondition)
+		{
+			_footstepTimer += Time.deltaTime;
+			if (_footstepTimer >= _footstepInterval)
+			{
+				if (_footstepAudioSource != null && _footstepClip != null)
+				{
+					_footstepAudioSource.PlayOneShot(_footstepClip);
+				}
+				_footstepTimer = 0f;
+			}
+		}
+
+		/*
+		else
+		{
+			_footstepTimer = 0f;
+		}
+		
+
+		_wasFootstepConditionMet = currentCondition;
+		*/
 	}
 }
