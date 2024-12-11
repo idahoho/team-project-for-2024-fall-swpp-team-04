@@ -7,7 +7,7 @@ public class Door_Boss : MonoBehaviour, IDoor
 {
     [SerializeField] private GameObject _doorLeft;
     [SerializeField] private GameObject _doorRight;
-    [SerializeField] private float _duration = 3f;
+    private float _duration = 3f;
     private float _offsetZ = 0.3f;
     private float _offsetX = 6;
     private Vector3 _originalPosLeft;

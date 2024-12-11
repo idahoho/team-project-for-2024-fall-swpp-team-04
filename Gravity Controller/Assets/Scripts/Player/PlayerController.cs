@@ -134,7 +134,14 @@ public class PlayerController : MonoBehaviour
 				}
 		        else if(_stage >= 4)
 		        {
-			        GlobalGravity(GameManager.Instance.GetActiveEnemies());
+                    // 코루틴에서 리스트 처리 중 리스트에 변경이 가해질 수 있음
+                    // 이로 인한 문제를 막기 위해 리스트의 요소를 모두 옮겨담아 새로운 리스트를 만들어 전달한다.
+                    List<GameObject> copiedList = new List<GameObject>();
+                    List<GameObject> activeEnemies = GameManager.Instance.GetActiveEnemies();
+                    foreach (GameObject obj in activeEnemies) {
+                        copiedList.Add(obj);
+                    }
+			        GlobalGravity(copiedList);
 		        }
 	        }
         }
@@ -262,13 +269,17 @@ public class PlayerController : MonoBehaviour
         _currentEnergy -= _globalHighEnergyCost;
 		_audioSource.PlayOneShot(_globalGravityUpSound);
 		_gunGameObject.SendMessage("HideGunOnSkill", SendMessageOptions.DontRequireReceiver);
-		foreach (var obj in gameObjects) {
-            Rigidbody rigid;
-            // 여기서 오브젝트 내 스크립트에 있는 함수를 호출해야 함
-            if(rigid = obj.GetComponent<Rigidbody>()) {
-                rigid.AddForce(Physics.gravity * rigid.mass * (_gravityForceHigh - 1f), ForceMode.Impulse);
-                //
+		
+        StartCoroutine(SendGravitySkill(gameObjects));
+    }
+
+    private IEnumerator SendGravitySkill(List<GameObject> gameObjects) {
+        foreach (GameObject obj in gameObjects) {
+            ISkillReceiver targetSkillReceiver;
+            if(obj && obj.activeSelf && obj.TryGetComponent<ISkillReceiver>(out targetSkillReceiver)) {
+                targetSkillReceiver.ReceiveSkill();
             }
+            yield return null;
         }
     }
 

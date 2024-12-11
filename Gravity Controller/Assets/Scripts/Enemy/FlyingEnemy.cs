@@ -132,7 +132,7 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 				if (Physics.Raycast(transform.position, new Vector3(0, -1, 0), out hitBelow, _fallingSpeed * Time.fixedDeltaTime + _minHeight))
 				{
 					Debug.Log("Hit below: " + hitBelow.collider.name + "| point: " + hitBelow.point);
-					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0));
+					transform.Translate(hitBelow.point - transform.position + new Vector3(0, _minHeight, 0), Space.World);
 					//transform.position = hitBelow.point;
 					_isFalling = false;
 					StartCoroutine("Die");
@@ -480,6 +480,9 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	public void OnDeath()
 	{
+		if(_isDead) {
+			return;
+		}
 		// rotate
 		var tempRotation = _body.rotation;
 		transform.rotation = tempRotation;

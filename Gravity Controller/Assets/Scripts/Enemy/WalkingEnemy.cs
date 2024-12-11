@@ -371,6 +371,9 @@ public class WalkingEnemy : MonoBehaviour, IEnemy, IAttackReceiver
 
 	public void OnDeath()
 	{
+		if(_isDead) {
+			return;
+		}
 		_isDead = true;
 		var childrenColliders = gameObject.GetComponentsInChildren<Collider>();
 		foreach (Collider collider in childrenColliders)
