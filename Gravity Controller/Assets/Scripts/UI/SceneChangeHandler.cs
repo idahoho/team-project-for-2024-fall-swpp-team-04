@@ -13,6 +13,9 @@ public class SceneChangeHandler : MonoBehaviour
 	private SettingsSave _settingsSave;
 	private GameSave _gameSave;
 
+	[SerializeField] private GameObject _textCanvas;
+	[SerializeField] private GameObject _loadingCanvas;
+
 	private void Awake()
 	{
 		Object.DontDestroyOnLoad(this.gameObject);
@@ -28,6 +31,9 @@ public class SceneChangeHandler : MonoBehaviour
 			//return;
 		}
 
+		_loadingCanvas.SetActive(true);
+		_textCanvas.SetActive(false);
+		_loadingCanvas.GetComponent<LoadingCanvas>().StartLoading();
 		StartCoroutine(LoadGameCoroutine(scene));
 	}
 
@@ -41,6 +47,9 @@ public class SceneChangeHandler : MonoBehaviour
 			return;
 		}
 
+		_loadingCanvas.SetActive(true);
+		_textCanvas.SetActive(false);
+		_loadingCanvas.GetComponent<LoadingCanvas>().StartLoading();
 		StartCoroutine(ContinueGameCoroutine(scene));
 	}
 
@@ -88,6 +97,7 @@ public class SceneChangeHandler : MonoBehaviour
 		InitSettingsSave();
 		//SceneManager.UnloadSceneAsync(mainMenu);
 
+		Destroy(_loadingCanvas);
 		Destroy(gameObject);
 	}
 
@@ -104,6 +114,7 @@ public class SceneChangeHandler : MonoBehaviour
 		InitSettingsSave();
 		//SceneManager.UnloadSceneAsync(mainMenu);
 
+		Destroy(_loadingCanvas);
 		Destroy(gameObject);
 	}
 
