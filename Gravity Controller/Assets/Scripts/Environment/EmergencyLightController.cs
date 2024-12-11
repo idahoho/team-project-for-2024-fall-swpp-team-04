@@ -6,12 +6,13 @@ public class EmergencyLightController : MonoBehaviour
 {
     [SerializeField] private float _rotSpeed;
     private GameObject _lights;
-    private bool _isTurnedOn = true;
+    [SerializeField] private bool _isTurnedOn = true;
     // Start is called before the first frame update
     void Start()
     {
         _lights = transform.GetChild(0).gameObject;
-    }
+		_lights.SetActive(_isTurnedOn);
+	}
 
     // Update is called once per frame
     void Update()
@@ -21,7 +22,13 @@ public class EmergencyLightController : MonoBehaviour
         }
     }
 
-    public void TurnOff() {
+	public void TurnOn()
+	{
+		_isTurnedOn = true;
+		_lights.SetActive(true);
+	}
+
+	public void TurnOff() {
         _isTurnedOn = false;
         _lights.SetActive(false);
     }

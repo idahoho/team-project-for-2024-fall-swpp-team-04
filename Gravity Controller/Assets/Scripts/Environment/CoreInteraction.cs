@@ -1,7 +1,25 @@
 using UnityEngine;
+using System.Collections;
 
 public class CoreInteraction : MonoBehaviour, IInteractable
 {
+
+	[Header("Global Light Off")]
+	[SerializeField] private float _initialSunLightIntensity;
+	[SerializeField] private Color _initialEnvironmentLightColor;
+	[SerializeField] private float _initialEnvironmentLightIntensity;
+	[SerializeField] private Color _initialFogColor;
+	[SerializeField] private float _initialFogDensity;
+	[SerializeField] private EmergencyLightController[] _beacons;
+	[Header("Global Light On")]
+	[SerializeField] private Light _sunLight;
+	[SerializeField] private float _sunLightIntensity;
+	[SerializeField] private Color _environmentLightColor;
+	[SerializeField] private float _environmentLightIntensity;
+	[SerializeField] private float _fogDensity;
+	[SerializeField] private float _lightOnDamping;
+	private float _epsilon = 1e-5f;
+
    [SerializeField] private Light _coreLight;
    [SerializeField] private GameObject _door;
    [SerializeField] private GameObject _wall;
@@ -45,7 +63,9 @@ public class CoreInteraction : MonoBehaviour, IInteractable
             _coreLight.enabled = true;
          }
 
-         _wall.SetActive(true);
+		 StartCoroutine(GlobalLightOff());
+
+		 _wall.SetActive(true);
          UIManager.Instance.TriggerCoreInteractionUi();
          _spawner.SetActive(true);
 
@@ -59,6 +79,9 @@ public class CoreInteraction : MonoBehaviour, IInteractable
             forceFieldMaterial.EnableKeyword("_EMISSION");
             forceFieldMaterial.SetColor("_EmissionColor", Color.white); 
          }
+
+		 _isInteractable = false; 
+		 StartCoroutine(GlobalLightOn());
 
          if (_door.TryGetComponent<IDoor>(out IDoor door))
          {
@@ -91,4 +114,49 @@ public class CoreInteraction : MonoBehaviour, IInteractable
    }
 
    public bool IsInteractable() => _isInteractable;
+
+	private IEnumerator GlobalLightOff()
+	{
+		RenderSettings.fogColor = _initialFogColor;
+
+		foreach (var beacon in _beacons)
+		{
+			beacon.TurnOn();
+		}
+
+		while (_sunLight.intensity < _sunLightIntensity - _epsilon)
+		{
+			_sunLight.intensity = Mathf.Lerp(_sunLight.intensity, _initialSunLightIntensity, Time.deltaTime * _lightOnDamping);
+			RenderSettings.ambientLight = Color.Lerp(RenderSettings.ambientLight, _initialEnvironmentLightColor, Time.deltaTime * _lightOnDamping);
+			RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, _initialEnvironmentLightIntensity, Time.deltaTime * _lightOnDamping);
+			RenderSettings.fogDensity = Mathf.Lerp(RenderSettings.fogDensity, _initialFogDensity, Time.deltaTime * _lightOnDamping);
+			yield return null;
+		}
+		_sunLight.intensity = _initialSunLightIntensity;
+		RenderSettings.ambientLight = _initialEnvironmentLightColor;
+		RenderSettings.ambientIntensity = _initialEnvironmentLightIntensity;
+		RenderSettings.fogDensity = _initialFogDensity;
+		RenderSettings.fogColor = _initialFogColor;
+	}
+
+	private IEnumerator GlobalLightOn()
+	{
+		foreach (var beacon in _beacons)
+		{
+			beacon.TurnOff();
+		}
+
+		while (_sunLight.intensity < _sunLightIntensity - _epsilon)
+		{
+			_sunLight.intensity = Mathf.Lerp(_sunLight.intensity, _sunLightIntensity, Time.deltaTime * _lightOnDamping);
+			RenderSettings.ambientLight = Color.Lerp(RenderSettings.ambientLight, _environmentLightColor, Time.deltaTime * _lightOnDamping);
+			RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, _environmentLightIntensity, Time.deltaTime * _lightOnDamping);
+			RenderSettings.fogDensity = Mathf.Lerp(RenderSettings.fogDensity, _fogDensity, Time.deltaTime * _lightOnDamping);
+			yield return null;
+		}
+		_sunLight.intensity = _sunLightIntensity;
+		RenderSettings.ambientLight = _environmentLightColor;
+		RenderSettings.ambientIntensity = _environmentLightIntensity;
+		RenderSettings.fogDensity = _fogDensity;
+	}
 }

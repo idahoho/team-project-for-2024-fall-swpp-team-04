@@ -74,11 +74,11 @@ Shader "Custom/Alternate"
             
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * (t * _Color2 + (1 - t) * _Color1);
-            o.Albedo = linearNoise > _DissolveProgress ? c.rgb : _DissolveColor;
+            o.Albedo = linearNoise > _DissolveProgress ? c.rgb : linearNoise > _DissolveProgress - _DissolveDepth ? _DissolveColor : (0,0,0);
             // Metallic and smoothness come from slider variables
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
-            o.Emission = linearNoise > _DissolveProgress ? ((1 - t) * _Emission + t) * _EmissionColor : _DissolveColor;
+            o.Metallic = linearNoise > _DissolveProgress - _DissolveDepth ? _Metallic : 0;
+            o.Smoothness = linearNoise > _DissolveProgress - _DissolveDepth ? _Glossiness : 0;
+            o.Emission = linearNoise > _DissolveProgress ? ((1 - t) * _Emission + t) * _EmissionColor : linearNoise > _DissolveProgress - _DissolveDepth ? _DissolveColor : 0;
             o.Alpha = linearNoise > _DissolveProgress - _DissolveDepth ? 1 : 0;
         }
         ENDCG

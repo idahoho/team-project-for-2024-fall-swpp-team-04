@@ -460,6 +460,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	public void OnDeath()
 	{
+		// rotate
+		var tempRotation = _body.rotation;
+		transform.rotation = tempRotation;
+		_body.rotation = tempRotation;
+
 		_isDead = true;
 		var childrenColliders = gameObject.GetComponentsInChildren<Collider>();
 		foreach (Collider collider in childrenColliders)
@@ -502,6 +507,11 @@ public class FlyingEnemy : MonoBehaviour, IEnemy, ISkillReceiver, IAttackReceive
 
 	public void ReceiveSkill()
 	{
+		// rotate
+		var tempRotation = _body.rotation;
+		transform.rotation = tempRotation;
+		_body.rotation = tempRotation;
+
 		_isFalling = true;
 		_isNeutralized = true;
 		StartSmoke();
